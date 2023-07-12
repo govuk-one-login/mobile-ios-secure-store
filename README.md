@@ -46,7 +46,7 @@ final class ViewController: UIViewController {
     private let keychainService: KeychainStorable
     
     init(keychainService: KeychainStorable) {
-        self.keychainService = KeychainService(key: "ItemKey")
+        self.keychainService = keychainService
         super.init()
     }
     
