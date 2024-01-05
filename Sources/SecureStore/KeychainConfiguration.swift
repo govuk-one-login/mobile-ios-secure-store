@@ -3,7 +3,12 @@ import Foundation
 // Boilerplate "GenericKeychain" code written by Apple
 // https://developer.apple.com/library/archive/samplecode/GenericKeychain/Introduction/Intro.html
 public struct KeychainConfiguration {
-    public static let serviceName = "IdentityService"
+     let serviceName: String
+    
+    init(serviceName: String, accessGroup: String? = nil) {
+        self.serviceName = serviceName
+        self.accessGroup = accessGroup
+    }
 
     /*
         Specifying an access group to use with `KeychainPasswordItem` instances
@@ -20,5 +25,5 @@ public struct KeychainConfiguration {
         Not specifying an access group to use with `KeychainPasswordItem` instances
         will create items specific to each app.
     */
-    static let accessGroup: String? = nil
+    let accessGroup: String?
 }
