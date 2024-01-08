@@ -2,14 +2,12 @@ import Foundation
 import LocalAuthentication
 
 public struct SecureStoreService {
-    private let secureStoreDefaults: SecureStoreDefaults
+    let secureStoreDefaults: SecureStoreDefaults
     private let configuration: SecureStorageConfiguration
     
-    let calledBefore = false
-
-    public init(configuration: SecureStorageConfiguration) {
+    public init(configuration: SecureStorageConfiguration, secureStoreDefaults: SecureStoreDefaults = SecureStoreUserDefaults()) {
         self.configuration = configuration
-        self.secureStoreDefaults = SecureStoreUserDefaults()
+        self.secureStoreDefaults = secureStoreDefaults
         
         do {
             try createKeysIfNeeded(name: configuration.id)
@@ -23,10 +21,10 @@ public struct SecureStoreService {
 extension SecureStoreService {
     // Creating a key pair where the public key is stored in the keychain and the private key is stored in the Secure Enclave
     func createKeysIfNeeded(name: String) throws {
-
+        
         // Check if keys already exist in storage
         do {
-            try retrieveKeys()
+            let _ = try retrieveKeys()
             return
         } catch let error as SecureStoreError where error == .cantRetrieveKey {
             // Keys do not exist yet, continue below to create and save them
@@ -36,7 +34,7 @@ extension SecureStoreService {
                                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
                                                            configuration.accessControlLevel.flags,
                                                            nil),
-        let tag = name.data(using: .utf8) else { return }
+              let tag = name.data(using: .utf8) else { return }
         
         let attributes: NSDictionary = [
             kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
@@ -61,7 +59,7 @@ extension SecureStoreService {
         try storeKeys(keyToStore: publicKey, name: "\(name)PublicKey")
         try storeKeys(keyToStore: privateKey, name: "\(name)PrivateKey")
     }
-
+    
     // Store a given key to the keychain in order to reuse it later
     func storeKeys(keyToStore: SecKey, name: String) throws {
         let key = keyToStore
@@ -90,12 +88,12 @@ extension SecureStoreService {
             throw SecureStoreError.cantStoreKey
         }
     }
-
+    
     // Retrieve a key that has been stored before
-    func retrieveKeys() throws -> (publicKey: SecKey, privateKey: SecKey)? {
-        guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else { return nil }
-        guard let publicKeyTag = "\(configuration.id)PublicKey".data(using: .utf8) else { return nil }
-
+    func retrieveKeys() throws -> (publicKey: SecKey, privateKey: SecKey) {
+        guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else { throw SecureStoreError.cantInitialiseData }
+        guard let publicKeyTag = "\(configuration.id)PublicKey".data(using: .utf8) else { throw SecureStoreError.cantInitialiseData }
+        
         // This constructs a query that will be sent to keychain
         let privateQuery: NSDictionary = [
             kSecClass: kSecClassKey,
@@ -135,9 +133,7 @@ extension SecureStoreService {
 // MARK: Encryption and Decryption
 extension SecureStoreService {
     func encryptDataWithPublicKey(dataToEncrypt: String, publicKeyName: String) throws -> String? {
-        guard let publicKey = try retrieveKeys()?.publicKey else {
-            throw SecureStoreError.cantRetrieveKey
-        }
+        let publicKey = try retrieveKeys().publicKey
         
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
             throw SecureStoreError.cantEncryptData
@@ -153,14 +149,12 @@ extension SecureStoreService {
         
         let encryptedData = encryptData as Data
         let encryptedString = encryptedData.base64EncodedString(options: [])
-                
+        
         return encryptedString
     }
-
+    
     func decryptDataWithPrivateKey(dataToDecrypt: String, privateKeyRepresentationName: String) throws -> String? {
-        guard let privateKeyRepresentation = try retrieveKeys()?.privateKey else {
-            throw SecureStoreError.cantRetrieveKey
-        }
+        let privateKeyRepresentation = try retrieveKeys().privateKey
         
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
             throw SecureStoreError.cantDecryptData
@@ -184,38 +178,37 @@ extension SecureStoreService {
 }
 
 // MARK: Keychain Storable Conformance
-extension SecureStoreService: KeychainStorable {
-    public func checkItemExists(withKey key: String) throws -> Bool {
+extension SecureStoreService: SecureStorable {
+    public func checkItemExists(itemName: String) throws -> Bool {
         // Implement check key exists - do we want to check user defaults and also secure enclave
-        guard let item = try secureStoreDefaults.getItem(withKey: key) else { return false }
+        guard let _ = try secureStoreDefaults.getItem(itemName: itemName) else { return false }
         return true
     }
     
-    public func readItem(withName name: String) throws -> String? {
-        guard let encryptedData = try secureStoreDefaults.retrieveEncryptedItemFromUserDefaults(withKey: name) else { throw SecureStoreError.unableToRetrieveFromUserDefaults }
+    public func readItem(itemName: String) throws -> String? {
+        guard let encryptedData = try secureStoreDefaults.retrieveEncryptedItemFromUserDefaults(itemName: itemName) else { throw SecureStoreError.unableToRetrieveFromUserDefaults }
         return try decryptDataWithPrivateKey(dataToDecrypt: encryptedData, privateKeyRepresentationName: "\(configuration.id)PrivateKey")
     }
     
     public func saveItem(item: String, itemName: String) throws {
         do {
-            if let keys = try retrieveKeys() {
-                
-                guard let encryptedData = try encryptDataWithPublicKey(dataToEncrypt: item, publicKeyName: "\(configuration.id)PublicKey") else {
-                    return
-                }
-                
-                try secureStoreDefaults.saveEncryptedItemToUserDefaults(encyptedItem: encryptedData, withKey: itemName)
+            let _ = try retrieveKeys()
+            
+            guard let encryptedData = try encryptDataWithPublicKey(dataToEncrypt: item, publicKeyName: "\(configuration.id)PublicKey") else {
+                return
             }
+            
+            try secureStoreDefaults.saveEncryptedItemToUserDefaults(encyptedItem: encryptedData, itemName: itemName)
         } catch {
             throw error
         }
     }
     
-    public func deleteItem(keyToDelete: String) throws {
-        try secureStoreDefaults.deleteItem(withKey: keyToDelete)
+    public func deleteItem(itemName: String) throws {
+        try secureStoreDefaults.deleteItem(itemName: itemName)
     }
     
-    public func deleteStore() throws {
+    public func delete() throws {
         try deleteKeys(name: "\(configuration.id)PrivateKey")
         try deleteKeys(name: "\(configuration.id)PublicKey")
     }

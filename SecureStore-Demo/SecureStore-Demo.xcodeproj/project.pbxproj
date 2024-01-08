@@ -32,6 +32,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2BC0F5912B4C1CD3000BB43F /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
 		2BCB23142B46D53E00F3A832 /* SecureStore-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SecureStore-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BCB23172B46D53E00F3A832 /* SecureStore_DemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStore_DemoApp.swift; sourceTree = "<group>"; };
 		2BCB23192B46D53E00F3A832 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -70,6 +71,7 @@
 		2BCB230B2B46D53E00F3A832 = {
 			isa = PBXGroup;
 			children = (
+				2BC0F5912B4C1CD3000BB43F /* TestPlan.xctestplan */,
 				2BCB23162B46D53E00F3A832 /* SecureStore-Demo */,
 				2BCB23272B46D54000F3A832 /* SecureStore-DemoTests */,
 				2BCB23152B46D53E00F3A832 /* Products */,
@@ -465,7 +467,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N8W395F695;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "uk.gov.onelogin.staging.SecureStore-DemoTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -485,7 +487,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N8W395F695;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "uk.gov.onelogin.staging.SecureStore-DemoTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -504,6 +506,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N8W395F695;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "uk.gov.onelogin.staging.SecureStore-DemoUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -522,6 +525,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N8W395F695;
 				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "uk.gov.onelogin.staging.SecureStore-DemoUITests";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -20,7 +20,7 @@ struct ContentView: View {
                     do {
                         encryptedData = "No encrypted data"
                         
-                        if try secureStore.checkItemExists(withKey: myData) {
+                        if try secureStore.checkItemExists(itemName: myData) {
                             print("item already exists!")
                             encryptedData = "Item already exists!"
                             return
@@ -45,7 +45,7 @@ struct ContentView: View {
                 
                 Button("Decrypt data") {
                     do {
-                        let data = try secureStore.readItem(withName: myData)
+                        let data = try secureStore.readItem(itemName: myData)
                         decryptedData = data
                     } catch {
                         print(error)
@@ -62,7 +62,7 @@ struct ContentView: View {
                 HStack {
                     Button("Delete stored item") {
                         do {
-                            try secureStore.deleteItem(keyToDelete: myData)
+                            try secureStore.deleteItem(itemName: myData)
                             encryptedData = "No encrypted data"
                             decryptedData = "No decrypted data"
                         } catch {
@@ -73,7 +73,7 @@ struct ContentView: View {
                     
                     Button("Delete store") {
                         do {
-                            try secureStore.deleteStore()
+                            try secureStore.delete()
                             encryptedData = "No encrypted data"
                             decryptedData = "No decrypted data"
                         } catch {

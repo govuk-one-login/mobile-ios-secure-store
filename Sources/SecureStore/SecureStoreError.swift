@@ -7,4 +7,5 @@ public enum SecureStoreError: Error {
     case cantRetrieveKey
     case cantEncryptData
     case cantDecryptData
+    case cantInitialiseData
 }
