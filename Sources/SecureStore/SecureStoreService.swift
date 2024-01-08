@@ -1,71 +1,13 @@
 import Foundation
 import LocalAuthentication
 
-public enum SecureStoreError: Error {
-    case unableToRetrieveFromUserDefaults
-    case cantGetPublicKeyFromPrivateKey
-    case cantStoreKey
-    case cantRetrieveKey
-    case cantEncryptData
-    case cantDecryptData
-}
-
-public struct SecureStorageConfiguration {
-    // What do we use this ID for? Should it be this rather than the key being passed in?
-    let id: String
-    let accessControlLevel: AccessControlLevel
-    
-    public init(id: String, accessControlLevel: AccessControlLevel) {
-        self.id = id
-        self.accessControlLevel = accessControlLevel
-    }
-    
-    public enum AccessControlLevel {
-        case `open`
-        case anyBiometricsOrPasscode
-        case currentBiometricsOnly
-        
-        var flags: SecAccessControlCreateFlags {
-            switch self {
-            case .open:
-                []
-            case .anyBiometricsOrPasscode:
-                //private key usage here too?
-                [.privateKeyUsage, .biometryAny, .touchIDAny]
-            case .currentBiometricsOnly:
-                [.privateKeyUsage, .biometryCurrentSet]
-            }
-        }
-    }
-}
-
 public struct SecureStoreService {
-    private let userDefaults = UserDefaults.standard
+    private let secureStoreDefaults: SecureStoreDefaults
     private let configuration: SecureStorageConfiguration
 
     public init(configuration: SecureStorageConfiguration) {
         self.configuration = configuration
-    }
-}
-
-// MARK: Interaction with UserDefaults
-extension SecureStoreService {
-    // Saves the encrypted string to userdefaults for retrieval later
-    func saveEncryptedItemToUserDefaults(encyptedItem: String, keyToSaveAs: String) throws {
-        do {
-            userDefaults.set(encyptedItem, forKey: keyToSaveAs)
-        } catch {
-            throw SecureStoreError.unableToRetrieveFromUserDefaults
-        }
-    }
-    
-    // Retrives the encrypted string from userdefaults
-    func retrieveEncryptedItemFromUserDefaults(keySavedAs: String) throws -> String? {
-        do {
-            return userDefaults.string(forKey: keySavedAs)
-        } catch {
-            throw SecureStoreError.unableToRetrieveFromUserDefaults
-        }
+        self.secureStoreDefaults = SecureStoreUserDefaults()
     }
 }
 
@@ -210,12 +152,12 @@ extension SecureStoreService {
 extension SecureStoreService: KeychainStorable {
     public func checkItemExists(withKey key: String) throws -> Bool {
         // Implement check key exists - do we want to check user defaults and also secure enclave
-        guard let item = userDefaults.string(forKey: key) else { return false }
+        guard let item = try secureStoreDefaults.getItem(withKey: key) else { return false }
         return true
     }
     
     public func readItem(withKey: String) throws -> String? {
-        guard let encryptedData = try retrieveEncryptedItemFromUserDefaults(keySavedAs: withKey) else { throw SecureStoreError.unableToRetrieveFromUserDefaults }
+        guard let encryptedData = try secureStoreDefaults.retrieveEncryptedItemFromUserDefaults(withKey: withKey) else { throw SecureStoreError.unableToRetrieveFromUserDefaults }
         return try decryptDataWithPrivateKey(dataToDecrypt: encryptedData, privateKeyRepresentationName: "\(withKey)PrivateKey")
     }
     
@@ -229,7 +171,7 @@ extension SecureStoreService: KeychainStorable {
                     return
                 }
                 
-                try saveEncryptedItemToUserDefaults(encyptedItem: encryptedData, keyToSaveAs: itemName)
+                try secureStoreDefaults.saveEncryptedItemToUserDefaults(encyptedItem: encryptedData, withKey: itemName)
             }
         } catch {
             throw error
@@ -240,6 +182,6 @@ extension SecureStoreService: KeychainStorable {
         try deleteKeys(name: "\(keyToDelete)PublicKey")
         try deleteKeys(name: "\(keyToDelete)PrivateKey")
         
-        userDefaults.removeObject(forKey: keyToDelete)
+        try secureStoreDefaults.deleteItem(withKey: keyToDelete)
     }
 }
