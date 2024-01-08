@@ -7,7 +7,7 @@ public protocol SecureStoreDefaults {
     func deleteItem(itemName: String) throws
 }
 
-public struct SecureStoreUserDefaults: SecureStoreDefaults {
+struct SecureStoreUserDefaults: SecureStoreDefaults {
     let userDefaults: UserDefaults
     
     public init(userDefaults: UserDefaults = UserDefaults.standard) {
