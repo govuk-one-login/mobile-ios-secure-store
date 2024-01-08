@@ -1,10 +1,10 @@
 import Foundation
 
 public protocol SecureStoreDefaults {
-    func saveEncryptedItemToUserDefaults(encyptedItem: String, withKey key: String) throws
-    func retrieveEncryptedItemFromUserDefaults(withKey key: String) throws -> String?
-    func getItem(withKey key: String) throws -> String?
-    func deleteItem(withKey key: String) throws
+    func saveEncryptedItemToUserDefaults(encyptedItem: String, itemName: String) throws
+    func retrieveEncryptedItemFromUserDefaults(itemName: String) throws -> String?
+    func getItem(itemName: String) throws -> String?
+    func deleteItem(itemName: String) throws
 }
 
 public struct SecureStoreUserDefaults: SecureStoreDefaults {
@@ -15,30 +15,22 @@ public struct SecureStoreUserDefaults: SecureStoreDefaults {
     }
     
     // Saves the encrypted string to userdefaults for retrieval later
-    public func saveEncryptedItemToUserDefaults(encyptedItem: String, withKey key: String) throws {
-        do {
-            userDefaults.set(encyptedItem, forKey: key)
-        } catch {
-            throw SecureStoreError.unableToRetrieveFromUserDefaults
-        }
+    public func saveEncryptedItemToUserDefaults(encyptedItem: String, itemName: String) throws {
+        return userDefaults.set(encyptedItem, forKey: itemName)
     }
     
     // Retrieves the encrypted string from userdefaults
-    public func retrieveEncryptedItemFromUserDefaults(withKey key: String) throws -> String? {
-        do {
-            return userDefaults.string(forKey: key)
-        } catch {
-            throw SecureStoreError.unableToRetrieveFromUserDefaults
-        }
+    public func retrieveEncryptedItemFromUserDefaults(itemName: String) throws -> String? {
+        return userDefaults.string(forKey: itemName)
     }
     
     // Gets the encrypted string from userdefaults
-    public func getItem(withKey key: String) throws -> String? {
-        return userDefaults.string(forKey: key)
+    public func getItem(itemName: String) throws -> String? {
+        return userDefaults.string(forKey: itemName)
     }
         
     // Deletes the encrypted string from userdefaults
-    public func deleteItem(withKey key: String) throws {
-        userDefaults.removeObject(forKey: key)
+    public func deleteItem(itemName: String) throws {
+        userDefaults.removeObject(forKey: itemName)
     }
 }
