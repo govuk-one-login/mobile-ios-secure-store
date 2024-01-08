@@ -61,9 +61,21 @@ struct ContentView: View {
                 Text(decryptedData ?? "No decrypted data")
                     .padding().background(Color.gray).cornerRadius(10)
                 
-                Button("Delete stored data") {
+                Button("Delete stored item") {
                     do {
                         try secureStore.deleteItem(keyToDelete: myData)
+                        encryptedData = ""
+                        decryptedData = ""
+                    } catch {
+                        print(error)
+                    }
+                }
+                .buttonStyle(.bordered).padding()
+                
+                
+                Button("Delete store") {
+                    do {
+                        try secureStore.deleteStore()
                         encryptedData = ""
                         decryptedData = ""
                     } catch {

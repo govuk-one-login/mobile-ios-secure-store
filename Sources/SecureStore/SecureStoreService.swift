@@ -78,6 +78,18 @@ extension SecureStoreService {
         
         print("key stored - \(name)")
     }
+    
+    // Deletes a given key to the keychain
+    func deleteKeys(name: String) throws {
+        let tag = name.data(using: .utf8)!
+        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
+                                       kSecAttrApplicationTag as String: tag]
+        
+        let status = SecItemDelete(addquery as CFDictionary)
+        guard status == errSecSuccess else {
+            throw SecureStoreError.cantStoreKey
+        }
+    }
 
     // Retrieve a key that has been stored before
     func retrieveKeys() throws -> (publicKey: SecKey, privateKey: SecKey)? {
@@ -201,5 +213,10 @@ extension SecureStoreService: KeychainStorable {
     
     public func deleteItem(keyToDelete: String) throws {
         try secureStoreDefaults.deleteItem(withKey: keyToDelete)
+    }
+    
+    public func deleteStore() throws {
+        try deleteKeys(name: "\(configuration.id)PrivateKey")
+        try deleteKeys(name: "\(configuration.id)PublicKey")
     }
 }
