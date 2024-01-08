@@ -5,9 +5,9 @@ public struct SecureStoreService {
     let secureStoreDefaults: SecureStoreDefaults
     private let configuration: SecureStorageConfiguration
     
-    public init(configuration: SecureStorageConfiguration, secureStoreDefaults: SecureStoreDefaults = SecureStoreUserDefaults()) {
+    public init(configuration: SecureStorageConfiguration, secureStoreDefaults: SecureStoreDefaults? = nil) {
         self.configuration = configuration
-        self.secureStoreDefaults = secureStoreDefaults
+        self.secureStoreDefaults = secureStoreDefaults ?? SecureStoreUserDefaults()
         
         do {
             try createKeysIfNeeded(name: configuration.id)
@@ -49,7 +49,10 @@ extension SecureStoreService {
         
         var error: Unmanaged<CFError>?
         guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
-            throw error!.takeRetainedValue() as Error
+            guard let error = error?.takeRetainedValue() as? Error else {
+                throw SecureStoreError.cantEncryptData
+            }
+            throw error
         }
         
         guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
@@ -144,7 +147,10 @@ extension SecureStoreService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            throw error!.takeRetainedValue() as Error
+            guard let error = error?.takeRetainedValue() as? Error else {
+                throw SecureStoreError.cantEncryptData
+            }
+            throw error
         }
         
         let encryptedData = encryptData as Data
