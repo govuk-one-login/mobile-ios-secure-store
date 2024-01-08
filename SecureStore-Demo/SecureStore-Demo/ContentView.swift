@@ -1,22 +1,16 @@
 import SwiftUI
 import SecureStore
 struct ContentView: View {
-    //    myData is the string input from the user
-    //    @State private var myData: String = ""
-    
     @State private var encryptedData: String?
-    
+    @State private var myData: String = ""
     @State private var decryptedData: String?
     
     let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
                                                               accessControlLevel: .currentBiometricsOnly))
-    
-    @State private var myData: String = ""
-    
+        
     var body: some View {
         ScrollView {
             VStack {
-                
                 TextField("Input your data", text: $myData)
                     .textFieldStyle(.roundedBorder)
                     .multilineTextAlignment(.center)
@@ -24,7 +18,7 @@ struct ContentView: View {
                 
                 Button("Encrypt JWT") {
                     do {
-                        encryptedData = ""
+                        encryptedData = "No encrypted data"
                         
                         if try secureStore.checkItemExists(withKey: myData) {
                             print("item already exists!")
@@ -43,9 +37,11 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderedProminent).padding()
                 
-                Text("Encrypted data below:")
                 Text(encryptedData ?? "No encrypted data")
                     .padding().background(encryptedData == "Item already exists!" ? Color.red : Color.gray).cornerRadius(10)
+                
+                Divider()
+                    .padding()
                 
                 Button("Decrypt data") {
                     do {
@@ -57,32 +53,35 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderedProminent).padding()
                 
-                Text("Decrypted data below:")
                 Text(decryptedData ?? "No decrypted data")
                     .padding().background(Color.gray).cornerRadius(10)
                 
-                Button("Delete stored item") {
-                    do {
-                        try secureStore.deleteItem(keyToDelete: myData)
-                        encryptedData = ""
-                        decryptedData = ""
-                    } catch {
-                        print(error)
-                    }
-                }
-                .buttonStyle(.bordered).padding()
+                Divider()
+                    .padding()
                 
-                
-                Button("Delete store") {
-                    do {
-                        try secureStore.deleteStore()
-                        encryptedData = ""
-                        decryptedData = ""
-                    } catch {
-                        print(error)
+                HStack {
+                    Button("Delete stored item") {
+                        do {
+                            try secureStore.deleteItem(keyToDelete: myData)
+                            encryptedData = "No encrypted data"
+                            decryptedData = "No decrypted data"
+                        } catch {
+                            print(error)
+                        }
                     }
+                    .buttonStyle(.bordered).padding()
+                    
+                    Button("Delete store") {
+                        do {
+                            try secureStore.deleteStore()
+                            encryptedData = "No encrypted data"
+                            decryptedData = "No decrypted data"
+                        } catch {
+                            print(error)
+                        }
+                    }
+                    .buttonStyle(.bordered).padding()
                 }
-                .buttonStyle(.bordered).padding()
             }
             .padding()
         }
