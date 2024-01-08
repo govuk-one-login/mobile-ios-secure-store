@@ -5,7 +5,7 @@ import Foundation
 /// Used for saving items to keychain storage
 public protocol KeychainStorable {
     func saveItem(item: String, itemName: String) throws
-    func readItem(withKey: String) throws -> String?
+    func readItem(withName name: String) throws -> String?
     func deleteItem(keyToDelete: String) throws
     func checkItemExists(withKey key: String) throws -> Bool
 }

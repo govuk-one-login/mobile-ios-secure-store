@@ -8,27 +8,37 @@ struct ContentView: View {
     
     @State private var decryptedData: String?
     
-    let secureStore = SecureStoreService(configuration: .init(id: "wallet",
+    let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
                                                               accessControlLevel: .currentBiometricsOnly))
+    
+    @State private var myData: String = ""
     
     var body: some View {
         ScrollView {
             VStack {
+                
+                TextField("Input your data", text: $myData)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.center)
+                    .fixedSize()
+                
                 Button("Encrypt JWT") {
                     do {
+                        encryptedData = ""
                         
-                        if try secureStore.checkItemExists(withKey: "nino-ben-2") {
+                        if try secureStore.checkItemExists(withKey: myData) {
                             print("item already exists!")
                             encryptedData = "Item already exists!"
                             return
                         }
                         
-                        let exampleJWT = "eyJ0eXAiOiJKV1QiLCJraWQiOiJodHRwczovL3dhbGxldC1hcGkubW9iaWxlLnN0YWdpbmcuYWNjb3VudC5nb3YudWsvaG1yYy1zdHViI1RuR3c0aTVybWxxQjRNWUt0NnctcV9nLVhmNUxRTUFKaUg2bzBiYXVKOVEiLCJhbGciOiJFUzI1NiJ9.eyJjb250ZXh0IjpbImh0dHBzOi8vd3d3LnczLm9yZy8yMDE4L2NyZWRlbnRpYWxzL3YxIl0sInN1YiI6IltzdWJqZWN0IGlkZW50aWZpZXIsIGNob3NlbiBieSBobXJjXSIsImlzcyI6Imh0dHBzOi8vbW9iaWxlLnN0YWdpbmcuYWNjb3VudC5nb3YudWsvIiwiaWF0IjoxNzAxNzA4MTA1LCJleHAiOjE3MDI5MTc3MDUsInZjIjp7InR5cGUiOlsiVmVyaWZpYWJsZUNyZWRlbnRpYWwiLCJTb2NpYWxTZWN1cml0eUNyZWRlbnRpYWwiXSwiY3JlZGVudGlhbFN1YmplY3QiOnsibmFtZSI6W3sibmFtZVBhcnRzIjpbeyJ2YWx1ZSI6Ik1zIiwidHlwZSI6IlRpdGxlIn0seyJ2YWx1ZSI6IlNhcmFoIiwidHlwZSI6IkdpdmVuTmFtZSJ9LHsidmFsdWUiOiJFbGl6YWJldGgiLCJ0eXBlIjoiR2l2ZW5OYW1lIn0seyJ2YWx1ZSI6IkVkd2FyZHMiLCJ0eXBlIjoiRmFtaWx5TmFtZSJ9XX1dLCJzb2NpYWxTZWN1cml0eVJlY29yZCI6W3sicGVyc29uYWxOdW1iZXIiOiJRUTEyMzQ1NkMifV19fX0.0Kp2SAF6ap8u8i_7gLbYGXLmIFUsx9Og54P-8kN3st9KLJim6nFfY1nYi017BeHQ1Y1AHa86ZMBAB9cDn4SXGw"
-                        encryptedData = exampleJWT
+                        let exampleJWT = "\(myData)eyJ0eXAiOiJKV1QiLCJraWQiOiJodHRwczovL3dhbGxldC1hcGkubW9iaWxlLnN0YWdpbmcuYWNjb3VudC5nb3YudWsvaG1yYy1zdHViI1RuR3c0aTVybWxxQjRNWUt0NnctcV9n"
                         
-                        try secureStore.saveItem(item: exampleJWT, itemName: "nino-ben-2")
+                        try secureStore.saveItem(item: exampleJWT, itemName: myData)
+                        encryptedData = exampleJWT
                     } catch {
                         print(error)
+                        encryptedData = error.localizedDescription
                     }
                 }
                 .buttonStyle(.borderedProminent).padding()
@@ -39,7 +49,7 @@ struct ContentView: View {
                 
                 Button("Decrypt data") {
                     do {
-                        let data = try secureStore.readItem(withKey: "nino-ben-2")
+                        let data = try secureStore.readItem(withName: myData)
                         decryptedData = data
                     } catch {
                         print(error)
@@ -53,7 +63,7 @@ struct ContentView: View {
                 
                 Button("Delete stored data") {
                     do {
-                        try secureStore.deleteItem(keyToDelete: "nino-ben-2")
+                        try secureStore.deleteItem(keyToDelete: myData)
                         encryptedData = ""
                         decryptedData = ""
                     } catch {

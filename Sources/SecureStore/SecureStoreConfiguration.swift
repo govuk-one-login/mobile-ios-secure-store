@@ -1,7 +1,6 @@
 import Foundation
 
 public struct SecureStorageConfiguration {
-    // What do we use this ID for? Should it be this rather than the key being passed in?
     let id: String
     let accessControlLevel: AccessControlLevel
     
@@ -20,7 +19,6 @@ public struct SecureStorageConfiguration {
             case .open:
                 []
             case .anyBiometricsOrPasscode:
-                //private key usage here too?
                 [.privateKeyUsage, .biometryAny, .touchIDAny]
             case .currentBiometricsOnly:
                 [.privateKeyUsage, .biometryCurrentSet]
