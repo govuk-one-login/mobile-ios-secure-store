@@ -1,10 +1,3 @@
-//
-//  SecureStore_DemoTests.swift
-//  SecureStore-DemoTests
-//
-//  Created by McKillop, Ben on 04/01/2024.
-//
-
 import XCTest
 import SecureStore
 @testable import SecureStore_Demo
@@ -27,5 +20,18 @@ final class SecureStore_DemoTests: XCTestCase {
 extension SecureStore_DemoTests {
     func test_keysCreatedOnInit() throws {
         try sut.saveItem(item: "This", itemName: "ThisHere")
+    }
+    
+    
+    func test_storeKeys() throws {
+        do {
+            try sut.createKeysIfNeeded(name: "Test_Keys")
+        } catch {
+            print(error)
+        }
+        
+        let keys = try sut.retrieveKeys()
+        XCTAssertNotNil(keys.publicKey)
+        XCTAssertNotNil(keys.privateKey)
     }
 }
