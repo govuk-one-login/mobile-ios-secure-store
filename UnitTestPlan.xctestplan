@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "7009AD61-D9B7-46FF-A036-37DA7F1CFEE3",
+      "id" : "550E4CB1-AA63-4071-BDB5-F0A0256289A5",
       "name" : "Configuration 1",
       "options" : {
 
@@ -14,16 +14,16 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:SecureStore-Demo.xcodeproj",
-        "identifier" : "2BCB23232B46D54000F3A832",
-        "name" : "SecureStore-DemoTests"
+        "containerPath" : "container:..",
+        "identifier" : "SecureStoreTests",
+        "name" : "SecureStoreTests"
       }
     },
     {
       "target" : {
         "containerPath" : "container:SecureStore-Demo.xcodeproj",
-        "identifier" : "2BCB232D2B46D54000F3A832",
-        "name" : "SecureStore-DemoUITests"
+        "identifier" : "2BCB23232B46D54000F3A832",
+        "name" : "SecureStore-DemoTests"
       }
     }
   ],

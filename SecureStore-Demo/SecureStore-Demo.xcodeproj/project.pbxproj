@@ -32,7 +32,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2BC0F5912B4C1CD3000BB43F /* TestPlan.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TestPlan.xctestplan; sourceTree = "<group>"; };
 		2BCB23142B46D53E00F3A832 /* SecureStore-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SecureStore-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BCB23172B46D53E00F3A832 /* SecureStore_DemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStore_DemoApp.swift; sourceTree = "<group>"; };
 		2BCB23192B46D53E00F3A832 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -51,27 +50,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2BCB23212B46D54000F3A832 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		2BCB232B2B46D54000F3A832 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		2BCB230B2B46D53E00F3A832 = {
 			isa = PBXGroup;
 			children = (
-				2BC0F5912B4C1CD3000BB43F /* TestPlan.xctestplan */,
 				2BCB23162B46D53E00F3A832 /* SecureStore-Demo */,
 				2BCB23272B46D54000F3A832 /* SecureStore-DemoTests */,
 				2BCB23152B46D53E00F3A832 /* Products */,
@@ -134,7 +118,6 @@
 			buildConfigurationList = 2BCB233B2B46D54000F3A832 /* Build configuration list for PBXNativeTarget "SecureStore-DemoTests" */;
 			buildPhases = (
 				2BCB23202B46D54000F3A832 /* Sources */,
-				2BCB23212B46D54000F3A832 /* Frameworks */,
 				2BCB23222B46D54000F3A832 /* Resources */,
 			);
 			buildRules = (
@@ -152,7 +135,6 @@
 			buildConfigurationList = 2BCB233E2B46D54000F3A832 /* Build configuration list for PBXNativeTarget "SecureStore-DemoUITests" */;
 			buildPhases = (
 				2BCB232A2B46D54000F3A832 /* Sources */,
-				2BCB232B2B46D54000F3A832 /* Frameworks */,
 				2BCB232C2B46D54000F3A832 /* Resources */,
 			);
 			buildRules = (
