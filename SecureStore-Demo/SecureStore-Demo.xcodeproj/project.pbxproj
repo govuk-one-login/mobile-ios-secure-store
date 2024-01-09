@@ -22,13 +22,6 @@
 			remoteGlobalIDString = 2BCB23132B46D53E00F3A832;
 			remoteInfo = "SecureStore-Demo";
 		};
-		2BCB232F2B46D54000F3A832 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2BCB230C2B46D53E00F3A832 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2BCB23132B46D53E00F3A832;
-			remoteInfo = "SecureStore-Demo";
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -145,10 +138,6 @@
 						CreatedOnToolsVersion = 15.1;
 						TestTargetID = 2BCB23132B46D53E00F3A832;
 					};
-					2BCB232D2B46D54000F3A832 = {
-						CreatedOnToolsVersion = 15.1;
-						TestTargetID = 2BCB23132B46D53E00F3A832;
-					};
 				};
 			};
 			buildConfigurationList = 2BCB230F2B46D53E00F3A832 /* Build configuration list for PBXProject "SecureStore-Demo" */;
@@ -189,13 +178,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2BCB232C2B46D54000F3A832 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -216,13 +198,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		2BCB232A2B46D54000F3A832 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -230,11 +205,6 @@
 			isa = PBXTargetDependency;
 			target = 2BCB23132B46D53E00F3A832 /* SecureStore-Demo */;
 			targetProxy = 2BCB23252B46D54000F3A832 /* PBXContainerItemProxy */;
-		};
-		2BCB23302B46D54000F3A832 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2BCB23132B46D53E00F3A832 /* SecureStore-Demo */;
-			targetProxy = 2BCB232F2B46D54000F3A832 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -425,6 +395,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N8W395F695;
@@ -445,6 +416,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N8W395F695;
