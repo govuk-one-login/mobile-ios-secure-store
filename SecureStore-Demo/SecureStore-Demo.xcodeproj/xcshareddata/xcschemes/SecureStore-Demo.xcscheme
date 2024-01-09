@@ -51,7 +51,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2BCB232D2B46D54000F3A832"
-               BuildableName = "SecureStore-DemoUITests.xctest"
+               BuildableName = "SecureStore-DemoUITests"
                BlueprintName = "SecureStore-DemoUITests"
                ReferencedContainer = "container:SecureStore-Demo.xcodeproj">
             </BuildableReference>
