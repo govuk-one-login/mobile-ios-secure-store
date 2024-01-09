@@ -20,26 +20,26 @@ final class SecureStoreDefaultsTests: XCTestCase {
 
 extension SecureStoreDefaultsTests {
     func test_saveItem() throws {
-        try sut.saveItem(encyptedItem: "This", itemName: "ItemName")
+        try sut.saveItem(encyptedItem: "EncryptedItem", itemName: "ItemName")
         
         guard let testString = defaults.string(forKey: "ItemName") else {
             XCTFail()
             return
         }
         
-        XCTAssertEqual(testString, "This")
+        XCTAssertEqual(testString, "EncryptedItem")
     }
     
     func test_getItem() throws {
-        defaults.set("This", forKey: "ItemName")
+        defaults.set("EncryptedItem", forKey: "ItemName")
         
         let item = try sut.getItem(itemName: "ItemName")
         
-        XCTAssertEqual(item, "This")
+        XCTAssertEqual(item, "EncryptedItem")
     }
     
     func test_deleteItem() throws {
-        defaults.set("This", forKey: "ItemName")
+        defaults.set("EncryptedItem", forKey: "ItemName")
         
         try sut.deleteItem(itemName: "ItemName")
         
