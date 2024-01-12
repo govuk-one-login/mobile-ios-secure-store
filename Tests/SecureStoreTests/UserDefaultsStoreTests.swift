@@ -4,7 +4,6 @@ import XCTest
 final class UserDefaultsStoreTests: XCTestCase {
     var sut: DefaultsStore!
     let defaults = UserDefaults.standard
-    let mockSecureStore = MockSecureStore()
     
     override func setUp() {
         super.setUp()

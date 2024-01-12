@@ -1,7 +1,7 @@
 import Foundation
 @testable import SecureStore
 
-class MockSecureStore: DefaultsStore {
+class MockDefaultsStore: DefaultsStore {
     var didCallSaveItem: Bool = false
     var didCallGetItem: Bool = false
     var didCallDeleteItem: Bool = false

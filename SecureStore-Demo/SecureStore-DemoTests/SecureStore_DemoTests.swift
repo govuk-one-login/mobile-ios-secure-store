@@ -22,52 +22,6 @@ extension SecureStore_DemoTests {
         try sut.saveItem(item: "This", itemName: "ThisHere")
     }
     
-    
-    func test_storeKeys() throws {
-        do {
-            try sut.createKeysIfNeeded(name: "Test_Keys")
-        } catch {
-            print(error)
-        }
-        
-        let keys = try sut.retrieveKeys()
-        XCTAssertNotNil(keys.publicKey)
-        XCTAssertNotNil(keys.privateKey)
-    }
-    
-    func test_encryptDataWithPublicKey() throws {
-        do {
-            try sut.createKeysIfNeeded(name: "Test_Keys")
-        } catch {
-            print(error)
-        }
-        
-        let keys = try sut.retrieveKeys()
-        XCTAssertNotNil(keys.publicKey)
-
-        let encryptedString = try sut.encryptDataWithPublicKey(dataToEncrypt: "This Data")
-        XCTAssertNotNil(encryptedString)
-    }
-    
-    func test_decryptDataWithPrivateKey() throws {
-        do {
-            try sut.createKeysIfNeeded(name: "Test_Keys")
-        } catch {
-            print(error)
-        }
-        
-        let keys = try sut.retrieveKeys()
-        XCTAssertNotNil(keys.privateKey)
-        
-        guard let encryptedString = try sut.encryptDataWithPublicKey(dataToEncrypt: "This Data") else {
-            XCTFail()
-            return
-        }
-
-        let decryptedString = try sut.decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
-        XCTAssertNotNil(decryptedString)
-    }
-    
     func test_checkItemExists_itemExists() throws {
         try sut.saveItem(item: "ThisItem", itemName: "ItemName")
         XCTAssertTrue(try sut.checkItemExists(itemName: "ItemName"))
@@ -101,7 +55,7 @@ extension SecureStore_DemoTests {
         try sut.delete()
         
         do {
-            let _ = try sut.retrieveKeys()
+            let _ = try sut.saveItem(item: "", itemName: "")
         } catch let error as SecureStoreError where error == .cantRetrieveKey {
             exp.fulfill()
         }
@@ -109,44 +63,48 @@ extension SecureStore_DemoTests {
         wait(for: [exp], timeout: 3)
     }
     
-//    func test_storeKeysL() throws {
-//        guard let key = try generateTestKey() else {
-//            XCTFail()
-//            return
-//        }
-//        
-//        try sut.storeKeys(keyToStore: key, name: "TestKeyPrivateKey")
-//        
-//        let keys = try sut.retrieveKeys()
-//        XCTAssertEqual(keys.publicKey, key)
-//    }
-//
-//    private func generateTestKey() throws -> SecKey? {
-//        let name = "TestKeyPrivateKey"
-//        guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
-//                                                           kSecAttrAccessibleWhenUnlocked,
-//                                                           [],
-//                                                           nil),
-//        let tag = name.data(using: .utf8) else { return nil }
-//        
-//        let attributes: NSDictionary = [
-//            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-//            kSecAttrKeySizeInBits: 256,
-//            kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
-//            kSecPrivateKeyAttrs: [
-//                kSecAttrIsPermanent: true,
-//                kSecAttrApplicationTag: tag,
-//                kSecAttrAccessControl: access
-//            ]
-//        ]
-//        
-//        var error: Unmanaged<CFError>?
-//        guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
-//            guard let error = error?.takeRetainedValue() as? Error else {
-//                throw SecureStoreError.cantEncryptData
-//            }
-//            throw error
-//        }
-//        return privateKey
-//    }
+    func test_storeKeys() throws {
+        do {
+            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+        } catch {
+            print(error)
+        }
+        
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.publicKey)
+        XCTAssertNotNil(keys.privateKey)
+    }
+    
+    func test_encryptDataWithPublicKey() throws {
+        do {
+            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+        } catch {
+            print(error)
+        }
+        
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.publicKey)
+        
+        let encryptedString = try sut.keyManagerService.encryptDataWithPublicKey(dataToEncrypt: "This Data")
+        XCTAssertNotNil(encryptedString)
+    }
+    
+    func test_decryptDataWithPrivateKey() throws {
+        do {
+            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+        } catch {
+            print(error)
+        }
+        
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.privateKey)
+        
+        guard let encryptedString = try sut.keyManagerService.encryptDataWithPublicKey(dataToEncrypt: "This Data") else {
+            XCTFail()
+            return
+        }
+        
+        let decryptedString = try sut.keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
+        XCTAssertNotNil(decryptedString)
+    }
 }
