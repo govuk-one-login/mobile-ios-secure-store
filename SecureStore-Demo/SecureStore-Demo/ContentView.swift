@@ -1,12 +1,17 @@
 import SwiftUI
 import SecureStore
 struct ContentView: View {
-    @State private var encryptedData: String?
+    @State private var encryptedData: String? = ""
     @State private var myData: String = ""
-    @State private var decryptedData: String?
+    @State private var decryptedData: String? = ""
     
-    let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
-                                                              accessControlLevel: .currentBiometricsOnly))
+    let secureStore: SecureStoreService
+    
+    init() {
+        let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
+                                                                  accessControlLevel: .currentBiometricsOnly))
+        self.secureStore = secureStore
+    }
         
     var body: some View {
         ScrollView {

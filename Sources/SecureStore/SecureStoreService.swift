@@ -1,18 +1,21 @@
 import Foundation
 import LocalAuthentication
 
-public struct SecureStoreService {
-    let secureStoreDefaults: SecureStoreDefaults
+public class SecureStoreService {
+    let secureStoreDefaults: DefaultsStore
     private let configuration: SecureStorageConfiguration
     
-    public init(configuration: SecureStorageConfiguration, secureStoreDefaults: SecureStoreDefaults? = nil) {
+    public convenience init(configuration: SecureStorageConfiguration) {
+        self.init(configuration: configuration, secureStoreDefaults: UserDefaultsStore())
+    }
+    
+    init(configuration: SecureStorageConfiguration, secureStoreDefaults: DefaultsStore) {
         self.configuration = configuration
-        self.secureStoreDefaults = secureStoreDefaults ?? SecureStoreUserDefaults()
-        
+        self.secureStoreDefaults = secureStoreDefaults
         do {
             try createKeysIfNeeded(name: configuration.id)
         } catch {
-            print(error)
+//            throw SecureStoreError.cantInitialiseData
         }
     }
 }
@@ -61,8 +64,6 @@ extension SecureStoreService {
         
         try storeKeys(keyToStore: publicKey, name: "\(name)PublicKey")
         try storeKeys(keyToStore: privateKey, name: "\(name)PrivateKey")
-        
-        print("\(name)PublicKey")
     }
     
     // Store a given key to the keychain in order to reuse it later
@@ -76,11 +77,8 @@ extension SecureStoreService {
         // Add item to KeyChain
         let status = SecItemAdd(addquery as CFDictionary, nil)
         guard status == errSecSuccess else {
-            print(status)
             throw SecureStoreError.cantStoreKey
         }
-        
-        print("key stored - \(name)")
     }
     
     // Deletes a given key to the keychain
@@ -178,8 +176,7 @@ extension SecureStoreService {
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: String.Encoding.utf8) else {
-            print("Error: Cannot convert decrypted data to string")
-            return nil
+            throw SecureStoreError.cantDecryptData
         }
         
         return decryptedString

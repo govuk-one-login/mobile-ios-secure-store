@@ -1,6 +1,4 @@
-import Foundation
-
-/// KeychainStorable
+/// SecureStorable
 ///
 /// Used for saving items to keychain storage
 public protocol SecureStorable {

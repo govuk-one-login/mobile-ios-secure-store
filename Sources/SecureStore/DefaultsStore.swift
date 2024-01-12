@@ -1,12 +1,12 @@
 import Foundation
 
-public protocol SecureStoreDefaults {
+protocol DefaultsStore {
     func saveItem(encyptedItem: String, itemName: String) throws
     func getItem(itemName: String) throws -> String?
     func deleteItem(itemName: String) throws
 }
 
-struct SecureStoreUserDefaults: SecureStoreDefaults {
+struct UserDefaultsStore: DefaultsStore {
     let userDefaults: UserDefaults
     
     public init(userDefaults: UserDefaults = UserDefaults.standard) {

@@ -1,15 +1,15 @@
 @testable import SecureStore
 import XCTest
 
-final class SecureStoreDefaultsTests: XCTestCase {
-    var sut: SecureStoreDefaults!
+final class UserDefaultsStoreTests: XCTestCase {
+    var sut: DefaultsStore!
     let defaults = UserDefaults.standard
     let mockSecureStore = MockSecureStore()
     
     override func setUp() {
         super.setUp()
         
-        sut = SecureStoreUserDefaults(userDefaults: defaults)
+        sut = UserDefaultsStore(userDefaults: defaults)
     }
     
     override func tearDown() {
@@ -18,7 +18,7 @@ final class SecureStoreDefaultsTests: XCTestCase {
     }
 }
 
-extension SecureStoreDefaultsTests {
+extension UserDefaultsStoreTests {
     func test_saveItem() throws {
         try sut.saveItem(encyptedItem: "EncryptedItem", itemName: "ItemName")
         
