@@ -3,7 +3,7 @@ import LocalAuthentication
 
 public class SecureStoreService {
     let secureStoreDefaults: DefaultsStore
-    public let keyManagerService: KeyManagerService
+    let keyManagerService: KeyManagerService
     private let configuration: SecureStorageConfiguration
     
     

@@ -1,6 +1,7 @@
 import XCTest
 import SecureStore
 @testable import SecureStore_Demo
+@testable import SecureStore
 
 final class SecureStore_DemoTests: XCTestCase {
     var sut: SecureStoreService!

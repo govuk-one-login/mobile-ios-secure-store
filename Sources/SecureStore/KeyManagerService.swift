@@ -1,6 +1,6 @@
 import Foundation
 
-public class KeyManagerService {
+class KeyManagerService {
     let defaultsStore: DefaultsStore
     private let configuration: SecureStorageConfiguration
     
