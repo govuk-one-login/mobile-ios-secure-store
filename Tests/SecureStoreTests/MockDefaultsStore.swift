@@ -9,12 +9,12 @@ class MockDefaultsStore: DefaultsStore {
     func saveItem(encyptedItem: String, itemName: String) throws {
         didCallSaveItem = true
     }
-    
+
     func getItem(itemName: String) throws -> String? {
         didCallGetItem = true
         return nil
     }
-    
+
     func deleteItem(itemName: String) throws {
         didCallDeleteItem = true
     }

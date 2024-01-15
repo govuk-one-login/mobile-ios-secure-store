@@ -4,15 +4,15 @@ struct ContentView: View {
     @State private var encryptedData: String? = ""
     @State private var myData: String = ""
     @State private var decryptedData: String? = ""
-    
+
     let secureStore: SecureStoreService
-    
+
     init() {
         let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
                                                                   accessControlLevel: .currentBiometricsOnly))
         self.secureStore = secureStore
     }
-        
+
     var body: some View {
         ScrollView {
             VStack {
@@ -20,19 +20,19 @@ struct ContentView: View {
                     .textFieldStyle(.roundedBorder)
                     .multilineTextAlignment(.center)
                     .fixedSize()
-                
+
                 Button("Encrypt JWT") {
                     do {
                         encryptedData = "No encrypted data"
-                        
+
                         if try secureStore.checkItemExists(itemName: myData) {
                             print("item already exists!")
                             encryptedData = "Item already exists!"
                             return
                         }
-                        
-                        let exampleJWT = "\(myData)eyJ0eXAiOiJKV1QiLCJraWQiOiJodHRwczovL3dhbGxldC1hcGkubW9iaWxlLnN0YWdpbmcuYWNjb3VudC5nb3YudWsvaG1yYy1zdHViI1RuR3c0aTVybWxxQjRNWUt0NnctcV9n"
-                        
+
+                        let exampleJWT = "\(myData)eyJ0eXAiOiJKV1"
+
                         try secureStore.saveItem(item: exampleJWT, itemName: myData)
                         encryptedData = exampleJWT
                     } catch {
@@ -40,14 +40,17 @@ struct ContentView: View {
                         encryptedData = error.localizedDescription
                     }
                 }
-                .buttonStyle(.borderedProminent).padding()
-                
+                .buttonStyle(.borderedProminent)
+                .padding()
+
                 Text(encryptedData ?? "No encrypted data")
-                    .padding().background(encryptedData == "Item already exists!" ? Color.red : Color.gray).cornerRadius(10)
-                
+                    .padding()
+                    .background(encryptedData == "Item already exists!" ? Color.red : Color.gray)
+                    .cornerRadius(10)
+
                 Divider()
                     .padding()
-                
+
                 Button("Decrypt data") {
                     do {
                         let data = try secureStore.readItem(itemName: myData)
@@ -57,13 +60,15 @@ struct ContentView: View {
                     }
                 }
                 .buttonStyle(.borderedProminent).padding()
-                
+
                 Text(decryptedData ?? "No decrypted data")
-                    .padding().background(Color.gray).cornerRadius(10)
-                
+                    .padding()
+                    .background(Color.gray)
+                    .cornerRadius(10)
+
                 Divider()
                     .padding()
-                
+
                 HStack {
                     Button("Delete stored item") {
                         do {
@@ -74,8 +79,9 @@ struct ContentView: View {
                             print(error)
                         }
                     }
-                    .buttonStyle(.bordered).padding()
-                    
+                    .buttonStyle(.bordered)
+                    .padding()
+
                     Button("Delete store") {
                         do {
                             try secureStore.delete()
@@ -85,7 +91,8 @@ struct ContentView: View {
                             print(error)
                         }
                     }
-                    .buttonStyle(.bordered).padding()
+                    .buttonStyle(.bordered)
+                    .padding()
                 }
             }
             .padding()

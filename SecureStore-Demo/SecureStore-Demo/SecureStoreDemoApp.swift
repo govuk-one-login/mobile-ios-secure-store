@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct SecureStore_DemoApp: App {
+struct SecureStoreDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {

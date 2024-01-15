@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2BCB23182B46D53E00F3A832 /* SecureStore_DemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB23172B46D53E00F3A832 /* SecureStore_DemoApp.swift */; };
+		2BCB23182B46D53E00F3A832 /* SecureStoreDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB23172B46D53E00F3A832 /* SecureStoreDemoApp.swift */; };
 		2BCB231A2B46D53E00F3A832 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB23192B46D53E00F3A832 /* ContentView.swift */; };
 		2BCB231C2B46D53F00F3A832 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BCB231B2B46D53F00F3A832 /* Assets.xcassets */; };
-		2BCB23292B46D54000F3A832 /* SecureStore_DemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB23282B46D54000F3A832 /* SecureStore_DemoTests.swift */; };
+		2BCB23292B46D54000F3A832 /* SecureStoreDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */; };
 		2BCB23432B46D60A00F3A832 /* SecureStore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BCB23422B46D60A00F3A832 /* SecureStore */; };
 /* End PBXBuildFile section */
 
@@ -26,11 +26,11 @@
 
 /* Begin PBXFileReference section */
 		2BCB23142B46D53E00F3A832 /* SecureStore-Demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SecureStore-Demo.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2BCB23172B46D53E00F3A832 /* SecureStore_DemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStore_DemoApp.swift; sourceTree = "<group>"; };
+		2BCB23172B46D53E00F3A832 /* SecureStoreDemoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStoreDemoApp.swift; sourceTree = "<group>"; };
 		2BCB23192B46D53E00F3A832 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		2BCB231B2B46D53F00F3A832 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2BCB23242B46D54000F3A832 /* SecureStore-DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SecureStore-DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2BCB23282B46D54000F3A832 /* SecureStore_DemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStore_DemoTests.swift; sourceTree = "<group>"; };
+		2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStoreDemoTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,7 +66,7 @@
 		2BCB23162B46D53E00F3A832 /* SecureStore-Demo */ = {
 			isa = PBXGroup;
 			children = (
-				2BCB23172B46D53E00F3A832 /* SecureStore_DemoApp.swift */,
+				2BCB23172B46D53E00F3A832 /* SecureStoreDemoApp.swift */,
 				2BCB23192B46D53E00F3A832 /* ContentView.swift */,
 				2BCB231B2B46D53F00F3A832 /* Assets.xcassets */,
 			);
@@ -76,7 +76,7 @@
 		2BCB23272B46D54000F3A832 /* SecureStore-DemoTests */ = {
 			isa = PBXGroup;
 			children = (
-				2BCB23282B46D54000F3A832 /* SecureStore_DemoTests.swift */,
+				2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */,
 			);
 			path = "SecureStore-DemoTests";
 			sourceTree = "<group>";
@@ -186,7 +186,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2BCB231A2B46D53E00F3A832 /* ContentView.swift in Sources */,
-				2BCB23182B46D53E00F3A832 /* SecureStore_DemoApp.swift in Sources */,
+				2BCB23182B46D53E00F3A832 /* SecureStoreDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,7 +194,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BCB23292B46D54000F3A832 /* SecureStore_DemoTests.swift in Sources */,
+				2BCB23292B46D54000F3A832 /* SecureStoreDemoTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
