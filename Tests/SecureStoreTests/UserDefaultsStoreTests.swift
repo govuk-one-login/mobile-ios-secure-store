@@ -42,7 +42,7 @@ extension UserDefaultsStoreTests {
 
         try sut.deleteItem(itemName: "ItemName")
 
-        if defaults.string(forKey: "ItemName") == nil {
+        if defaults.string(forKey: "ItemName") != nil {
             XCTFail("cant delete item")
             return
         }
