@@ -41,8 +41,6 @@ jobs:
           export GEM_HOME=$HOME/.gem
           export GEM_PATH=$HOME/.gem
           
-          # Fixes issue with bundle install
-          eval "$(rbenv init - zsh)"
           bundle install
           
           bundle exec fastlane test scheme:"SecureStore" \
