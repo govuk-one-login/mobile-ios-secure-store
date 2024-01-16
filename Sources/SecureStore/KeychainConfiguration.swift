@@ -1,7 +1,7 @@
 import Foundation
- 
+
 // Boilerplate "GenericKeychain" code written by Apple
-// https://developer.apple.com/library/archive/samplecode/GenericKeychain/Introduction/Intro.html#//apple_ref/doc/uid/DTS40007797-Intro-DontLinkElementID_2
+// https://developer.apple.com/library/archive/samplecode/GenericKeychain/Introduction/Intro.html
 public struct KeychainConfiguration {
     public static let serviceName = "IdentityService"
 
@@ -15,7 +15,7 @@ public struct KeychainConfiguration {
             https://developer.apple.com/library/ios/technotes/tn2311/_index.html
     */
 //    static let accessGroup = "[YOUR APP ID PREFIX].com.example.apple-samplecode.GenericKeychainShared"
- 
+
     /*
         Not specifying an access group to use with `KeychainPasswordItem` instances
         will create items specific to each app.
