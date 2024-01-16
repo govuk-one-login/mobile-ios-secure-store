@@ -11,11 +11,9 @@ import SwiftUI
 struct SecureStoreDemoApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                ContentView()
-                    .navigationTitle("Secure Store - Demo")
-                    .navigationBarTitleDisplayMode(.inline)
-            }
+            ContentView()
+                .navigationTitle("Secure Store - Demo")
+                .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
