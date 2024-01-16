@@ -17,11 +17,11 @@ public struct SecureStorageConfiguration {
         var flags: SecAccessControlCreateFlags {
             switch self {
             case .open:
-                []
+                return []
             case .anyBiometricsOrPasscode:
-                [.privateKeyUsage, .biometryAny]
+                return [.privateKeyUsage, .biometryAny]
             case .currentBiometricsOnly:
-                [.privateKeyUsage, .biometryCurrentSet]
+                return [.privateKeyUsage, .biometryCurrentSet]
             }
         }
     }
