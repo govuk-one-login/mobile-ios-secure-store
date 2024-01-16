@@ -2,7 +2,7 @@ import Foundation
 import JWTDecode
 
 // Boilerplate "GenericKeychain" code written by Apple
-// https://developer.apple.com/library/archive/samplecode/GenericKeychain/Introduction/Intro.html#//apple_ref/doc/uid/DTS40007797-Intro-DontLinkElementID_2
+// https://developer.apple.com/library/archive/samplecode/GenericKeychain/Introduction/Intro.html
 
 /// KeychainError
 ///
@@ -21,20 +21,18 @@ public struct KeychainService {
     let service: String
     private(set) var account: String
 
-    /// - Parameters:
-    ///   - id: They key of the key/value pair, used to store the item (the value).
-    
     // MARK: Initialisation
+    /// - Parameters:
+    /// - id: They key of the key/value pair, used to store the item (the value).
     public init(id: String) {
         self.service = KeychainConfiguration.serviceName
         self.account = id
     }
 }
 
-/// Extension on KeychainService
-///
-/// Handles all the logic of reading, saving and deleting items.
 // MARK: Keychain access - Read, Save, Delete
+/// Extension on KeychainService
+/// Handles all the logic of reading, saving and deleting items.
 extension KeychainService: KeychainStorable {
     public func readItem() throws -> String? {
         /*
@@ -46,33 +44,33 @@ extension KeychainService: KeychainStorable {
         query[kSecMatchLimit as String] = kSecMatchLimitOne
         query[kSecReturnAttributes as String] = kCFBooleanTrue
         query[kSecReturnData as String] = kCFBooleanTrue
-        
+
         // Try to fetch the existing keychain item that matches the query.
         var queryResult: AnyObject?
         let status: OSStatus = withUnsafeMutablePointer(to: &queryResult) {
             SecItemCopyMatching(query as CFDictionary, UnsafeMutablePointer($0))
         }
-        
+
         // Check the return status and throw an error if appropriate.
         guard status != errSecItemNotFound else { throw KeychainError.noToken }
         guard status == noErr else { throw KeychainError.unhandledError(status: status) }
-        
+
         // Parse the token string from the query result.
         guard let existingItem = queryResult as? [String: AnyObject],
               let tokenData = existingItem[kSecValueData as String] as? Data,
               let token = String(data: tokenData, encoding: .utf8) else {
             throw KeychainError.unexpectedTokenData
         }
-        
+
         return token
     }
-    
+
     public func saveItem(item: String) throws {
         // Encode the token into an Data object.
         guard let encodedToken = item.data(using: .utf8) else {
             throw KeychainError.cantEncodeToken
         }
-        
+
         do {
             // Check for an existing item in the keychain.
             try _ = readItem()
@@ -84,7 +82,7 @@ extension KeychainService: KeychainStorable {
             let query = KeychainService.keychainQuery(withService: service,
                                                       account: account)
             let status = SecItemUpdate(query as CFDictionary, attributesToUpdate as CFDictionary)
-            
+
             // Throw an error if an unexpected status was returned.
             guard status == noErr else { throw KeychainError.unhandledError(status: status) }
         } catch KeychainError.noToken {
@@ -95,15 +93,15 @@ extension KeychainService: KeychainStorable {
             var newItem = KeychainService.keychainQuery(withService: service,
                                                         account: account)
             newItem[kSecValueData as String] = encodedToken as AnyObject?
-            
+
             // Add a the new item to the keychain.
             let status = SecItemAdd(newItem as CFDictionary, nil)
-            
+
             // Throw an error if an unexpected status was returned.
             guard status == noErr else { throw KeychainError.unhandledError(status: status) }
         }
     }
-    
+
     public func deleteItem() throws {
         // Delete the existing item from the keychain.
         let query = KeychainService.keychainQuery(withService: service,
@@ -111,14 +109,16 @@ extension KeychainService: KeychainStorable {
         let status = SecItemDelete(query as CFDictionary)
 
         // Throw an error if an unexpected status was returned.
-        guard status == noErr || status == errSecItemNotFound else { throw KeychainError.unhandledError(status: status) }
+        guard status == noErr || status == errSecItemNotFound else {
+            throw KeychainError.unhandledError(status: status)
+        }
     }
 }
 
+// MARK: Keychain Query
 /// Extension on KeychainService
 ///
 /// Handles building the keychain query for searching
-// MARK: Keychain Query
 extension KeychainService {
     private static func keychainQuery(withService service: String, account: String? = nil) -> [String: AnyObject] {
         var query = [String: AnyObject]()
