@@ -32,17 +32,13 @@ extension SecureStoreService: SecureStorable {
     }
 
     public func saveItem(item: String, itemName: String) throws {
-        do {
-            _ = try keyManagerService.retrieveKeys()
-
-            guard let encryptedData = try keyManagerService.encryptDataWithPublicKey(dataToEncrypt: item) else {
-                return
-            }
-
-            try secureStoreDefaults.saveItem(encyptedItem: encryptedData, itemName: itemName)
-        } catch {
-            throw error
+        _ = try keyManagerService.retrieveKeys()
+        
+        guard let encryptedData = try keyManagerService.encryptDataWithPublicKey(dataToEncrypt: item) else {
+            return
         }
+        
+        try secureStoreDefaults.saveItem(encyptedItem: encryptedData, itemName: itemName)
     }
 
     public func deleteItem(itemName: String) throws {
