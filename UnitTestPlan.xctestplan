@@ -1,0 +1,31 @@
+{
+  "configurations" : [
+    {
+      "id" : "550E4CB1-AA63-4071-BDB5-F0A0256289A5",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "SecureStoreTests",
+        "name" : "SecureStoreTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:SecureStore-Demo.xcodeproj",
+        "identifier" : "2BCB23232B46D54000F3A832",
+        "name" : "SecureStore-DemoTests"
+      }
+    }
+  ],
+  "version" : 1
+}
