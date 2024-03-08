@@ -19,9 +19,9 @@ public struct SecureStorageConfiguration {
             case .open:
                 return []
             case .anyBiometricsOrPasscode:
-                return [.privateKeyUsage, .biometryAny, .devicePasscode]
+                return [.privateKeyUsage, .biometryAny]
             case .currentBiometricsOnly:
-                return [.privateKeyUsage, .biometryCurrentSet]
+                return [.privateKeyUsage, .biometryCurrentSet, .or, .devicePasscode]
             }
         }
     }
