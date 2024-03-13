@@ -24,15 +24,16 @@ extension SecureStoreService: SecureStorable {
         return true
     }
 
-    public func readItem(itemName: String) throws -> String? {
+    public func readItem(itemName: String, contextStrings: [String:String]?) throws -> String? {
         guard let encryptedData = try secureStoreDefaults.getItem(itemName: itemName) else {
             throw SecureStoreError.unableToRetrieveFromUserDefaults
         }
-        return try keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedData)
+        return try keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedData, contextStrings: contextStrings)
     }
 
     public func saveItem(item: String, itemName: String) throws {
-        _ = try keyManagerService.retrieveKeys()
+        _ = try keyManagerService.retrievePublicKey()
+        _ = try keyManagerService.retrievePrivateKey(contextStrings: nil)
 
         guard let encryptedData = try keyManagerService.encryptDataWithPublicKey(dataToEncrypt: item) else {
             return

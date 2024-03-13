@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 
 class KeyManagerService {
     let defaultsStore: DefaultsStore
@@ -28,7 +29,8 @@ extension KeyManagerService {
 
         // Check if keys already exist in storage
         do {
-            _ = try retrieveKeys()
+            _ = try retrievePublicKey()
+            _ = try retrievePrivateKey(contextStrings: nil)
             return
         } catch let error as SecureStoreError where error == .cantRetrieveKey {
             // Keys do not exist yet, continue below to create and save them
@@ -93,32 +95,12 @@ extension KeyManagerService {
             throw SecureStoreError.cantStoreKey
         }
     }
-
-    // Retrieve a key that has been stored before
-    public func retrieveKeys() throws -> (publicKey: SecKey, privateKey: SecKey) {
-        guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else {
-            throw SecureStoreError.cantInitialiseData
-        }
+    
+    public func retrievePublicKey() throws -> SecKey {
         guard let publicKeyTag = "\(configuration.id)PublicKey".data(using: .utf8) else {
             throw SecureStoreError.cantInitialiseData
         }
-
-        // This constructs a query that will be sent to keychain
-        let privateQuery: NSDictionary = [
-            kSecClass: kSecClassKey,
-            kSecAttrApplicationTag: privateKeyTag,
-            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecReturnRef: true
-        ]
-
-        var privateKey: CFTypeRef?
-        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
-
-        // errSecSuccess is the result code returned when no error where found with the query
-        guard privateStatus == errSecSuccess else {
-            throw SecureStoreError.cantRetrieveKey
-        }
-
+        
         // This constructs a query that will be sent to keychain
         let publicQuery: NSDictionary = [
             kSecClass: kSecClassKey,
@@ -134,9 +116,54 @@ extension KeyManagerService {
         guard publicStatus == errSecSuccess else {
             throw SecureStoreError.cantRetrieveKey
         }
-
+        
         // swiftlint:disable force_cast
-        return (publicKey as! SecKey, privateKey as! SecKey)
+        return publicKey as! SecKey
+        // swiftlint:enable force_cast
+    }
+    
+    public func retrievePrivateKey(contextStrings: [String:String]?) throws -> SecKey {
+        guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else {
+            throw SecureStoreError.cantInitialiseData
+        }
+        
+        var privateQuery: NSDictionary {
+            if let contextStrings {
+                // Local Authentication prompt strings
+                let context = LAContext()
+                context.localizedReason = contextStrings["localizedReason"] ?? "Authenticate with local authentication"
+                context.localizedFallbackTitle = contextStrings["localizedFallbackTitle"] ?? "Use Passcode"
+                context.localizedCancelTitle = contextStrings["localizedCancelTitle"] ?? "Cancel"
+                
+                // This constructs a query that will be sent to keychain
+                return [
+                    kSecClass: kSecClassKey,
+                    kSecAttrApplicationTag: privateKeyTag,
+                    kSecUseAuthenticationContext as String: context,
+                    kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+                    kSecReturnRef: true
+                ]
+            } else {
+                // This constructs a query that will be sent to keychain
+                return [
+                    kSecClass: kSecClassKey,
+                    kSecAttrApplicationTag: privateKeyTag,
+                    kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+                    kSecReturnRef: true
+                ]
+            }
+        }
+
+        var privateKey: CFTypeRef?
+        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
+
+        // errSecSuccess is the result code returned when no error where found with the query
+        guard privateStatus == errSecSuccess else {
+            throw SecureStoreError.cantRetrieveKey
+        }
+        
+        // swiftlint:disable force_cast
+        return privateKey as! SecKey
         // swiftlint:enable force_cast
     }
 }
@@ -144,7 +171,7 @@ extension KeyManagerService {
 // MARK: Encryption and Decryption
 extension KeyManagerService {
     public func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String? {
-        let publicKey = try retrieveKeys().publicKey
+        let publicKey = try retrievePublicKey()
 
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
             throw SecureStoreError.cantEncryptData
@@ -167,8 +194,8 @@ extension KeyManagerService {
         return encryptedString
     }
 
-    public func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String? {
-        let privateKeyRepresentation = try retrieveKeys().privateKey
+    public func decryptDataWithPrivateKey(dataToDecrypt: String, contextStrings: [String:String]?) throws -> String? {
+        let privateKeyRepresentation = try retrievePrivateKey(contextStrings: contextStrings)
 
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
             throw SecureStoreError.cantDecryptData

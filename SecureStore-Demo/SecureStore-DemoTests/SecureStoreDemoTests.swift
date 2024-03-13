@@ -32,7 +32,7 @@ extension SecureStoreDemoTests {
 
     func test_readItem_itemExists() throws {
         try sut.saveItem(item: "ThisItem", itemName: "ItemName")
-        XCTAssertEqual(try sut.readItem(itemName: "ItemName"), "ThisItem")
+        XCTAssertEqual(try sut.readItem(itemName: "ItemName", contextStrings: nil), "ThisItem")
     }
 
     func test_deleteItem() throws {
@@ -41,7 +41,7 @@ extension SecureStoreDemoTests {
         try sut.deleteItem(itemName: "ThisItem")
 
         do {
-            _ = try sut.readItem(itemName: "ThisItem")
+            _ = try sut.readItem(itemName: "ThisItem", contextStrings: nil)
         } catch let error as SecureStoreError where error == .unableToRetrieveFromUserDefaults {
             exp.fulfill()
         }
@@ -69,9 +69,10 @@ extension SecureStoreDemoTests {
             print(error)
         }
 
-        let keys = try sut.keyManagerService.retrieveKeys()
-        XCTAssertNotNil(keys.publicKey)
-        XCTAssertNotNil(keys.privateKey)
+        let publicKey = try sut.keyManagerService.retrievePublicKey()
+        let privateKey = try sut.keyManagerService.retrievePrivateKey(contextStrings: nil)
+        XCTAssertNotNil(publicKey)
+        XCTAssertNotNil(privateKey)
     }
 
     func test_encryptDataWithPublicKey() throws {
@@ -81,8 +82,10 @@ extension SecureStoreDemoTests {
             print(error)
         }
 
-        let keys = try sut.keyManagerService.retrieveKeys()
-        XCTAssertNotNil(keys.publicKey)
+        let publicKey = try sut.keyManagerService.retrievePublicKey()
+        let privateKey = try sut.keyManagerService.retrievePrivateKey(contextStrings: nil)
+        XCTAssertNotNil(publicKey)
+        XCTAssertNotNil(privateKey)
 
         let encryptedString = try sut.keyManagerService.encryptDataWithPublicKey(dataToEncrypt: "This Data")
         XCTAssertNotNil(encryptedString)
@@ -95,15 +98,17 @@ extension SecureStoreDemoTests {
             print(error)
         }
 
-        let keys = try sut.keyManagerService.retrieveKeys()
-        XCTAssertNotNil(keys.privateKey)
+        let publicKey = try sut.keyManagerService.retrievePublicKey()
+        let privateKey = try sut.keyManagerService.retrievePrivateKey(contextStrings: nil)
+        XCTAssertNotNil(publicKey)
+        XCTAssertNotNil(privateKey)
 
         guard let encryptedString = try sut.keyManagerService.encryptDataWithPublicKey(dataToEncrypt: "Data") else {
             XCTFail("Failed to encrypt string")
             return
         }
 
-        let decryptedString = try sut.keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
+        let decryptedString = try sut.keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedString, contextStrings: nil)
         XCTAssertNotNil(decryptedString)
     }
 }

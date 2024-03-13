@@ -52,8 +52,13 @@ struct ContentView: View {
                     .padding()
 
                 Button("Decrypt data") {
+                    let contextStrings = [
+                        "localizedReason": "Local Authentication Reason",
+                        "localizedFallbackTitle": "Passcode",
+                        "localizedCancelTitle": "Cancel"
+                    ]
                     do {
-                        let data = try secureStore.readItem(itemName: myData)
+                        let data = try secureStore.readItem(itemName: myData, contextStrings: contextStrings)
                         decryptedData = data
                     } catch {
                         print(error)
