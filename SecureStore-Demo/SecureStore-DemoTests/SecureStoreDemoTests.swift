@@ -70,10 +70,9 @@ extension SecureStoreDemoTests {
             print(error)
         }
 
-        let publicKey = try sut.keyManagerService.retrievePublicKey()
-        let privateKey = try sut.keyManagerService.retrievePrivateKey(localAuthStrings: nil)
-        XCTAssertNotNil(publicKey)
-        XCTAssertNotNil(privateKey)
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.publicKey)
+        XCTAssertNotNil(keys.privateKey)
     }
 
     func test_encryptDataWithPublicKey() throws {
@@ -83,10 +82,8 @@ extension SecureStoreDemoTests {
             print(error)
         }
 
-        let publicKey = try sut.keyManagerService.retrievePublicKey()
-        let privateKey = try sut.keyManagerService.retrievePrivateKey(localAuthStrings: nil)
-        XCTAssertNotNil(publicKey)
-        XCTAssertNotNil(privateKey)
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.publicKey)
 
         let encryptedString = try sut.keyManagerService.encryptDataWithPublicKey(dataToEncrypt: "This Data")
         XCTAssertNotNil(encryptedString)
@@ -99,10 +96,8 @@ extension SecureStoreDemoTests {
             print(error)
         }
 
-        let publicKey = try sut.keyManagerService.retrievePublicKey()
-        let privateKey = try sut.keyManagerService.retrievePrivateKey(localAuthStrings: nil)
-        XCTAssertNotNil(publicKey)
-        XCTAssertNotNil(privateKey)
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.privateKey)
 
         guard let encryptedString = try sut.keyManagerService.encryptDataWithPublicKey(dataToEncrypt: "Data") else {
             XCTFail("Failed to encrypt string")

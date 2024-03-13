@@ -7,7 +7,7 @@ public struct SecureStorageConfiguration {
 
     public init(id: String,
                 accessControlLevel: AccessControlLevel,
-                localAuthStrings: [String:String]?) {
+                localAuthStrings: [String:String]? = nil) {
         self.id = id
         self.accessControlLevel = accessControlLevel
         self.localAuthStrings = localAuthStrings

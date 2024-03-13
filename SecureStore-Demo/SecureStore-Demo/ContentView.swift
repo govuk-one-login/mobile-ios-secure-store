@@ -10,7 +10,7 @@ struct ContentView: View {
     init() {
         let localAuthStrings = [
             "localizedReason": "Local Authentication Reason",
-            "localizedFallbackTitle": "Passcode",
+            "localizedFallbackTitle": "Enter passcode",
             "localizedCancelTitle": "Cancel"
         ]
         let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
