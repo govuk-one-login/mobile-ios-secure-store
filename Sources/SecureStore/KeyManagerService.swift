@@ -39,7 +39,7 @@ extension KeyManagerService {
                                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
                                                            configuration.accessControlLevel.flags,
                                                            nil),
-              let tag = name.data(using: .utf8) else { return }
+        let tag = name.data(using: .utf8) else { return }
         
         let attributes: NSDictionary = [
             kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
@@ -95,6 +95,7 @@ extension KeyManagerService {
         }
     }
     
+    // Retrieve a key that has been stored before
     public func retrieveKeys(localAuthStrings: [String:String]? = nil) throws -> (publicKey: SecKey, privateKey: SecKey) {
         guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else {
             throw SecureStoreError.cantInitialiseData

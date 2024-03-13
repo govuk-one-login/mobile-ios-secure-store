@@ -7,8 +7,7 @@ final class SecureStoreDemoTests: XCTestCase {
     override func setUp() {
         super.setUp()
         sut = SecureStoreService(configuration: .init(id: "id",
-                                                      accessControlLevel: .open,
-                                                      localAuthStrings: nil))
+                                                      accessControlLevel: .open))
     }
 
     override func tearDown() {
