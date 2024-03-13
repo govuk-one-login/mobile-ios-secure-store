@@ -96,7 +96,7 @@ extension KeyManagerService {
     }
 
     // Retrieve a key that has been stored before
-    public func retrieveKeys(localAuthStrings: [String: String]? = nil) throws -> (publicKey: SecKey,
+    public func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
                                                                                    privateKey: SecKey) {
         guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else {
             throw SecureStoreError.cantInitialiseData
@@ -104,34 +104,28 @@ extension KeyManagerService {
         guard let publicKeyTag = "\(configuration.id)PublicKey".data(using: .utf8) else {
             throw SecureStoreError.cantInitialiseData
         }
-
+        
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
+            let context = LAContext()
+            
             if let localAuthStrings {
                 // Local Authentication prompt strings
-                let context = LAContext()
-                context.localizedReason = localAuthStrings["localizedReason"] ??
-                "Authenticate with local authentication"
-                context.localizedFallbackTitle = localAuthStrings["localizedFallbackTitle"] ?? "Use Passcode"
-                context.localizedCancelTitle = localAuthStrings["localizedCancelTitle"] ?? "Cancel"
-
-                return [
-                    kSecClass: kSecClassKey,
-                    kSecAttrApplicationTag: privateKeyTag,
-                    kSecUseAuthenticationContext as String: context,
-                    kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-                    kSecReturnRef: true
-                ]
-            } else {
-                return [
-                    kSecClass: kSecClassKey,
-                    kSecAttrApplicationTag: privateKeyTag,
-                    kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-                    kSecReturnRef: true
-                ]
+                context.localizedReason = localAuthStrings.localizedReason
+                context.localizedFallbackTitle = localAuthStrings.localisedFallbackTitle
+                context.localizedCancelTitle = localAuthStrings.localisedCancelTitle
+                
+                
             }
+            return [
+                kSecClass: kSecClassKey,
+                kSecAttrApplicationTag: privateKeyTag,
+                kSecUseAuthenticationContext as String: context,
+                kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+                kSecReturnRef: true
+            ]
         }
-
+        
         var privateKey: CFTypeRef?
         let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
 
@@ -189,7 +183,7 @@ extension KeyManagerService {
     }
 
     public func decryptDataWithPrivateKey(dataToDecrypt: String,
-                                          localAuthStrings: [String: String]?) throws -> String? {
+                                          localAuthStrings: LocalAuthenticationLocalizedStrings?) throws -> String? {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
 
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {

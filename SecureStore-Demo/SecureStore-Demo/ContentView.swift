@@ -1,5 +1,6 @@
 import SwiftUI
 import SecureStore
+
 struct ContentView: View {
     @State private var encryptedData: String? = ""
     @State private var myData: String = ""
@@ -8,11 +9,9 @@ struct ContentView: View {
     let secureStore: SecureStoreService
 
     init() {
-        let demoAuthStrings = [
-            "localizedReason": "Local Authentication Reason",
-            "localizedFallbackTitle": "Enter passcode",
-            "localizedCancelTitle": "Cancel"
-        ]
+        let demoAuthStrings = LocalAuthenticationLocalizedStrings(localizedReason: "Local Authentication Reason",
+                                                                  localisedFallbackTitle: "Enter passcode",
+                                                                  localisedCancelTitle: "Cancel")
         let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
                                                                   accessControlLevel: .currentBiometricsOnly,
                                                                   localAuthStrings: demoAuthStrings))

@@ -2,16 +2,14 @@ import XCTest
 @testable import SecureStore
 
 final class SecureStoreDemoTests: XCTestCase {
-    var testAuthStrings: [String: String]!
+    var testAuthStrings: LocalAuthenticationLocalizedStrings!
     var sut: SecureStoreService!
 
     override func setUp() {
         super.setUp()
-        testAuthStrings = [
-            "localizedReason": "Local Authentication Reason",
-            "localizedFallbackTitle": "Enter passcode",
-            "localizedCancelTitle": "Cancel"
-        ]
+        testAuthStrings = LocalAuthenticationLocalizedStrings(localizedReason: "Local Authentication Reason",
+                                                              localisedFallbackTitle: "Enter passcode",
+                                                              localisedCancelTitle: "Cancel")
         sut = SecureStoreService(configuration: .init(id: "id",
                                                       accessControlLevel: .open,
                                                       localAuthStrings: testAuthStrings))
