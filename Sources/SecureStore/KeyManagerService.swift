@@ -104,18 +104,16 @@ extension KeyManagerService {
         guard let publicKeyTag = "\(configuration.id)PublicKey".data(using: .utf8) else {
             throw SecureStoreError.cantInitialiseData
         }
-        
+
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
             let context = LAContext()
-            
+
             if let localAuthStrings {
                 // Local Authentication prompt strings
                 context.localizedReason = localAuthStrings.localizedReason
                 context.localizedFallbackTitle = localAuthStrings.localisedFallbackTitle
                 context.localizedCancelTitle = localAuthStrings.localisedCancelTitle
-                
-                
             }
             return [
                 kSecClass: kSecClassKey,
@@ -125,7 +123,7 @@ extension KeyManagerService {
                 kSecReturnRef: true
             ]
         }
-        
+
         var privateKey: CFTypeRef?
         let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
 

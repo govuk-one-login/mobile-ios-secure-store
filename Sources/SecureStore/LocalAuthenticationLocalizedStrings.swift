@@ -2,7 +2,7 @@ public struct LocalAuthenticationLocalizedStrings {
     let localizedReason: String
     let localisedFallbackTitle: String
     let localisedCancelTitle: String
-    
+
     public init(localizedReason: String,
                 localisedFallbackTitle: String,
                 localisedCancelTitle: String) {
