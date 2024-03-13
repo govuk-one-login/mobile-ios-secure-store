@@ -8,14 +8,14 @@ struct ContentView: View {
     let secureStore: SecureStoreService
 
     init() {
-        let localAuthStrings = [
+        let demoAuthStrings = [
             "localizedReason": "Local Authentication Reason",
             "localizedFallbackTitle": "Enter passcode",
             "localizedCancelTitle": "Cancel"
         ]
         let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
                                                                   accessControlLevel: .currentBiometricsOnly,
-                                                                  localAuthStrings: localAuthStrings))
+                                                                  localAuthStrings: demoAuthStrings))
         self.secureStore = secureStore
     }
 
