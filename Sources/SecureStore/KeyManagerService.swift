@@ -30,7 +30,7 @@ extension KeyManagerService {
         // Check if keys already exist in storage
         do {
             _ = try retrievePublicKey()
-            _ = try retrievePrivateKey(contextStrings: nil)
+            _ = try retrievePrivateKey(localAuthStrings: nil)
             return
         } catch let error as SecureStoreError where error == .cantRetrieveKey {
             // Keys do not exist yet, continue below to create and save them
@@ -122,18 +122,18 @@ extension KeyManagerService {
         // swiftlint:enable force_cast
     }
     
-    public func retrievePrivateKey(contextStrings: [String:String]?) throws -> SecKey {
+    public func retrievePrivateKey(localAuthStrings: [String:String]?) throws -> SecKey {
         guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else {
             throw SecureStoreError.cantInitialiseData
         }
         
         var privateQuery: NSDictionary {
-            if let contextStrings {
+            if let localAuthStrings {
                 // Local Authentication prompt strings
                 let context = LAContext()
-                context.localizedReason = contextStrings["localizedReason"] ?? "Authenticate with local authentication"
-                context.localizedFallbackTitle = contextStrings["localizedFallbackTitle"] ?? "Use Passcode"
-                context.localizedCancelTitle = contextStrings["localizedCancelTitle"] ?? "Cancel"
+                context.localizedReason = localAuthStrings["localizedReason"] ?? "Authenticate with local authentication"
+                context.localizedFallbackTitle = localAuthStrings["localizedFallbackTitle"] ?? "Use Passcode"
+                context.localizedCancelTitle = localAuthStrings["localizedCancelTitle"] ?? "Cancel"
                 
                 // This constructs a query that will be sent to keychain
                 return [
@@ -194,8 +194,8 @@ extension KeyManagerService {
         return encryptedString
     }
 
-    public func decryptDataWithPrivateKey(dataToDecrypt: String, contextStrings: [String:String]?) throws -> String? {
-        let privateKeyRepresentation = try retrievePrivateKey(contextStrings: contextStrings)
+    public func decryptDataWithPrivateKey(dataToDecrypt: String, localAuthStrings: [String:String]?) throws -> String? {
+        let privateKeyRepresentation = try retrievePrivateKey(localAuthStrings: localAuthStrings)
 
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
             throw SecureStoreError.cantDecryptData

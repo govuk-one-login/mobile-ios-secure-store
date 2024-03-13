@@ -9,7 +9,7 @@ final class SecureStoreTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        let config = SecureStorageConfiguration(id: "New_ID", accessControlLevel: .open)
+        let config = SecureStorageConfiguration(id: "New_ID", accessControlLevel: .open, localAuthStrings: nil)
 
         sut = SecureStoreService(configuration: config,
                                  defaultsStore: mockDefaultsStore)

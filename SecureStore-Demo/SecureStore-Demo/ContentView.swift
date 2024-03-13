@@ -8,8 +8,14 @@ struct ContentView: View {
     let secureStore: SecureStoreService
 
     init() {
+        let localAuthStrings = [
+            "localizedReason": "Local Authentication Reason",
+            "localizedFallbackTitle": "Passcode",
+            "localizedCancelTitle": "Cancel"
+        ]
         let secureStore = SecureStoreService(configuration: .init(id: "Wallet-Test-01",
-                                                                  accessControlLevel: .currentBiometricsOnly))
+                                                                  accessControlLevel: .currentBiometricsOnly,
+                                                                  localAuthStrings: localAuthStrings))
         self.secureStore = secureStore
     }
 
@@ -52,13 +58,8 @@ struct ContentView: View {
                     .padding()
 
                 Button("Decrypt data") {
-                    let contextStrings = [
-                        "localizedReason": "Local Authentication Reason",
-                        "localizedFallbackTitle": "Passcode",
-                        "localizedCancelTitle": "Cancel"
-                    ]
                     do {
-                        let data = try secureStore.readItem(itemName: myData, contextStrings: contextStrings)
+                        let data = try secureStore.readItem(itemName: myData)
                         decryptedData = data
                     } catch {
                         print(error)

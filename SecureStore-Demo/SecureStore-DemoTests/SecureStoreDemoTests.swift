@@ -7,7 +7,8 @@ final class SecureStoreDemoTests: XCTestCase {
     override func setUp() {
         super.setUp()
         sut = SecureStoreService(configuration: .init(id: "id",
-                                                      accessControlLevel: .open))
+                                                      accessControlLevel: .open,
+                                                      localAuthStrings: nil))
     }
 
     override func tearDown() {
@@ -32,7 +33,7 @@ extension SecureStoreDemoTests {
 
     func test_readItem_itemExists() throws {
         try sut.saveItem(item: "ThisItem", itemName: "ItemName")
-        XCTAssertEqual(try sut.readItem(itemName: "ItemName", contextStrings: nil), "ThisItem")
+        XCTAssertEqual(try sut.readItem(itemName: "ItemName"), "ThisItem")
     }
 
     func test_deleteItem() throws {
@@ -41,7 +42,7 @@ extension SecureStoreDemoTests {
         try sut.deleteItem(itemName: "ThisItem")
 
         do {
-            _ = try sut.readItem(itemName: "ThisItem", contextStrings: nil)
+            _ = try sut.readItem(itemName: "ThisItem")
         } catch let error as SecureStoreError where error == .unableToRetrieveFromUserDefaults {
             exp.fulfill()
         }
@@ -70,7 +71,7 @@ extension SecureStoreDemoTests {
         }
 
         let publicKey = try sut.keyManagerService.retrievePublicKey()
-        let privateKey = try sut.keyManagerService.retrievePrivateKey(contextStrings: nil)
+        let privateKey = try sut.keyManagerService.retrievePrivateKey(localAuthStrings: nil)
         XCTAssertNotNil(publicKey)
         XCTAssertNotNil(privateKey)
     }
@@ -83,7 +84,7 @@ extension SecureStoreDemoTests {
         }
 
         let publicKey = try sut.keyManagerService.retrievePublicKey()
-        let privateKey = try sut.keyManagerService.retrievePrivateKey(contextStrings: nil)
+        let privateKey = try sut.keyManagerService.retrievePrivateKey(localAuthStrings: nil)
         XCTAssertNotNil(publicKey)
         XCTAssertNotNil(privateKey)
 
@@ -99,7 +100,7 @@ extension SecureStoreDemoTests {
         }
 
         let publicKey = try sut.keyManagerService.retrievePublicKey()
-        let privateKey = try sut.keyManagerService.retrievePrivateKey(contextStrings: nil)
+        let privateKey = try sut.keyManagerService.retrievePrivateKey(localAuthStrings: nil)
         XCTAssertNotNil(publicKey)
         XCTAssertNotNil(privateKey)
 
@@ -108,7 +109,7 @@ extension SecureStoreDemoTests {
             return
         }
 
-        let decryptedString = try sut.keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedString, contextStrings: nil)
+        let decryptedString = try sut.keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedString, localAuthStrings: nil)
         XCTAssertNotNil(decryptedString)
     }
 }
