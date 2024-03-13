@@ -103,7 +103,8 @@ extension SecureStoreDemoTests {
             return
         }
 
-        let decryptedString = try sut.keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedString, localAuthStrings: nil)
+        let decryptedString = try sut.keyManagerService
+            .decryptDataWithPrivateKey(dataToDecrypt: encryptedString, localAuthStrings: nil)
         XCTAssertNotNil(decryptedString)
     }
 }
