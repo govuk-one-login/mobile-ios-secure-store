@@ -4,7 +4,7 @@ import LocalAuthentication
 final class KeyManagerService {
     let configuration: SecureStorageConfiguration
 
-    public init(configuration: SecureStorageConfiguration) {
+    init(configuration: SecureStorageConfiguration) {
         self.configuration = configuration
 
         do {
@@ -175,7 +175,7 @@ extension KeyManagerService {
     }
 
     func decryptDataWithPrivateKey(dataToDecrypt: String,
-                                          localAuthStrings: LocalAuthenticationLocalizedStrings?) throws -> String? {
+                                   localAuthStrings: LocalAuthenticationLocalizedStrings?) throws -> String? {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
 
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
