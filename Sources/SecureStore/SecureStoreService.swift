@@ -13,7 +13,7 @@ public class SecureStoreService {
     init(configuration: SecureStorageConfiguration, defaultsStore: DefaultsStore) {
         self.configuration = configuration
         self.secureStoreDefaults = defaultsStore
-        self.keyManagerService = KeyManagerService(configuration: configuration, defaultsStore: defaultsStore)
+        self.keyManagerService = KeyManagerService(configuration: configuration)
     }
 }
 
