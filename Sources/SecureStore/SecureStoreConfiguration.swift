@@ -14,11 +14,15 @@ public struct SecureStorageConfiguration {
         case anyBiometricsOnly
         case currentBiometricsOnly
         case currentBiometricsOrPasscode
+        @available(*, deprecated, renamed: "anyBiometricsOnly")
+        case anyBiometricsOrPasscode
 
         var flags: SecAccessControlCreateFlags {
             switch self {
             case .open:
                 return []
+            case .anyBiometricsOrPasscode:
+                return [.privateKeyUsage, .biometryAny]
             case .anyBiometricsOnly:
                 return [.privateKeyUsage, .biometryAny]
             case .currentBiometricsOnly:
