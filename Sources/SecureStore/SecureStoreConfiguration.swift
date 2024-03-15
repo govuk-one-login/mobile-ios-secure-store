@@ -3,10 +3,14 @@ import Foundation
 public struct SecureStorageConfiguration {
     let id: String
     let accessControlLevel: AccessControlLevel
+    let localAuthStrings: LocalAuthenticationLocalizedStrings?
 
-    public init(id: String, accessControlLevel: AccessControlLevel) {
+    public init(id: String,
+                accessControlLevel: AccessControlLevel,
+                localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) {
         self.id = id
         self.accessControlLevel = accessControlLevel
+        self.localAuthStrings = localAuthStrings
     }
 
     public enum AccessControlLevel {

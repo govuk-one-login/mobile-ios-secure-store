@@ -1,16 +1,11 @@
 import Foundation
+import LocalAuthentication
 
-class KeyManagerService {
-    let defaultsStore: DefaultsStore
-    private let configuration: SecureStorageConfiguration
+final class KeyManagerService {
+    let configuration: SecureStorageConfiguration
 
-    public convenience init(configuration: SecureStorageConfiguration) {
-        self.init(configuration: configuration, defaultsStore: UserDefaultsStore())
-    }
-
-    init(configuration: SecureStorageConfiguration, defaultsStore: DefaultsStore) {
+    init(configuration: SecureStorageConfiguration) {
         self.configuration = configuration
-        self.defaultsStore = defaultsStore
 
         do {
             try createKeysIfNeeded(name: configuration.id)
@@ -24,7 +19,7 @@ class KeyManagerService {
 extension KeyManagerService {
     // Creating a key pair where the public key is stored in the keychain
     // and the private key is stored in the Secure Enclave
-    public func createKeysIfNeeded(name: String) throws {
+    func createKeysIfNeeded(name: String) throws {
 
         // Check if keys already exist in storage
         do {
@@ -68,7 +63,7 @@ extension KeyManagerService {
     }
 
     // Store a given key to the keychain in order to reuse it later
-    public func storeKeys(keyToStore: SecKey, name: String) throws {
+    func storeKeys(keyToStore: SecKey, name: String) throws {
         let key = keyToStore
         let tag = name.data(using: .utf8)!
         let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
@@ -83,19 +78,24 @@ extension KeyManagerService {
     }
 
     // Deletes a given key to the keychain
-    public func deleteKeys(name: String) throws {
-        let tag = name.data(using: .utf8)!
-        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
-                                       kSecAttrApplicationTag as String: tag]
+    func deleteKeys() throws {
+        let keyType = ["PublicKey", "PrivateKey"]
+        try keyType.forEach { key in
+            let keyName = configuration.id + key
+            let tag = keyName.data(using: .utf8)!
+            let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
+                                           kSecAttrApplicationTag as String: tag]
 
-        let status = SecItemDelete(addquery as CFDictionary)
-        guard status == errSecSuccess else {
-            throw SecureStoreError.cantStoreKey
+            let status = SecItemDelete(addquery as CFDictionary)
+            guard status == errSecSuccess else {
+                throw SecureStoreError.cantStoreKey
+            }
         }
     }
 
     // Retrieve a key that has been stored before
-    public func retrieveKeys() throws -> (publicKey: SecKey, privateKey: SecKey) {
+    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
+                                                                                               privateKey: SecKey) {
         guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else {
             throw SecureStoreError.cantInitialiseData
         }
@@ -104,12 +104,23 @@ extension KeyManagerService {
         }
 
         // This constructs a query that will be sent to keychain
-        let privateQuery: NSDictionary = [
-            kSecClass: kSecClassKey,
-            kSecAttrApplicationTag: privateKeyTag,
-            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecReturnRef: true
-        ]
+        var privateQuery: NSDictionary {
+            let context = LAContext()
+
+            if let localAuthStrings {
+                // Local Authentication prompt strings
+                context.localizedReason = localAuthStrings.localizedReason
+                context.localizedFallbackTitle = localAuthStrings.localisedFallbackTitle
+                context.localizedCancelTitle = localAuthStrings.localisedCancelTitle
+            }
+            return [
+                kSecClass: kSecClassKey,
+                kSecAttrApplicationTag: privateKeyTag,
+                kSecUseAuthenticationContext as String: context,
+                kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+                kSecReturnRef: true
+            ]
+        }
 
         var privateKey: CFTypeRef?
         let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
@@ -143,7 +154,7 @@ extension KeyManagerService {
 
 // MARK: Encryption and Decryption
 extension KeyManagerService {
-    public func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String? {
+    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String? {
         let publicKey = try retrieveKeys().publicKey
 
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
@@ -167,8 +178,8 @@ extension KeyManagerService {
         return encryptedString
     }
 
-    public func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String? {
-        let privateKeyRepresentation = try retrieveKeys().privateKey
+    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String? {
+        let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
 
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
             throw SecureStoreError.cantDecryptData

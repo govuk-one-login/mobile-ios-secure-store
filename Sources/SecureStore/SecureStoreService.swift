@@ -2,18 +2,18 @@ import Foundation
 import LocalAuthentication
 
 public class SecureStoreService {
-    let secureStoreDefaults: DefaultsStore
     let keyManagerService: KeyManagerService
-    private let configuration: SecureStorageConfiguration
+    let secureStoreDefaults: DefaultsStore
 
     public convenience init(configuration: SecureStorageConfiguration) {
-        self.init(configuration: configuration, defaultsStore: UserDefaultsStore())
+        self.init(keyManagerService: KeyManagerService(configuration: configuration),
+                  defaultsStore: UserDefaultsStore())
     }
 
-    init(configuration: SecureStorageConfiguration, defaultsStore: DefaultsStore) {
-        self.configuration = configuration
+    init(keyManagerService: KeyManagerService,
+         defaultsStore: DefaultsStore) {
+        self.keyManagerService = keyManagerService
         self.secureStoreDefaults = defaultsStore
-        self.keyManagerService = KeyManagerService(configuration: configuration, defaultsStore: defaultsStore)
     }
 }
 
@@ -46,7 +46,6 @@ extension SecureStoreService: SecureStorable {
     }
 
     public func delete() throws {
-        try keyManagerService.deleteKeys(name: "\(configuration.id)PrivateKey")
-        try keyManagerService.deleteKeys(name: "\(configuration.id)PublicKey")
+        try keyManagerService.deleteKeys()
     }
 }

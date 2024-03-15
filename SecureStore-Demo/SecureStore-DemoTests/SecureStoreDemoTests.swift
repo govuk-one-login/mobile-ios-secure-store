@@ -2,16 +2,22 @@ import XCTest
 @testable import SecureStore
 
 final class SecureStoreDemoTests: XCTestCase {
+    var testAuthStrings: LocalAuthenticationLocalizedStrings!
     var sut: SecureStoreService!
 
     override func setUp() {
         super.setUp()
+        testAuthStrings = LocalAuthenticationLocalizedStrings(localizedReason: "Local Authentication Reason",
+                                                              localisedFallbackTitle: "Enter passcode",
+                                                              localisedCancelTitle: "Cancel")
         sut = SecureStoreService(configuration: .init(id: "id",
-                                                      accessControlLevel: .open))
+                                                      accessControlLevel: .open,
+                                                      localAuthStrings: testAuthStrings))
     }
 
     override func tearDown() {
         super.tearDown()
+        testAuthStrings = nil
         sut = nil
     }
 }
@@ -103,7 +109,8 @@ extension SecureStoreDemoTests {
             return
         }
 
-        let decryptedString = try sut.keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
+        let decryptedString = try sut.keyManagerService
+            .decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
         XCTAssertNotNil(decryptedString)
     }
 }
