@@ -17,7 +17,6 @@ public struct SecureStorageConfiguration {
         case currentBiometricsOnly
         case currentBiometricsOrPasscode
 
-
         var flags: SecAccessControlCreateFlags {
             switch self {
             case .open:

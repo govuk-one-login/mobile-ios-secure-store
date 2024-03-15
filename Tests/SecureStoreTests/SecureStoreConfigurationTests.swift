@@ -14,7 +14,7 @@ final class SecureStoreConfigurationTests: XCTestCase {
         sut = SecureStorageConfiguration(id: "test_id", accessControlLevel: .anyBiometricsOnly)
         XCTAssertEqual(sut.accessControlLevel.flags, [.privateKeyUsage, .biometryAny])
     }
-    
+
     func test_configFlags_anyBiometricsOrPasscode() throws {
         sut = SecureStorageConfiguration(id: "test_id", accessControlLevel: .anyBiometricsOrPasscode)
         XCTAssertEqual(sut.accessControlLevel.flags, [.privateKeyUsage, .biometryAny])
