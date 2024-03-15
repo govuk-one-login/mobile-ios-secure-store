@@ -2,8 +2,8 @@ import Foundation
 import LocalAuthentication
 
 public class SecureStoreService {
-    let secureStoreDefaults: DefaultsStore
     let keyManagerService: KeyManagerService
+    let secureStoreDefaults: DefaultsStore
 
     public convenience init(configuration: SecureStorageConfiguration) {
         self.init(keyManagerService: KeyManagerService(configuration: configuration),
@@ -12,8 +12,8 @@ public class SecureStoreService {
 
     init(keyManagerService: KeyManagerService,
          defaultsStore: DefaultsStore) {
-        self.secureStoreDefaults = defaultsStore
         self.keyManagerService = keyManagerService
+        self.secureStoreDefaults = defaultsStore
     }
 }
 
