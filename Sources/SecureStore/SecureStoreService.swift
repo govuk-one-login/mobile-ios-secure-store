@@ -4,16 +4,16 @@ import LocalAuthentication
 public class SecureStoreService {
     let secureStoreDefaults: DefaultsStore
     let keyManagerService: KeyManagerService
-    private let configuration: SecureStorageConfiguration
 
     public convenience init(configuration: SecureStorageConfiguration) {
-        self.init(configuration: configuration, defaultsStore: UserDefaultsStore())
+        self.init(keyManagerService: KeyManagerService(configuration: configuration),
+                  defaultsStore: UserDefaultsStore())
     }
 
-    init(configuration: SecureStorageConfiguration, defaultsStore: DefaultsStore) {
-        self.configuration = configuration
+    init(keyManagerService: KeyManagerService,
+         defaultsStore: DefaultsStore) {
         self.secureStoreDefaults = defaultsStore
-        self.keyManagerService = KeyManagerService(configuration: configuration)
+        self.keyManagerService = keyManagerService
     }
 }
 
@@ -28,8 +28,7 @@ extension SecureStoreService: SecureStorable {
         guard let encryptedData = try secureStoreDefaults.getItem(itemName: itemName) else {
             throw SecureStoreError.unableToRetrieveFromUserDefaults
         }
-        return try keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedData,
-                                                               localAuthStrings: configuration.localAuthStrings)
+        return try keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedData)
     }
 
     public func saveItem(item: String, itemName: String) throws {
@@ -47,7 +46,6 @@ extension SecureStoreService: SecureStorable {
     }
 
     public func delete() throws {
-        try keyManagerService.deleteKeys(name: "\(configuration.id)PrivateKey")
-        try keyManagerService.deleteKeys(name: "\(configuration.id)PublicKey")
+        try keyManagerService.deleteKeys()
     }
 }

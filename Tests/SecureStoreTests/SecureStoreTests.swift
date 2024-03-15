@@ -11,7 +11,7 @@ final class SecureStoreTests: XCTestCase {
 
         let config = SecureStorageConfiguration(id: "New_ID", accessControlLevel: .open)
 
-        sut = SecureStoreService(configuration: config,
+        sut = SecureStoreService(keyManagerService: KeyManagerService(configuration: config),
                                  defaultsStore: mockDefaultsStore)
     }
 

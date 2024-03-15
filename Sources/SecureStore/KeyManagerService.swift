@@ -78,14 +78,18 @@ extension KeyManagerService {
     }
 
     // Deletes a given key to the keychain
-    func deleteKeys(name: String) throws {
-        let tag = name.data(using: .utf8)!
-        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
-                                       kSecAttrApplicationTag as String: tag]
+    func deleteKeys() throws {
+        let keyType = ["PublicKey", "PrivateKey"]
+        try keyType.forEach { key in
+            let keyName = configuration.id + key
+            let tag = keyName.data(using: .utf8)!
+            let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
+                                           kSecAttrApplicationTag as String: tag]
 
-        let status = SecItemDelete(addquery as CFDictionary)
-        guard status == errSecSuccess else {
-            throw SecureStoreError.cantStoreKey
+            let status = SecItemDelete(addquery as CFDictionary)
+            guard status == errSecSuccess else {
+                throw SecureStoreError.cantStoreKey
+            }
         }
     }
 
@@ -174,8 +178,7 @@ extension KeyManagerService {
         return encryptedString
     }
 
-    func decryptDataWithPrivateKey(dataToDecrypt: String,
-                                   localAuthStrings: LocalAuthenticationLocalizedStrings?) throws -> String? {
+    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String? {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
 
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
