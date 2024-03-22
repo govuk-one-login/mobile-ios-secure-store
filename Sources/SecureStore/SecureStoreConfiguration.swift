@@ -16,7 +16,6 @@ public struct SecureStorageConfiguration {
     public enum AccessControlLevel {
         case `open`
         case anyBiometricsOnly
-        @available(*, deprecated, renamed: "anyBiometricsOnly")
         case anyBiometricsOrPasscode
         case currentBiometricsOnly
         case currentBiometricsOrPasscode
@@ -28,7 +27,7 @@ public struct SecureStorageConfiguration {
             case .anyBiometricsOnly:
                 return [.privateKeyUsage, .biometryAny]
             case .anyBiometricsOrPasscode:
-                return [.privateKeyUsage, .biometryAny]
+                return [.privateKeyUsage, .userPresence]
             case .currentBiometricsOnly:
                 return [.privateKeyUsage, .biometryCurrentSet]
             case .currentBiometricsOrPasscode:
