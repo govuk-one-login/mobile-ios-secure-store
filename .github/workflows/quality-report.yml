@@ -9,21 +9,21 @@ jobs:
   build:
     name: Run Quality Report
     runs-on: macos-13
-    
+
     steps:
       - name: Add path globally
         run: echo "/usr/local/bin" >> $GITHUB_PATH
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # pin@v4
         with:
           lfs: 'true'
-          
+
       - name: Build and Test
         run: |
-            xcodebuild -scheme SecureStore-Demo test -destination "platform=iOS Simulator,name=iPhone 14,OS=latest" -testPlan UnitTestPlan \
-            -enableCodeCoverage YES -resultBundlePath result.xcresult
-            
+          xcodebuild -scheme SecureStore-Demo test -destination "platform=iOS Simulator,name=iPhone 14,OS=latest" -testPlan UnitTestPlan \
+          -enableCodeCoverage YES -resultBundlePath result.xcresult
+
       - name: Run SonarCloud Scanning
         run: |
           rm '/usr/local/bin/2to3'
@@ -48,11 +48,11 @@ jobs:
           rm '/usr/local/bin/pydoc3.11'
           rm '/usr/local/bin/python3.11'
           rm '/usr/local/bin/python3.11-config'
-          
+
           bash xccov-to-sonarqube-generic.sh result.xcresult/ >Coverage.xml
-          
+
           brew install sonar-scanner
-          
+
           sonar-scanner \
             -Dsonar.token=$SONAR_TOKEN \
             -Dsonar.coverageReportPaths="Coverage.xml"
