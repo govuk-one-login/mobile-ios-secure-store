@@ -13,7 +13,7 @@ jobs:
   build:
     name: Build and Test default scheme using any available iPhone simulator
     if: github.event.pull_request.draft == false
-    runs-on: macos-13
+    runs-on: macos-14
 
     steps:
       - name: Add path globally
@@ -26,40 +26,25 @@ jobs:
           fetch-depth: 0
 
       - name: Run Linter
-        run: |+
+        run: |
+          brew install swiftlint
           swiftlint --strict
-            
+
+      - name: Xcode select
+        run: |
+          sudo xcode-select -s /Applications/Xcode_15.2.app
+
       - name: Build and Test
         run: |
-          xcodebuild -scheme SecureStore-Demo test -destination "platform=iOS Simulator,name=iPhone 14,OS=latest" -testPlan UnitTestPlan \
-          -enableCodeCoverage YES -resultBundlePath result.xcresult
+          xcodebuild -scheme SecureStore-Demo test \
+            -destination "platform=macOS,arch=arm64,variant=Mac Catalyst" \
+            -testPlan UnitTestPlan \
+            -enableCodeCoverage YES \
+            -resultBundlePath result.xcresult
 
       - name: Run SonarCloud Scanning
         run: |
-          rm '/usr/local/bin/2to3'
-          rm '/usr/local/bin/2to3-3.12'
-          rm '/usr/local/bin/idle3'
-          rm '/usr/local/bin/idle3.12'
-          rm '/usr/local/bin/pydoc3'
-          rm '/usr/local/bin/pydoc3.12'
-          rm '/usr/local/bin/python3'
-          rm '/usr/local/bin/python3-config'
-          rm '/usr/local/bin/python3.12'
-          rm '/usr/local/bin/python3.12-config'
-          rm '/usr/local/share/man/man1/python3.1'
-          rm '/usr/local/lib/pkgconfig/python3-embed.pc'
-          rm '/usr/local/lib/pkgconfig/python3.pc'
-          rm '/usr/local/Frameworks/Python.framework/Headers'
-          rm '/usr/local/Frameworks/Python.framework/Python'
-          rm '/usr/local/Frameworks/Python.framework/Resources'
-          rm '/usr/local/Frameworks/Python.framework/Versions/Current'
-          rm '/usr/local/bin/2to3-3.11'
-          rm '/usr/local/bin/idle3.11'
-          rm '/usr/local/bin/pydoc3.11'
-          rm '/usr/local/bin/python3.11'
-          rm '/usr/local/bin/python3.11-config'
-
-          bash xccov-to-sonarqube-generic.sh result.xcresult/ >Coverage.xml
+          bash xccov-to-sonarqube-generic.sh result.xcresult > sonarqube-generic-coverage.xml
 
           brew install sonar-scanner
 
@@ -67,7 +52,7 @@ jobs:
 
           sonar-scanner \
             -Dsonar.token=$SONAR_TOKEN \
-            -Dsonar.coverageReportPaths="Coverage.xml" \
+            -Dsonar.coverageReportPaths="sonarqube-generic-coverage.xml" \
             -Dsonar.pullrequest.key=$pull_number \
             -Dsonar.pullrequest.branch=${{github.head_ref}} \
             -Dsonar.pullrequest.base=${{github.base_ref}}
