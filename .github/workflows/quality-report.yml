@@ -9,6 +9,8 @@ jobs:
   build:
     name: Run Quality Report
     runs-on: macos-14
+    permissions:
+      contents: write
 
     steps:
       - name: Add path globally
