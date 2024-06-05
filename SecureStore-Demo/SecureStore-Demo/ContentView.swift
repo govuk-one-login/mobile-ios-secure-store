@@ -1,5 +1,5 @@
-import SwiftUI
 import SecureStore
+import SwiftUI
 
 struct ContentView: View {
     @State private var encryptedData: String? = ""

@@ -1,5 +1,5 @@
-import XCTest
 @testable import SecureStore
+import XCTest
 
 final class SecureStoreDemoTests: XCTestCase {
     var testAuthStrings: LocalAuthenticationLocalizedStrings!

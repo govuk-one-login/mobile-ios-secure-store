@@ -96,10 +96,13 @@ extension KeyManagerService {
     // Retrieve a key that has been stored before
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
-        guard let privateKeyTag = "\(configuration.id)PrivateKey".data(using: .utf8) else {
+        let privateKeyTagData: Data? = Data("\(configuration.id)PrivateKey".utf8)
+        let publicKeyTagData: Data? = Data("\(configuration.id)PublicKey".utf8)
+
+        guard let privateKeyTag = privateKeyTagData else {
             throw SecureStoreError.cantInitialiseData
         }
-        guard let publicKeyTag = "\(configuration.id)PublicKey".data(using: .utf8) else {
+        guard let publicKeyTag = publicKeyTagData else {
             throw SecureStoreError.cantInitialiseData
         }
 
@@ -193,7 +196,9 @@ extension KeyManagerService {
             throw SecureStoreError.cantDecryptData
         }
 
-        guard let decryptedString = String(data: decryptData as Data, encoding: String.Encoding.utf8) else {
+        let dataToDecrypt: String? = String(decoding: decryptData as Data, as: UTF8.self)
+
+        guard let decryptedString = dataToDecrypt else {
             throw SecureStoreError.cantDecryptData
         }
 
