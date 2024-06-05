@@ -2,7 +2,6 @@ import LocalAuthentication
 @testable import SecureStore
 import XCTest
 
-
 final class SecureStoreTests: XCTestCase {
     var sut: SecureStoreService!
     let mockDefaultsStore = MockDefaultsStore()
