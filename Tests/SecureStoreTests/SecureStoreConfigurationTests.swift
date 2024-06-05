@@ -1,6 +1,6 @@
+import LocalAuthentication
 @testable import SecureStore
 import XCTest
-import LocalAuthentication
 
 final class SecureStoreConfigurationTests: XCTestCase {
     var sut: SecureStorageConfiguration!
