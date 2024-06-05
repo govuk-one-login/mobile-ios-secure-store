@@ -96,15 +96,8 @@ extension KeyManagerService {
     // Retrieve a key that has been stored before
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
-        let privateKeyTagData: Data? = Data("\(configuration.id)PrivateKey".utf8)
-        let publicKeyTagData: Data? = Data("\(configuration.id)PublicKey".utf8)
-
-        guard let privateKeyTag = privateKeyTagData else {
-            throw SecureStoreError.cantInitialiseData
-        }
-        guard let publicKeyTag = publicKeyTagData else {
-            throw SecureStoreError.cantInitialiseData
-        }
+        let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
+        let publicKeyTag = Data("\(configuration.id)PublicKey".utf8)
 
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
@@ -196,11 +189,7 @@ extension KeyManagerService {
             throw SecureStoreError.cantDecryptData
         }
 
-        let dataToDecrypt: String? = String(decoding: decryptData as Data, as: UTF8.self)
-
-        guard let decryptedString = dataToDecrypt else {
-            throw SecureStoreError.cantDecryptData
-        }
+        let decryptedString: String? = String(decoding: decryptData as Data, as: UTF8.self)
 
         return decryptedString
     }
