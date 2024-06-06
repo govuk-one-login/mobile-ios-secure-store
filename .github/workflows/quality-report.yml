@@ -9,6 +9,8 @@ jobs:
   build:
     name: Run Quality Report
     runs-on: macos-14
+    permissions:
+      contents: write
 
     steps:
       - name: Add path globally
@@ -29,7 +31,7 @@ jobs:
             -destination "platform=iOS Simulator,name=iPhone 14,OS=latest" \
             -testPlan UnitTestPlan \
             -enableCodeCoverage YES \
-            -resultBundlePath result.xcresult
+            -resultBundlePath result.xcresult | xcbeautify
 
       - name: Run SonarCloud Scanning
         run: |
