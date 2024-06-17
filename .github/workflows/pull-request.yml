@@ -20,7 +20,7 @@ jobs:
         run: echo "/usr/local/bin" >> $GITHUB_PATH
 
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
         with:
           lfs: 'true'
           fetch-depth: 0
@@ -43,7 +43,7 @@ jobs:
       - name: Build and Test
         run: |
           xcodebuild -scheme SecureStore-Demo test \
-            -destination "platform=iOS Simulator,name=iPhone 14,OS=latest" \
+            -destination "platform=iOS Simulator,name=iPhone 14,OS=17.5" \
             -testPlan UnitTestPlan \
             -enableCodeCoverage YES \
             -resultBundlePath result.xcresult | xcbeautify
