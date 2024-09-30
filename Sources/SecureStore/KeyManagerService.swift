@@ -189,7 +189,9 @@ extension KeyManagerService {
             throw SecureStoreError.cantDecryptData
         }
         
-        let decryptedString = String(decoding: decryptData as Data, as: UTF8.self)
+        guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
+            throw SecureStoreError.cantDecryptData
+        }
         
         return decryptedString
     }
