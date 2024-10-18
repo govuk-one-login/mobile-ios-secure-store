@@ -13,8 +13,8 @@ let package = Package(
             targets: ["SecureStore"]
         ),
         .library(
-            name: "KeyService",
-            targets: ["KeyService"]
+            name: "CryptographyService",
+            targets: ["CryptographyService"]
         )
     ],
     dependencies: [
@@ -25,7 +25,8 @@ let package = Package(
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
-            name: "SecureStore"
+            name: "SecureStore",
+            dependencies: ["CryptographyService"]
         ),
         .testTarget(
             name: "SecureStoreTests",
@@ -33,11 +34,11 @@ let package = Package(
         ),
         
         .target(
-            name: "KeyService"
+            name: "CryptographyService"
         ),
         .testTarget(
-            name: "KeyServiceTests",
-            dependencies: ["KeyService"]
+            name: "CryptographyServiceTests",
+            dependencies: ["CryptographyService"]
         )
     ]
 )
