@@ -1,198 +1,208 @@
+import BigInt
+import CryptoKit
 import Foundation
-import LocalAuthentication
 
-final class KeyServiceManager {
-    let configuration: SecureStorageConfiguration
-    
-    init(configuration: SecureStorageConfiguration) {
-        self.configuration = configuration
-        
-        do {
-            try createKeysIfNeeded(name: configuration.id)
-        } catch {
-            return
-        }
-    }
+public enum KeyError: Error {
+    /// The public key could not be created
+    case couldNotCreatePublicKey
+
+    /// The key pair could not be fetched from the keychain
+    case couldNotFetchKeyPair
+
+    /// The signature verification failed
+    case unableToVerifySignature
+
+    /// This method is not supported on the current OS version
+    case unsupportedOS
+
+    /// No result was returned but no error was thrown by the `Security` framework
+    case unknown
 }
 
-// MARK: Interaction with SecureEnclave
-extension KeyServiceManager {
-    // Creating a key pair where the public key is stored in the keychain
-    // and the private key is stored in the Secure Enclave
-    func createKeysIfNeeded(name: String) throws {
-        
-        // Check if keys already exist in storage
-        do {
-            _ = try retrieveKeys()
-            return
-        } catch let error as SecureStoreError where error == .cantRetrieveKey {
-            // Keys do not exist yet, continue below to create and save them
+public final class CryptographyService {
+    private var keys: KeyPair?
+
+    func setup() throws {
+        let privateKey = try getPrivateKey()
+
+        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
+            throw KeyError.couldNotCreatePublicKey
         }
-        
+
+        self.keys = .init(publicKey: publicKey, privateKey: privateKey)
+    }
+
+    func signAndVerifyData(data: Data) throws -> Data {
+        guard let privateKey = keys?.privateKey,
+              let publicKey = keys?.publicKey else {
+            throw KeyError.couldNotFetchKeyPair
+        }
+
+        var error: Unmanaged<CFError>?
+
+        if #available(iOS 17.0, *) {
+            guard let signature = SecKeyCreateSignature(privateKey,
+                                                        .ecdsaSignatureMessageRFC4754SHA256,
+                                                        data as CFData,
+                                                        &error) as Data? else {
+                guard let error = error?.takeRetainedValue() as? Error else {
+                    throw KeyError.unknown
+                }
+                throw error
+            }
+
+            let dataAsCFData = data as CFData
+            let signatureAsCFData = signature as CFData
+
+            guard SecKeyVerifySignature(publicKey,
+                                        .ecdsaSignatureMessageRFC4754SHA256,
+                                        dataAsCFData,
+                                        signatureAsCFData,
+                                        nil) else {
+                throw KeyError.unableToVerifySignature
+            }
+            return signature
+        } else {
+            // Fallback on earlier versions
+            throw KeyError.unsupportedOS
+        }
+    }
+
+    /// query to get the private key from the keychain if it already exists
+    func getPrivateKey() throws -> SecKey {
+        let privateKeyTag = Data("OpenIDPrivateKey".utf8)
+
+        let privateQuery: NSDictionary = [
+            kSecClass: kSecClassKey,
+            kSecAttrApplicationTag as String: privateKeyTag,
+            kSecAttrKeyType: kSecAttrKeyTypeEC,
+            kSecReturnRef as String: true
+        ]
+
+        var privateKey: CFTypeRef?
+        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
+
+        guard privateStatus == errSecSuccess else {
+            return try createPrivateKey()
+        }
+
+        // swiftlint:disable:next force_cast
+        return privateKey as! SecKey
+    }
+
+    func createPrivateKey() throws -> SecKey {
+        let privateKeyTag = Data("OpenIDPrivateKey".utf8)
+
+        var accessError: Unmanaged<CFError>?
+
+        #if targetEnvironment(simulator)
+        let requirement: SecAccessControlCreateFlags = []
+        #else
+        let requirement: SecAccessControlCreateFlags = [.privateKeyUsage, .biometryCurrentSet, .or, .devicePasscode]
+        #endif
+
+        /// adds local auth requirements for when the private key is created
         guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                                                           configuration.accessControlLevel.flags,
-                                                           nil),
-              let tag = name.data(using: .utf8) else { return }
-        
+                                                           requirement,
+                                                           &accessError) else {
+            guard let error = accessError?.takeRetainedValue() as? Error else {
+                throw KeyError.unknown
+            }
+            throw error
+        }
+
         let attributes: NSDictionary = [
-            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecAttrKeyType: kSecAttrKeyTypeEC,
             kSecAttrKeySizeInBits: 256,
             kSecAttrTokenID: kSecAttrTokenIDSecureEnclave,
             kSecPrivateKeyAttrs: [
                 kSecAttrIsPermanent: true,
-                kSecAttrApplicationTag: tag,
+                kSecAttrApplicationTag: privateKeyTag,
                 kSecAttrAccessControl: access
             ]
         ]
-        
+
         var error: Unmanaged<CFError>?
+
         guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
             guard let error = error?.takeRetainedValue() as? Error else {
-                throw SecureStoreError.cantEncryptData
+                throw KeyError.unknown
             }
             throw error
         }
-        
-        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            throw SecureStoreError.cantGetPublicKeyFromPrivateKey
-        }
-        
-        try storeKeys(keyToStore: publicKey, name: "\(name)PublicKey")
-        try storeKeys(keyToStore: privateKey, name: "\(name)PrivateKey")
+        return privateKey
     }
-    
-    // Store a given key to the keychain in order to reuse it later
-    func storeKeys(keyToStore: SecKey, name: String) throws {
-        let key = keyToStore
-        let tag = name.data(using: .utf8)!
-        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
-                                       kSecAttrApplicationTag as String: tag,
-                                       kSecValueRef as String: key]
-        
-        // Add item to KeyChain
-        let status = SecItemAdd(addquery as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw SecureStoreError.cantStoreKey
-        }
-    }
-    
-    // Deletes a given key to the keychain
-    func deleteKeys() throws {
-        let keyType = ["PublicKey", "PrivateKey"]
-        try keyType.forEach { key in
-            let keyName = configuration.id + key
-            let tag = keyName.data(using: .utf8)!
-            let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
-                                           kSecAttrApplicationTag as String: tag]
-            
-            let status = SecItemDelete(addquery as CFDictionary)
-            guard status == errSecSuccess else {
-                throw SecureStoreError.cantDeleteKey
-            }
-        }
-    }
-    
-    // Retrieve a key that has been stored before
-    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
-                                                                                               privateKey: SecKey) {
-        let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
-        let publicKeyTag = Data("\(configuration.id)PublicKey".utf8)
-        
-        // This constructs a query that will be sent to keychain
-        var privateQuery: NSDictionary {
-            let context = LAContext()
-            
-            if let localAuthStrings {
-                // Local Authentication prompt strings
-                context.localizedReason = localAuthStrings.localizedReason
-                context.localizedFallbackTitle = localAuthStrings.localisedFallbackTitle
-                context.localizedCancelTitle = localAuthStrings.localisedCancelTitle
-            }
-            return [
-                kSecClass: kSecClassKey,
-                kSecAttrApplicationTag: privateKeyTag,
-                kSecUseAuthenticationContext as String: context,
-                kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-                kSecReturnRef: true
-            ]
-        }
-        
-        var privateKey: CFTypeRef?
-        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
-        
-        // errSecSuccess is the result code returned when no error was found with the query
-        guard privateStatus == errSecSuccess else {
-            throw SecureStoreError.cantRetrieveKey
-        }
-        
-        // This constructs a query that will be sent to keychain
-        let publicQuery: NSDictionary = [
-            kSecClass: kSecClassKey,
-            kSecAttrApplicationTag: publicKeyTag,
-            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecReturnRef: true
-        ]
-        
-        var publicKey: CFTypeRef?
-        let publicStatus = SecItemCopyMatching(publicQuery as CFDictionary, &publicKey)
-        
-        // errSecSuccess is the result code returned when no error was found with the query
-        guard publicStatus == errSecSuccess else {
-            throw SecureStoreError.cantRetrieveKey
-        }
-        
-        // swiftlint:disable force_cast
-        return (publicKey as! SecKey, privateKey as! SecKey)
-        // swiftlint:enable force_cast
-    }
-}
 
-// MARK: Encryption and Decryption
-extension KeyServiceManager {
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
-        let publicKey = try retrieveKeys().publicKey
-        
-        guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw SecureStoreError.cantEncryptData
-        }
-        
-        var error: Unmanaged<CFError>?
-        guard let encryptData = SecKeyCreateEncryptedData(publicKey,
-                                                          SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
-                                                          formattedData as CFData,
-                                                          &error) else {
-            guard let error = error?.takeRetainedValue() as? Error else {
-                throw SecureStoreError.cantEncryptData
-            }
-            throw error
-        }
-        
-        let encryptedData = encryptData as Data
-        let encryptedString = encryptedData.base64EncodedString(options: [])
-        
-        return encryptedString
+    func deleteKeys() throws {
+        let tag = Data("OpenIDPrivateKey".utf8)
+        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
+                                       kSecAttrApplicationTag as String: tag]
+
+        _ = SecItemDelete(addquery as CFDictionary)
     }
-    
-    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
-        let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
-        
-        guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw SecureStoreError.cantDecryptData
+
+    /// Key compression eliminates redundant or unnecessary characters from the key data.
+    /// A compressed key is a 32 byte value for the x coordinate prepended with 02 or a 03 to represent when y is even (02) or odd (03).
+    /// Swift provides a function to do this but it is only available in iOS 16+.
+    /// So this function is required for devices running older OS versions.
+    ///
+    /// - Parameters:
+    ///     - publicKeyData: The key to be compressed
+    func manuallyGenerateCompressedKey(publicKeyData: Data) -> Data {
+        let publicKeyUInt8 = [UInt8](publicKeyData)
+        let publicKeyXCoordinate = publicKeyUInt8[1...32]
+        let prefix: UInt8 = 2 + (publicKeyData[publicKeyData.count - 1] & 1)
+        let mutableXCoordinateArrayUInt8 = [UInt8](publicKeyXCoordinate)
+        let prefixArray = [prefix]
+        return Data(prefixArray + mutableXCoordinateArrayUInt8)
+    }
+
+    /// Returns a did:key representation of the wallet ownership key.
+    /// did:key is a format for representing a public key. Specification:  https://w3c-ccg.github.io/did-method-key/
+    func generateDidKey() throws -> String {
+        guard let secPublicKey = keys?.publicKey,
+              let publicKey = SecKeyCopyExternalRepresentation(secPublicKey, nil) else {
+            throw KeyError.couldNotFetchKeyPair
         }
-        
-        // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
-        guard let decryptData = SecKeyCreateDecryptedData(privateKeyRepresentation,
-                                                          SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
-                                                          formattedData as CFData,
-                                                          nil) else {
-            throw SecureStoreError.cantDecryptData
+
+        let publicKeyData = publicKey as Data
+        var compressedKey: Data
+
+        if #available(iOS 16.0, *) {
+            let p256PublicKey = try P256.Signing.PublicKey(x963Representation: publicKeyData)
+            compressedKey = p256PublicKey.compressedRepresentation
+        } else {
+            compressedKey = manuallyGenerateCompressedKey(publicKeyData: publicKeyData)
         }
-        
-        guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw SecureStoreError.cantDecryptData
+
+        let multicodecPrefix: [UInt8] = [0x80, 0x24] // P-256 elliptic curve
+        let multicodecData = multicodecPrefix + compressedKey
+
+        let base58Data = encodeBase58(Data(multicodecData))
+
+        let didKey = "did:key:z" + base58Data
+
+        return didKey
+    }
+
+    func encodeBase58(_ data: Data) -> String {
+        var bigInt = BigUInt(data)
+        let base58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+        var result = ""
+
+        while bigInt > 0 {
+            let (quotient, remainder) = bigInt.quotientAndRemainder(dividingBy: 58)
+            result = String(base58[String.Index(utf16Offset: Int(remainder), in: base58)]) + result
+            bigInt = quotient
         }
-        
-        return decryptedString
+
+        for byte in data {
+            if byte != 0x00 {
+                break
+            }
+            result = "1" + result
+        }
+        return result
     }
 }
