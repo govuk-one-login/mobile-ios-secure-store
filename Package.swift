@@ -10,7 +10,12 @@ let package = Package(
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "SecureStore",
-            targets: ["SecureStore"])
+            targets: ["SecureStore"]
+        ),
+        .library(
+            name: "KeyService",
+            targets: ["KeyService"]
+        )
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -24,6 +29,15 @@ let package = Package(
         ),
         .testTarget(
             name: "SecureStoreTests",
-            dependencies: ["SecureStore"])
+            dependencies: ["SecureStore"]
+        ),
+        
+        .target(
+            name: "KeyService"
+        ),
+        .testTarget(
+            name: "KeyServiceTests",
+            dependencies: ["KeyService"]
+        )
     ]
 )
