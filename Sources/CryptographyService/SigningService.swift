@@ -3,6 +3,17 @@ import Security
 import CryptoKit
 import Foundation
 
+public enum SigningServiceError: Error {
+    /// The public key external representation could not be created
+    case couldNotCreatePublicKeyAsData
+    
+    /// No result was returned but no error was thrown creating the signature by the `Security` framework
+    case unknownCreateSignatureError
+    
+    /// No result was returned but no error was thrown by verifying the signature by the `Security` framework
+    case unknownVerifySignatureError
+}
+
 public final class SigningService {
     private let keyPairAdministrator: KeyPairAdministrator
     private let keys: KeyPair
@@ -10,7 +21,7 @@ public final class SigningService {
     var publicKey: Data {
         get throws {
             guard let publicKeyData = SecKeyCopyExternalRepresentation(keys.publicKey, nil) else {
-                throw CryptographyServiceError.couldNotCreatePublicKeyAsData
+                throw SigningServiceError.couldNotCreatePublicKeyAsData
             }
             return publicKeyData as Data
         }
@@ -32,7 +43,7 @@ public final class SigningService {
                                                     data as CFData,
                                                     &createError) as Data? else {
             guard let error = createError?.takeRetainedValue() as? Error else {
-                throw CryptographyServiceError.unknownCreateSignatureError
+                throw SigningServiceError.unknownCreateSignatureError
             }
             throw error
         }
@@ -47,7 +58,7 @@ public final class SigningService {
                                     signatureAsCFData,
                                     &verifyError) else {
             guard let error = verifyError?.takeRetainedValue() as? Error else {
-                throw CryptographyServiceError.unknownVerifySignatureError
+                throw SigningServiceError.unknownVerifySignatureError
             }
             throw error
         }
@@ -75,7 +86,7 @@ public final class SigningService {
     /// did:key is a format for representing a public key. Specification:  https://w3c-ccg.github.io/did-method-key/
     func generateDidKey() throws -> String {
         guard let publicKey = SecKeyCopyExternalRepresentation(keys.publicKey, nil) else {
-            throw CryptographyServiceError.couldNotCreatePublicKeyAsData
+            throw SigningServiceError.couldNotCreatePublicKeyAsData
         }
         let publicKeyData = publicKey as Data
         

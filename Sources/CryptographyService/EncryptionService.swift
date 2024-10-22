@@ -1,15 +1,6 @@
 import Foundation
 
-public enum CryptographyServiceError: Error {
-    /// The public key external representation could not be created
-    case couldNotCreatePublicKeyAsData
-    
-    /// No result was returned but no error was thrown creating the signature by the `Security` framework
-    case unknownCreateSignatureError
-    
-    /// No result was returned but no error was thrown by verifying the signature by the `Security` framework
-    case unknownVerifySignatureError
-    
+public enum EncryptionServiceError: Error {
     /// Can't encrypt data using public key from key pair
     case cantEncryptData
     
@@ -34,7 +25,7 @@ public final class EncryptionService {
 extension EncryptionService {
     func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw CryptographyServiceError.cantEncryptData
+            throw EncryptionServiceError.cantEncryptData
         }
         
         var error: Unmanaged<CFError>?
@@ -43,7 +34,7 @@ extension EncryptionService {
                                                           formattedData as CFData,
                                                           &error) else {
             guard let error = error?.takeRetainedValue() as? Error else {
-                throw CryptographyServiceError.cantEncryptData
+                throw EncryptionServiceError.cantEncryptData
             }
             throw error
         }
@@ -56,7 +47,7 @@ extension EncryptionService {
     
     func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw CryptographyServiceError.cantDecryptData
+            throw EncryptionServiceError.cantDecryptData
         }
         
         // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
@@ -66,13 +57,13 @@ extension EncryptionService {
                                                           formattedData as CFData,
                                                           &error) else {
             guard let error = error?.takeRetainedValue() as? Error else {
-                throw CryptographyServiceError.cantDecryptData
+                throw EncryptionServiceError.cantDecryptData
             }
             throw error
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw CryptographyServiceError.cantDecryptData
+            throw EncryptionServiceError.cantDecryptData
         }
         
         return decryptedString
