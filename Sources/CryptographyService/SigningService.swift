@@ -1,33 +1,16 @@
 import BigInt
-import LocalAuthentication
+import Security
 import CryptoKit
 import Foundation
 
-public enum CryptographicServiceError: Error {
-    /// The public key external representation could not be created
-    case couldNotCreatePublicKeyAsData
-    
-    /// No result was returned but no error was thrown creating the signature by the `Security` framework
-    case unknownCreateSignatureError
-    
-    /// No result was returned but no error was thrown by verifying the signature by the `Security` framework
-    case unknownVerifySignatureError
-    
-    /// Can't encrypt data using public key from key pair
-    case cantEncryptData
-    
-    /// Can't decrypt data using private key from key pair
-    case cantDecryptData
-}
-
-public final class CryptographyService {
+public final class SigningService {
     private let keyPairAdministrator: KeyPairAdministrator
     private let keys: KeyPair
     
     var publicKey: Data {
         get throws {
             guard let publicKeyData = SecKeyCopyExternalRepresentation(keys.publicKey, nil) else {
-                throw CryptographicServiceError.couldNotCreatePublicKeyAsData
+                throw CryptographyServiceError.couldNotCreatePublicKeyAsData
             }
             return publicKeyData as Data
         }
@@ -41,9 +24,7 @@ public final class CryptographyService {
     public convenience init(configuration: CryptographyServiceConfiguration) throws {
         try self.init(keyPairAdministrator: KeyPairAdministrator(configuration: configuration))
     }
-}
-
-extension CryptographyService {
+    
     func signAndVerifyData(data: Data) throws -> Data {
         var createError: Unmanaged<CFError>?
         guard let signature = SecKeyCreateSignature(keys.privateKey,
@@ -51,7 +32,7 @@ extension CryptographyService {
                                                     data as CFData,
                                                     &createError) as Data? else {
             guard let error = createError?.takeRetainedValue() as? Error else {
-                throw CryptographicServiceError.unknownCreateSignatureError
+                throw CryptographyServiceError.unknownCreateSignatureError
             }
             throw error
         }
@@ -66,7 +47,7 @@ extension CryptographyService {
                                     signatureAsCFData,
                                     &verifyError) else {
             guard let error = verifyError?.takeRetainedValue() as? Error else {
-                throw CryptographicServiceError.unknownVerifySignatureError
+                throw CryptographyServiceError.unknownVerifySignatureError
             }
             throw error
         }
@@ -94,7 +75,7 @@ extension CryptographyService {
     /// did:key is a format for representing a public key. Specification:  https://w3c-ccg.github.io/did-method-key/
     func generateDidKey() throws -> String {
         guard let publicKey = SecKeyCopyExternalRepresentation(keys.publicKey, nil) else {
-            throw CryptographicServiceError.couldNotCreatePublicKeyAsData
+            throw CryptographyServiceError.couldNotCreatePublicKeyAsData
         }
         let publicKeyData = publicKey as Data
         
@@ -134,53 +115,5 @@ extension CryptographyService {
             result = "1" + result
         }
         return result
-    }
-}
-
-extension CryptographyService {
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
-        guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw CryptographicServiceError.cantEncryptData
-        }
-        
-        var error: Unmanaged<CFError>?
-        guard let encryptData = SecKeyCreateEncryptedData(keys.publicKey,
-                                                          .eciesEncryptionStandardX963SHA256AESGCM,
-                                                          formattedData as CFData,
-                                                          &error) else {
-            guard let error = error?.takeRetainedValue() as? Error else {
-                throw CryptographicServiceError.cantEncryptData
-            }
-            throw error
-        }
-        
-        let encryptedData = encryptData as Data
-        let encryptedString = encryptedData.base64EncodedString(options: [])
-        
-        return encryptedString
-    }
-    
-    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
-        guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw CryptographicServiceError.cantDecryptData
-        }
-        
-        // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
-        var error: Unmanaged<CFError>?
-        guard let decryptData = SecKeyCreateDecryptedData(keys.privateKey,
-                                                          .eciesEncryptionStandardX963SHA256AESGCM,
-                                                          formattedData as CFData,
-                                                          &error) else {
-            guard let error = error?.takeRetainedValue() as? Error else {
-                throw CryptographicServiceError.cantDecryptData
-            }
-            throw error
-        }
-        
-        guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw CryptographicServiceError.cantDecryptData
-        }
-        
-        return decryptedString
     }
 }
