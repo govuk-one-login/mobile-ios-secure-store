@@ -12,7 +12,7 @@ public enum SigningServiceError: Error {
 }
 
 public final class CryptoSigningService: SigningService {
-    private let keyPairAdministrator: CryptoKeyStore
+    private let keyStore: KeyStore
     private let keys: KeyPair
     
     var publicKey: Data {
@@ -24,13 +24,13 @@ public final class CryptoSigningService: SigningService {
         }
     }
     
-    init(keyPairAdministrator: CryptoKeyStore) throws {
-        self.keyPairAdministrator = keyPairAdministrator
-        self.keys = try keyPairAdministrator.setup()
+    init(keyStore: KeyStore) throws {
+        self.keyStore = keyStore
+        self.keys = try keyStore.setup()
     }
     
     public convenience init(configuration: CryptographyServiceConfiguration) throws {
-        try self.init(keyPairAdministrator: CryptoKeyStore(configuration: configuration))
+        try self.init(keyStore: CryptoKeyStore(configuration: configuration))
     }
     
     /// Exports the public key from the Keychain to did:key format

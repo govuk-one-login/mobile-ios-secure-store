@@ -1,6 +1,6 @@
 import CryptoKit
 import Foundation
-@testable import SigningService
+@testable import CryptoService
 import Testing
 
 struct PublicKeyTests {
@@ -14,6 +14,5 @@ struct PublicKeyTests {
         )
 
         #expect(sut.compressedRepresentation == sut._compressedRepresentation)
-
     }
 }

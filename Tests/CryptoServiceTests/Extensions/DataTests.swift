@@ -1,5 +1,5 @@
 import Foundation
-@testable import SigningService
+@testable import CryptoService
 import Testing
 
 struct DataTests {

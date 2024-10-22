@@ -1,16 +1,14 @@
 import Foundation
-@testable import SigningService
+@testable import CryptoService
 import Testing
 
 struct CryptoSigningServiceTests {
     let keyStore: MockKeyStore
     let sut: CryptoSigningService
 
-    init() {
+    init() throws {
         keyStore = MockKeyStore()
-        sut = CryptoSigningService(
-            keyStore: keyStore
-        )
+        sut = try CryptoSigningService(keyStore: keyStore)
     }
 
     @Test

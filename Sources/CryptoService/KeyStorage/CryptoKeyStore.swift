@@ -70,7 +70,7 @@ final class CryptoKeyStore: KeyStore {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
         
         #if targetEnvironment(simulator)
-        let requirement = [SecAccessControlCreateFlags]()
+        let requirement = SecAccessControlCreateFlags()
         #else
         let requirement = configuration.accessControlLevel.flags
         #endif
