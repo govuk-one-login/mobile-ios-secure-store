@@ -14,8 +14,8 @@ public enum SigningServiceError: Error {
     case unknownVerifySignatureError
 }
 
-public final class SigningService {
-    private let keyPairAdministrator: KeyPairAdministrator
+public final class CryptoSigningService: SigningService {
+    private let keyPairAdministrator: CryptoKeyStore
     private let keys: KeyPair
     
     var publicKey: Data {
@@ -27,13 +27,13 @@ public final class SigningService {
         }
     }
     
-    init(keyPairAdministrator: KeyPairAdministrator) throws {
+    init(keyPairAdministrator: CryptoKeyStore) throws {
         self.keyPairAdministrator = keyPairAdministrator
         self.keys = try keyPairAdministrator.setup()
     }
     
     public convenience init(configuration: CryptographyServiceConfiguration) throws {
-        try self.init(keyPairAdministrator: KeyPairAdministrator(configuration: configuration))
+        try self.init(keyPairAdministrator: CryptoKeyStore(configuration: configuration))
     }
     
     func signAndVerifyData(data: Data) throws -> Data {

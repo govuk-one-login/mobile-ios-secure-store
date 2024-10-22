@@ -8,21 +8,21 @@ public enum EncryptionServiceError: Error {
     case cantDecryptData
 }
 
-public final class EncryptionService {
-    private let keyPairAdministrator: KeyPairAdministrator
+public final class CryptoEncryptionService {
+    private let keyPairAdministrator: CryptoKeyStore
     private let keys: KeyPair
     
-    init(keyPairAdministrator: KeyPairAdministrator) throws {
+    init(keyPairAdministrator: CryptoKeyStore) throws {
         self.keyPairAdministrator = keyPairAdministrator
         self.keys = try keyPairAdministrator.setup()
     }
     
     public convenience init(configuration: CryptographyServiceConfiguration) throws {
-        try self.init(keyPairAdministrator: KeyPairAdministrator(configuration: configuration))
+        try self.init(keyPairAdministrator: CryptoKeyStore(configuration: configuration))
     }
 }
 
-extension EncryptionService {
+extension CryptoEncryptionService: EncryptionService {
     func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
             throw EncryptionServiceError.cantEncryptData

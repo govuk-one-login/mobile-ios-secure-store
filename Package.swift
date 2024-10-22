@@ -13,8 +13,8 @@ let package = Package(
             targets: ["SecureStore"]
         ),
         .library(
-            name: "CryptographyService",
-            targets: ["CryptographyService"]
+            name: "CryptoService",
+            targets: ["CryptoService"]
         ),
     ],
     dependencies: [
@@ -27,7 +27,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "SecureStore",
-            dependencies: ["CryptographyService"]
+            dependencies: ["CryptoService"]
         ),
         .testTarget(
             name: "SecureStoreTests",
@@ -35,14 +35,14 @@ let package = Package(
         ),
         
         .target(
-            name: "CryptographyService",
+            name: "CryptoService",
             dependencies: [
                 .product(name: "BigInt", package: "BigInt")
             ]
         ),
         .testTarget(
-            name: "CryptographyServiceTests",
-            dependencies: ["CryptographyService"]
+            name: "CryptoServiceTests",
+            dependencies: ["CryptoService"]
         )
     ]
 )
