@@ -15,7 +15,7 @@ let package = Package(
         .library(
             name: "CryptoService",
             targets: ["CryptoService"]
-        ),
+        )
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.

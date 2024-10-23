@@ -1,5 +1,5 @@
-import Foundation
 @testable import CryptoService
+import Foundation
 import Testing
 
 struct CryptoSigningServiceTests {
@@ -30,7 +30,7 @@ struct CryptoSigningServiceTests {
             case invalidSignature
         }
 
-        let dataToSign = try #require("mock_string".data(using: .utf8))
+        let dataToSign = Data("mock_String".utf8)
         let signedData = try sut.sign(data: dataToSign)
 
         var verifyError: Unmanaged<CFError>?

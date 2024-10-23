@@ -1,5 +1,5 @@
-import Foundation
 @testable import CryptoService
+import Foundation
 
 struct MockKeyStore: KeyStore {
     func setup() throws -> KeyPair {
