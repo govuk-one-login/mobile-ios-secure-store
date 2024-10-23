@@ -15,8 +15,8 @@ public enum KeyPairAdministratorError: Error {
     case cantDeleteKeys
 }
 
+/// Cryptographic Key administration - creating, retrieving and deleting keys
 final class CryptoKeyStore: KeyStore {
-    // MARK: Cryptography Key dministration - creating, retrieving and deleting keys
     private let configuration: CryptographyServiceConfiguration
     
     public init(configuration: CryptographyServiceConfiguration) {
