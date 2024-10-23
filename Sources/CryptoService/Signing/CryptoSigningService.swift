@@ -7,6 +7,9 @@ public enum SigningServiceError: Error {
     /// The public key external representation could not be created
     case couldNotCreatePublicKeyAsData
     
+    /// The did key external representation could not be created
+    case couldNotCreateDIDKeyAsData
+    
     /// No result was returned but no error was thrown creating the signature by the `Security` framework
     case unknownCreateSignatureError
 }
@@ -15,13 +18,21 @@ public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
     private let keys: KeyPair
     
-    var publicKey: Data {
-        get throws {
-            guard let publicKeyData = SecKeyCopyExternalRepresentation(keys.publicKey, nil) else {
-                throw SigningServiceError.couldNotCreatePublicKeyAsData
-            }
-            return publicKeyData as Data
+    /// The public key in either raw or did:key format, as defined in the w3c specification.
+    /// https://w3c-ccg.github.io/did-method-key/
+    func publicKey(didKey: Bool = false) throws -> Data {
+        guard let exportedKey = SecKeyCopyExternalRepresentation(keys.publicKey, nil)
+                as? Data else {
+            throw SigningServiceError.couldNotCreatePublicKeyAsData
         }
+        guard didKey else {
+            return exportedKey
+        }
+        guard let data = try generateDidKey(exportedKey)
+            .data(using: .utf8) else {
+            throw SigningServiceError.couldNotCreateDIDKeyAsData
+        }
+        return data
     }
     
     init(keyStore: KeyStore) throws {
@@ -38,20 +49,14 @@ public final class CryptoSigningService: SigningService {
     ///
     /// - Throws: SigningServiceError.couldNotCreatePublicKeyAsData
     /// - Returns: the public key in did:key format
-    private func generateDidKey() throws -> String {
-        guard let exportedKey = SecKeyCopyExternalRepresentation(keys.publicKey, nil) else {
-            throw SigningServiceError.couldNotCreatePublicKeyAsData
-        }
-
-        let publicKeyData = exportedKey as Data
-        let p256PublicKey = try P256.Signing.PublicKey(x963Representation: publicKeyData)
+    private func generateDidKey(_ key: Data) throws -> String {
+        let p256PublicKey = try P256.Signing.PublicKey(x963Representation: key)
         let compressedKey = p256PublicKey.compressedRepresentation
 
         let multicodecPrefix: [UInt8] = [0x80, 0x24] // P-256 elliptic curve
         let multicodecData = multicodecPrefix + compressedKey
 
         let base58Data = Data(multicodecData).base58EncodedString()
-
         let didKey = "did:key:z" + base58Data
 
         return didKey
@@ -68,7 +73,8 @@ public final class CryptoSigningService: SigningService {
             hashData as CFData,
             &createError
         ) as Data? else {
-            guard let error = createError?.takeRetainedValue() as? Error else {
+            guard let error = createError?.takeRetainedValue()
+                    as? Error else {
                 throw SigningServiceError.unknownCreateSignatureError
             }
             throw error

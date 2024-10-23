@@ -9,16 +9,16 @@ public enum EncryptionServiceError: Error {
 }
 
 public final class CryptoEncryptionService {
-    private let keyPairAdministrator: CryptoKeyStore
+    private let keyStore: KeyStore
     private let keys: KeyPair
     
-    init(keyPairAdministrator: CryptoKeyStore) throws {
-        self.keyPairAdministrator = keyPairAdministrator
-        self.keys = try keyPairAdministrator.setup()
+    init(keyStore: KeyStore) throws {
+        self.keyStore = keyStore
+        self.keys = try keyStore.setup()
     }
     
     public convenience init(configuration: CryptographyServiceConfiguration) throws {
-        try self.init(keyPairAdministrator: CryptoKeyStore(configuration: configuration))
+        try self.init(keyStore: CryptoKeyStore(configuration: configuration))
     }
 }
 
@@ -40,13 +40,13 @@ extension CryptoEncryptionService: EncryptionService {
         }
         
         let encryptedData = encryptData as Data
-        let encryptedString = encryptedData.base64EncodedString(options: [])
+        let encryptedString = encryptedData.base64EncodedString()
         
         return encryptedString
     }
     
     func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
-        guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
+        guard let formattedData = Data(base64Encoded: dataToDecrypt) else {
             throw EncryptionServiceError.cantDecryptData
         }
         
