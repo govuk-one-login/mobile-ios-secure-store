@@ -1,6 +1,6 @@
-import Foundation
 import CryptoKit
 @testable import CryptoService
+import Foundation
 import Testing
 
 struct PublicKeyTests {
