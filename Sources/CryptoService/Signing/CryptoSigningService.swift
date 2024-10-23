@@ -1,7 +1,7 @@
 import BigInt
-import Security
 import CryptoKit
 import Foundation
+import Security
 
 public enum SigningServiceError: Error {
     /// The public key external representation could not be created
