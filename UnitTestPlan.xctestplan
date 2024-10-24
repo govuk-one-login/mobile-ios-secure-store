@@ -14,16 +14,23 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:..",
-        "identifier" : "SecureStoreTests",
-        "name" : "SecureStoreTests"
+        "containerPath" : "container:SecureStore-Demo.xcodeproj",
+        "identifier" : "2BCB23232B46D54000F3A832",
+        "name" : "SecureStore-DemoTests"
       }
     },
     {
       "target" : {
-        "containerPath" : "container:SecureStore-Demo.xcodeproj",
-        "identifier" : "2BCB23232B46D54000F3A832",
-        "name" : "SecureStore-DemoTests"
+        "containerPath" : "container:..",
+        "identifier" : "CryptoServiceTests",
+        "name" : "CryptoServiceTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "SecureStoreTests",
+        "name" : "SecureStoreTests"
       }
     }
   ],
