@@ -1,6 +1,6 @@
 import Foundation
 
-protocol EncryptionService {
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String
-    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String
+public protocol EncryptionService {
+    func encryptData(dataToEncrypt: String) throws -> String
+    func decryptData(dataToDecrypt: String) throws -> String
 }

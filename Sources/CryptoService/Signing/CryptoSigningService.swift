@@ -16,12 +16,11 @@ public enum SigningServiceError: Error {
 
 public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
-    private let keys: KeyPair
     
     /// The public key in either raw or did:key format, as defined in the w3c specification.
     /// https://w3c-ccg.github.io/did-method-key/
-    func publicKey(didKey: Bool = false) throws -> Data {
-        guard let exportedKey = SecKeyCopyExternalRepresentation(keys.publicKey, nil)
+    public func publicKey(didKey: Bool = false) throws -> Data {
+        guard let exportedKey = SecKeyCopyExternalRepresentation(keyStore.publicKey, nil)
                 as? Data else {
             throw SigningServiceError.couldNotCreatePublicKeyAsData
         }
@@ -35,13 +34,12 @@ public final class CryptoSigningService: SigningService {
         return data
     }
     
-    init(keyStore: KeyStore) throws {
-        self.keyStore = keyStore
-        self.keys = try keyStore.setup()
+    public convenience init(configuration: CryptoServiceConfiguration) throws {
+        self.init(keyStore: try CryptoKeyStore(configuration: configuration))
     }
     
-    public convenience init(configuration: CryptographyServiceConfiguration) throws {
-        try self.init(keyStore: CryptoKeyStore(configuration: configuration))
+    init(keyStore: KeyStore) {
+        self.keyStore = keyStore
     }
     
     /// Exports the public key from the Keychain to did:key format
@@ -62,13 +60,13 @@ public final class CryptoSigningService: SigningService {
         return didKey
     }
 
-    func sign(data: Data) throws -> Data {
+    public func sign(data: Data) throws -> Data {
         let hashDigest = SHA256.hash(data: data)
         let hashData = Data(hashDigest)
 
         var createError: Unmanaged<CFError>?
         guard let signature = SecKeyCreateSignature(
-            keys.privateKey,
+            keyStore.privateKey,
             .ecdsaSignatureRFC4754,
             hashData as CFData,
             &createError

@@ -7,8 +7,8 @@ struct CryptoSigningServiceTests {
     let sut: CryptoSigningService
 
     init() throws {
-        keyStore = MockKeyStore()
-        sut = try CryptoSigningService(keyStore: keyStore)
+        keyStore = try MockKeyStore()
+        sut = CryptoSigningService(keyStore: keyStore)
     }
     
     @Test
@@ -34,7 +34,7 @@ struct CryptoSigningServiceTests {
         let signedData = try sut.sign(data: dataToSign)
 
         var verifyError: Unmanaged<CFError>?
-        guard try SecKeyVerifySignature(
+        guard SecKeyVerifySignature(
             keyStore.publicKey,
             .ecdsaSignatureMessageRFC4754SHA256,
             dataToSign as CFData,

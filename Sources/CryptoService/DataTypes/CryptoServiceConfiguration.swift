@@ -1,6 +1,6 @@
 import Security
 
-public struct CryptographyServiceConfiguration {
+public struct CryptoServiceConfiguration {
     let id: String
     let accessControlLevel: AccessControlLevel
     let localAuthStrings: LocalAuthenticationLocalizedStrings?

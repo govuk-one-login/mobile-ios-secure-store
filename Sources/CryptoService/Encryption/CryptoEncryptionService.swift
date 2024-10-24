@@ -10,26 +10,22 @@ public enum EncryptionServiceError: Error {
 
 public final class CryptoEncryptionService {
     private let keyStore: KeyStore
-    private let keys: KeyPair
     
-    init(keyStore: KeyStore) throws {
+    public convenience init(configuration: CryptoServiceConfiguration) throws {
+        self.init(keyStore: try CryptoKeyStore(configuration: configuration))
+    }
+    
+    init(keyStore: KeyStore) {
         self.keyStore = keyStore
-        self.keys = try keyStore.setup()
     }
     
-    public convenience init(configuration: CryptographyServiceConfiguration) throws {
-        try self.init(keyStore: CryptoKeyStore(configuration: configuration))
-    }
-}
-
-extension CryptoEncryptionService: EncryptionService {
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
+    public func encryptData(dataToEncrypt: String) throws -> String {
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
             throw EncryptionServiceError.cantEncryptData
         }
         
         var error: Unmanaged<CFError>?
-        guard let encryptData = SecKeyCreateEncryptedData(keys.publicKey,
+        guard let encryptData = SecKeyCreateEncryptedData(keyStore.publicKey,
                                                           .eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
@@ -45,14 +41,14 @@ extension CryptoEncryptionService: EncryptionService {
         return encryptedString
     }
     
-    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
+    public func decryptData(dataToDecrypt: String) throws -> String {
         guard let formattedData = Data(base64Encoded: dataToDecrypt) else {
             throw EncryptionServiceError.cantDecryptData
         }
         
         // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
         var error: Unmanaged<CFError>?
-        guard let decryptData = SecKeyCreateDecryptedData(keys.privateKey,
+        guard let decryptData = SecKeyCreateDecryptedData(keyStore.privateKey,
                                                           .eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
