@@ -22,29 +22,36 @@ final class CryptoKeyStore: KeyStore {
     let privateKey: SecKey
     let publicKey: SecKey
     
+    let deleteMethod: (_ query: CFDictionary) -> OSStatus
+    
     public convenience init(configuration: CryptoServiceConfiguration) throws {
         try self.init(configuration: configuration,
                       keyQuery: SecItemCopyMatching,
-                      copyPublicKey: SecKeyCopyPublicKey)
+                      copyPublicKey: SecKeyCopyPublicKey,
+                      deleteMethod: SecItemDelete)
     }
     
-    init(configuration: CryptoServiceConfiguration,
-         keyQuery: ((_ query: CFDictionary,
-                     _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus),
-         copyPublicKey: ((_ key: SecKey) -> SecKey?)) throws {
+    init(
+        configuration: CryptoServiceConfiguration,
+        keyQuery: (_ query: CFDictionary,
+                   _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus,
+        copyPublicKey: (_ key: SecKey) -> SecKey?,
+        deleteMethod: @escaping (_ query: CFDictionary) -> OSStatus
+    ) throws {
         self.configuration = configuration
         (privateKey, publicKey) = try Self.setup(
             configuration: configuration,
             keyQuery: keyQuery,
             copyPublicKey: copyPublicKey
         )
+        self.deleteMethod = deleteMethod
     }
     
     static func setup(
         configuration: CryptoServiceConfiguration,
-        keyQuery: ((_ query: CFDictionary,
-                    _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus),
-        copyPublicKey: ((_ key: SecKey) -> SecKey?)
+        keyQuery: (_ query: CFDictionary,
+                   _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus,
+        copyPublicKey: (_ key: SecKey) -> SecKey?
     ) throws -> (privateKey: SecKey, publicKey: SecKey) {
         let privateKey = try getPrivateKey(configuration: configuration,
                                            keyQuery: keyQuery)
@@ -59,8 +66,8 @@ final class CryptoKeyStore: KeyStore {
     /// query to get the private key from the keychain if it already exists
     static func getPrivateKey(
         configuration: CryptoServiceConfiguration,
-        keyQuery: ((_ query: CFDictionary,
-                    _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus)
+        keyQuery: (_ query: CFDictionary,
+                    _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus
     ) throws -> SecKey {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
         
@@ -96,8 +103,8 @@ final class CryptoKeyStore: KeyStore {
     
     static func createPrivateKey(
         configuration: CryptoServiceConfiguration,
-        createKey: ((_ parameters: CFDictionary,
-                     _ error: UnsafeMutablePointer<Unmanaged<CFError>?>?) -> SecKey?)
+        createKey: (_ parameters: CFDictionary,
+                     _ error: UnsafeMutablePointer<Unmanaged<CFError>?>?) -> SecKey?
     ) throws -> SecKey {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
         
@@ -143,12 +150,12 @@ final class CryptoKeyStore: KeyStore {
         return privateKey
     }
     
-    func deleteKeys(deletionMethod: ((_ query: CFDictionary) -> OSStatus) = SecItemDelete) throws {
+    func deleteKeys() throws {
         let tag = Data("\(configuration.id)PrivateKey".utf8)
         let addquery: NSDictionary = [kSecClass: kSecClassKey,
                          kSecAttrApplicationTag: tag]
         
-        guard deletionMethod(addquery as CFDictionary) == errSecSuccess else {
+        guard deleteMethod(addquery as CFDictionary) == errSecSuccess else {
             throw KeyPairAdministratorError.cantDeleteKeys
         }
     }

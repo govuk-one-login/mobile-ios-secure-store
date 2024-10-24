@@ -125,13 +125,13 @@ struct CryptoKeyStoreTests {
             return errSecSuccess
         } copyPublicKey: { _ in
             publicKeyRef
+        } deleteMethod:  { query in
+            cfDictionary = query
+            return errSecSuccess
         }
         
         #expect(throws: Never.self) {
-            try sut.deleteKeys { query in
-                cfDictionary = query
-                return errSecSuccess
-            }
+            try sut.deleteKeys()
         }
         let dictionary = (cfDictionary as? [String: Any])
         #expect(dictionary?[kSecClass as String] as? String == "keys")
@@ -149,12 +149,12 @@ struct CryptoKeyStoreTests {
             return errSecSuccess
         } copyPublicKey: { _ in
             publicKeyRef
+        } deleteMethod: { _ in
+            return errSecDeviceError
         }
         
         #expect(throws: KeyPairAdministratorError.cantDeleteKeys) {
-            try sut.deleteKeys { _ in
-                return errSecDeviceError
-            }
+            try sut.deleteKeys()
         }
     }
 }

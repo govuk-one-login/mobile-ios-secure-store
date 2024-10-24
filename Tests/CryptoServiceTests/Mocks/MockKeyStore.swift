@@ -45,7 +45,5 @@ struct MockKeyStore: KeyStore {
         )!
     }
     
-    func deleteKeys(deletionMethod: ((_ query: CFDictionary) -> OSStatus) = SecItemDelete) throws {
-        
-    }
+    func deleteKeys() throws { }
 }
