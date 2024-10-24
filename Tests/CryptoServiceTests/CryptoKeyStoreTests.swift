@@ -1,6 +1,6 @@
 @testable import CryptoService
-import LocalAuthentication
 import Foundation
+import LocalAuthentication
 import Testing
 
 struct CryptoKeyStoreTests {
@@ -70,7 +70,7 @@ struct CryptoKeyStoreTests {
         let dictionary = (cfDictionary as? [String: Any])
         #expect(dictionary?[kSecClass as String] as? String == "keys")
         let applicationTagData = try #require(dictionary?[kSecAttrApplicationTag as String] as? Data)
-        #expect(String(decoding: applicationTagData, as: UTF8.self) == "test_configPrivateKey")
+        #expect(String(data: applicationTagData, encoding: .utf8) == "test_configPrivateKey")
         let laContext = try #require(dictionary?[kSecUseAuthenticationContext as String] as? LAContext)
         #expect(laContext.localizedReason == "test_reason")
         #expect(laContext.localizedCancelTitle == "test_cancel")
@@ -99,14 +99,14 @@ struct CryptoKeyStoreTests {
         let privateKeyAttributes = dictionary?[kSecPrivateKeyAttrs as String] as? [String: Any]
         #expect(privateKeyAttributes?[kSecAttrIsPermanent as String] as? Bool == true)
         let privateKeyTagData = try #require(privateKeyAttributes?[kSecAttrApplicationTag as String] as? Data)
-        #expect(String(decoding: privateKeyTagData, as: UTF8.self) == "test_configPrivateKey")
+        #expect(String(data: privateKeyTagData, encoding: .utf8) == "test_configPrivateKey")
         #expect(privateKey == privateKeyRef)
     }
     
     @Test
     func createPrivateKeyThrows() throws {
         #expect(throws: KeyPairAdministratorError.cantCreatePrivateKey) {
-            let _ = try CryptoKeyStore.createPrivateKey(
+            try CryptoKeyStore.createPrivateKey(
                 configuration: configuration
             ) { _, _ in
                 nil
@@ -136,7 +136,7 @@ struct CryptoKeyStoreTests {
         let dictionary = (cfDictionary as? [String: Any])
         #expect(dictionary?[kSecClass as String] as? String == "keys")
         let queryData = try #require(dictionary?[kSecAttrApplicationTag as String] as? Data)
-        #expect(String(decoding: queryData, as: UTF8.self) == "test_configPrivateKey")
+        #expect(String(data: queryData, encoding: .utf8) == "test_configPrivateKey")
     }
     
     @Test

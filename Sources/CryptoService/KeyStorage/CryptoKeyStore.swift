@@ -29,9 +29,9 @@ final class CryptoKeyStore: KeyStore {
     }
     
     init(configuration: CryptoServiceConfiguration,
-                keyQuery: ((_ query: CFDictionary,
-                    _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus),
-                copyPublicKey: ((_ key: SecKey) -> SecKey?)) throws {
+         keyQuery: ((_ query: CFDictionary,
+                     _ result: UnsafeMutablePointer<CFTypeRef?>?) -> OSStatus),
+         copyPublicKey: ((_ key: SecKey) -> SecKey?)) throws {
         self.configuration = configuration
         (privateKey, publicKey) = try Self.setup(
             configuration: configuration,
@@ -39,7 +39,7 @@ final class CryptoKeyStore: KeyStore {
             copyPublicKey: copyPublicKey
         )
     }
-        
+    
     static func setup(
         configuration: CryptoServiceConfiguration,
         keyQuery: ((_ query: CFDictionary,
@@ -146,7 +146,7 @@ final class CryptoKeyStore: KeyStore {
     func deleteKeys(deletionMethod: ((_ query: CFDictionary) -> OSStatus) = SecItemDelete) throws {
         let tag = Data("\(configuration.id)PrivateKey".utf8)
         let addquery: NSDictionary = [kSecClass: kSecClassKey,
-                                      kSecAttrApplicationTag: tag]
+                         kSecAttrApplicationTag: tag]
         
         guard deletionMethod(addquery as CFDictionary) == errSecSuccess else {
             throw KeyPairAdministratorError.cantDeleteKeys
