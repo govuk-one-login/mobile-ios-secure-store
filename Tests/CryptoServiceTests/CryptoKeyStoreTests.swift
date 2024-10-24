@@ -125,7 +125,7 @@ struct CryptoKeyStoreTests {
             return errSecSuccess
         } copyPublicKey: { _ in
             publicKeyRef
-        } deleteMethod:  { query in
+        } deleteMethod: { query in
             cfDictionary = query
             return errSecSuccess
         }
