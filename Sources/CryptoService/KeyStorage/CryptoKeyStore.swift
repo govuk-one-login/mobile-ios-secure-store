@@ -22,7 +22,7 @@ final class CryptoKeyStore: KeyStore {
     let privateKey: SecKey
     let publicKey: SecKey
     
-    let deleteMethod: (_ query: CFDictionary) -> OSStatus
+    private let deleteMethod: (_ query: CFDictionary) -> OSStatus
     
     public convenience init(configuration: CryptoServiceConfiguration) throws {
         try self.init(configuration: configuration,
