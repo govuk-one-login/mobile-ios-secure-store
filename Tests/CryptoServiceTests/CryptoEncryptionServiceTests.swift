@@ -7,17 +7,56 @@ struct CryptoEncryptionServiceTests {
     let sut: CryptoEncryptionService
     
     init() throws {
-        keyStore = try MockKeyStore()
+        keyStore = MockKeyStore()
         sut = CryptoEncryptionService(keyStore: keyStore)
     }
-    
+
+    @Test
+    func encryptData() throws {
+        let token = "data_to_be_encrypted"
+        let encryptedString = try #require(
+            try sut.encryptData(dataToEncrypt: token)
+        )
+        let encryptedData = try #require(
+            Data(base64Encoded: encryptedString)
+        )
+
+        let decryptedData = try #require(SecKeyCreateDecryptedData(
+            keyStore.privateKey,
+            .eciesEncryptionStandardX963SHA256AESGCM,
+            encryptedData as CFData,
+            nil
+        ))
+
+        let decryptedString = String(
+            data: decryptedData as Data,
+            encoding: .utf8
+        )
+
+        #expect(token == decryptedString)
+    }
+
+    @Test
+    func encryptData_throwsError_whenWrongKeyUsed() throws {
+        keyStore.publicKey = keyStore.privateKey
+
+        let token = "data_to_be_encrypted"
+
+        #expect(performing: {
+            try sut.encryptData(dataToEncrypt: token)
+        }, throws: { error in
+            let error = (error as NSError)
+            return error.domain == "NSOSStatusErrorDomain"
+                && error.code == -50
+        })
+    }
+
     @Test
     func encryptAndDecryptData() throws {
-        let token = """
-            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        let encryptedData = """
+        BCZUnwZ6mMwchNbdics4UQve97VjLPaDCk3GHpR+mgPSmNxsR2k1hQXvHd4moMxBc8SM4qfal6J6iO+xa4ku0cjB7nzMRw+K64DLlolIDL3TqzND9SHsOle1byXtXJUrOsd6Rv0=
         """
-        let encryptedData = try sut.encryptData(dataToEncrypt: token)
         let decryptedData = try sut.decryptData(dataToDecrypt: encryptedData)
-        #expect(token == decryptedData)
+        #expect(decryptedData == "data_to_be_encrypted")
     }
 }
