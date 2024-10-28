@@ -6,8 +6,8 @@ struct CryptoSigningServiceTests {
     let keyStore: MockKeyStore
     let sut: CryptoSigningService
 
-    init() throws {
-        keyStore = try MockKeyStore()
+    init() {
+        keyStore = MockKeyStore()
         sut = CryptoSigningService(keyStore: keyStore)
     }
     

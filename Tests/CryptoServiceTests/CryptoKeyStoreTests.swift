@@ -7,7 +7,7 @@ struct CryptoKeyStoreTests {
     let localAuthStrings: LocalAuthenticationLocalizedStrings
     let configuration: CryptoServiceConfiguration
     
-    init() throws {
+    init() {
         localAuthStrings = LocalAuthenticationLocalizedStrings(
             localizedReason: "test_reason",
             localisedFallbackTitle: "test_fallback",

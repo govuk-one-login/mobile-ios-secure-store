@@ -25,11 +25,10 @@ public final class CryptoEncryptionService {
         }
         
         var error: Unmanaged<CFError>?
-        guard let encryptData = SecKeyCreateEncryptedData(
-            keyStore.publicKey,
-            .eciesEncryptionStandardX963SHA256AESGCM,
-            formattedData as CFData,
-            &error) else {
+        guard let encryptData = SecKeyCreateEncryptedData(keyStore.publicKey,
+                                                          .eciesEncryptionStandardX963SHA256AESGCM,
+                                                          formattedData as CFData,
+                                                          &error) else {
             guard let error = error?.takeRetainedValue() as? Error else {
                 throw EncryptionServiceError.cantEncryptData
             }
