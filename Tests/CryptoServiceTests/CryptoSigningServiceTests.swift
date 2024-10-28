@@ -13,13 +13,13 @@ struct CryptoSigningServiceTests {
     
     @Test
     func publicKey() throws {
-        let publicKeyString = try sut.publicKey().base64EncodedString()
+        let publicKeyString = try sut.publicKey(format: .jwk).base64EncodedString()
         #expect(publicKeyString == "BCWJzI4K0QJ60ejmwbYQ7lGg3kKDx6134c0Zn4Q7WvtobY1uIVihxougBV8/Uv417M43z60dcBJP8ojfMEQ/t+E=")
     }
 
     @Test
     func didKey() throws {
-        let didKeyString = try #require(String(data: sut.publicKey(didKey: true), encoding: .utf8))
+        let didKeyString = try #require(String(data: sut.publicKey(format: .decentralisedIdentifier), encoding: .utf8))
         #expect(didKeyString == "did:key:zDnaekBpNWyrZZwcaX1ET66oRWiYCcwbVQGKRY3xYaJa9fPxB")
     }
 

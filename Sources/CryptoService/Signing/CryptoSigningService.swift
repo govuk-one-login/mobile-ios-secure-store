@@ -14,24 +14,31 @@ public enum SigningServiceError: Error {
     case unknownCreateSignatureError
 }
 
+public enum KeyFormat {
+    case decentralisedIdentifier
+    case jwk
+}
+
 public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
     
     /// The public key in either raw or did:key format, as defined in the w3c specification.
     /// https://w3c-ccg.github.io/did-method-key/
-    public func publicKey(didKey: Bool = false) throws -> Data {
+    public func publicKey(format: KeyFormat) throws -> Data {
         guard let exportedKey = SecKeyCopyExternalRepresentation(keyStore.publicKey, nil)
                 as? Data else {
             throw SigningServiceError.couldNotCreatePublicKeyAsData
         }
-        guard didKey else {
+        switch format {
+        case .decentralisedIdentifier:
+            guard let didKey = try generateDidKey(exportedKey)
+                .data(using: .utf8) else {
+                throw SigningServiceError.couldNotCreateDIDKeyAsData
+            }
+            return didKey
+        case .jwk:
             return exportedKey
         }
-        guard let data = try generateDidKey(exportedKey)
-            .data(using: .utf8) else {
-            throw SigningServiceError.couldNotCreateDIDKeyAsData
-        }
-        return data
     }
     
     public convenience init(configuration: CryptoServiceConfiguration) throws {

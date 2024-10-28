@@ -1,6 +1,6 @@
 import Foundation
 
 public protocol SigningService {
-    func publicKey(didKey: Bool) throws -> Data
+    func publicKey(format: KeyFormat) throws -> Data
     func sign(data: Data) throws -> Data
 }
