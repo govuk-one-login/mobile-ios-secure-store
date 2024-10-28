@@ -25,7 +25,7 @@ struct CryptoSigningServiceTests {
 
     @Test
     @available(iOS 17, *)
-    func signAndVerifyData() throws {
+    func signData() throws {
         enum SigningError: Error {
             case invalidSignature
         }
@@ -33,15 +33,28 @@ struct CryptoSigningServiceTests {
         let dataToSign = Data("mock_String".utf8)
         let signedData = try sut.sign(data: dataToSign)
 
-        var verifyError: Unmanaged<CFError>?
         guard SecKeyVerifySignature(
             keyStore.publicKey,
             .ecdsaSignatureMessageRFC4754SHA256,
             dataToSign as CFData,
             signedData as CFData,
-            &verifyError
+            nil
         ) else {
             throw SigningError.invalidSignature
         }
+    }
+    
+    @Test
+    func signDataThrows() throws {
+        keyStore.privateKey = keyStore.publicKey
+        
+        let dataToSign = Data("mock_String".utf8)
+        #expect(performing: {
+            try sut.sign(data: dataToSign)
+        }, throws: { error in
+            let error = error as NSError
+            return error.domain == NSOSStatusErrorDomain
+                && error.code == -50
+        })
     }
 }
