@@ -11,11 +11,34 @@ struct CryptoSigningServiceTests {
         sut = CryptoSigningService(keyStore: keyStore)
     }
     
-    @Test
-    func publicKey_JWK() {
-        #expect(throws: SigningServiceError.notYetImplemented) {
-            try sut.publicKey(format: .jwk)
-        }
+//    @Test
+//    func publicKey_JWK() {
+//        #expect(throws: SigningServiceError.notYetImplemented) {
+//            try sut.publicKey(format: .jwk)
+//        }
+//    }
+    
+    @Test("export public key JWK format")
+    func publicKey_JWK() throws {
+        let keyString = Data("0373b3fe72bcea2cecaf2768cb85fa0bd7eb2bb91ca8918448a2ef9d323b24a188".utf8).base64EncodedString()
+        let keyData = Data(base64Encoded: keyString)!
+        let jwks = try sut.generateJWK(keyData)
+        let jwksString = String(data: jwks, encoding: .utf8)
+        #expect(jwksString == """
+            { 
+              "jwk" : {
+                "crv" : "P-256",
+                "kty" : EC",
+                "use" : "sig",
+                "x" : "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
+                "y" : "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA"
+              }
+            }
+        """)
+        
+//        #expect(throws: SigningServiceError.notYetImplemented) {
+//            try sut.publicKey(format: .jwk)
+//        }
     }
 
     @Test

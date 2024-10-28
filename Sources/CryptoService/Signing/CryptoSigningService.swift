@@ -40,7 +40,8 @@ public final class CryptoSigningService: SigningService {
             }
             return didKey
         case .jwk:
-            throw SigningServiceError.notYetImplemented
+            return try generateJWK(exportedKey)
+//            throw SigningServiceError.notYetImplemented
         }
     }
     
@@ -50,6 +51,12 @@ public final class CryptoSigningService: SigningService {
     
     init(keyStore: KeyStore) {
         self.keyStore = keyStore
+    }
+    
+    func generateJWK(_ key: Data) throws -> Data {
+        let p256PublicKey = try P256.Signing.PublicKey(x963Representation: key)
+//        print(try JSONDecoder().decode(AppCheckJWT.self, from: p256PublicKey.JWT))
+        return try p256PublicKey.JWT
     }
     
     /// Exports the public key from the Keychain to did:key format
