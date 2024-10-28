@@ -26,15 +26,17 @@ To use SecureStore in a SwiftPM project:
 
 ## Package description
 SecureStore contains protocols and exposes a service to encrypt and store data, and decrypt and return data.
-CryptoService contains protocols and exposes services to manage a cryptographic key pair, encypt and decrypt data, and sign and expose a public key in did or jwk format.
+CryptoService contains protocols and exposes services to manage a cryptographic key pair, encrypt and decrypt data, and sign and expose a public key in did or jwk format.
 
 The SecureStore package contains two modules, `SecureStore` and `CryptoService`.
+
 SecureStore functions to:
-- Take labelled data, encypt it and store it locally.
+- Take labelled data, encrypt it and store it locally.
 - Take a label, decrypt the associated data and return it.
+
 CryptoService functions to:
 - Encrypt and decrypt data.
-- Sign and expose the paired public key in either did or jwk format.
+- Sign and expose the paired public key in either DID or JWK format.
 - Generate, expose and delete private and public keys.
 
 SecureStore has a dependency on CryptoService as a wrapper around Apple's Keychain service.
