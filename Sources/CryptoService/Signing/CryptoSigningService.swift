@@ -12,6 +12,9 @@ public enum SigningServiceError: Error {
     
     /// No result was returned but no error was thrown creating the signature by the `Security` framework
     case unknownCreateSignatureError
+    
+    /// KeyFormat for the public key not implemented
+    case notYetImplemented
 }
 
 public enum KeyFormat {
@@ -37,7 +40,7 @@ public final class CryptoSigningService: SigningService {
             }
             return didKey
         case .jwk:
-            return exportedKey
+            throw SigningServiceError.notYetImplemented
         }
     }
     

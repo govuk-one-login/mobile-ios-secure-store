@@ -104,7 +104,7 @@ struct CryptoKeyStoreTests {
     }
     
     @Test
-    func createPrivateKeyThrows() throws {
+    func createPrivateKeyThrows() {
         #expect(throws: KeyPairAdministratorError.cantCreatePrivateKey) {
             try CryptoKeyStore.createPrivateKey(
                 configuration: configuration

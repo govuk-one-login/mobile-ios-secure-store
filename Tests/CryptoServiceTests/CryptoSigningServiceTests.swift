@@ -12,13 +12,14 @@ struct CryptoSigningServiceTests {
     }
     
     @Test
-    func publicKey() throws {
-        let publicKeyString = try sut.publicKey(format: .jwk).base64EncodedString()
-        #expect(publicKeyString == "BCWJzI4K0QJ60ejmwbYQ7lGg3kKDx6134c0Zn4Q7WvtobY1uIVihxougBV8/Uv417M43z60dcBJP8ojfMEQ/t+E=")
+    func publicKey_JWK() {
+        #expect(throws: SigningServiceError.notYetImplemented) {
+            try sut.publicKey(format: .jwk)
+        }
     }
 
     @Test
-    func didKey() throws {
+    func publicKey_DID() throws {
         let didKeyString = try #require(String(data: sut.publicKey(format: .decentralisedIdentifier), encoding: .utf8))
         #expect(didKeyString == "did:key:zDnaekBpNWyrZZwcaX1ET66oRWiYCcwbVQGKRY3xYaJa9fPxB")
     }
@@ -45,7 +46,7 @@ struct CryptoSigningServiceTests {
     }
     
     @Test
-    func signDataThrows() throws {
+    func signDataThrows() {
         keyStore.privateKey = keyStore.publicKey
         
         let dataToSign = Data("mock_String".utf8)

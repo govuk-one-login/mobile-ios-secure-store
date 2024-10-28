@@ -39,7 +39,7 @@ struct CryptoEncryptionServiceTests {
     }
     
     @Test
-    func encryptData_throwsError_whenWrongKeyUsed() throws {
+    func encryptData_throwsError_whenWrongKeyUsed() {
         keyStore.publicKey = keyStore.privateKey
         
         let token = "data_to_be_encrypted"
