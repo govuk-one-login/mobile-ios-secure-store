@@ -12,9 +12,6 @@ public enum SigningServiceError: Error {
     
     /// No result was returned but no error was thrown creating the signature by the `Security` framework
     case unknownCreateSignatureError
-    
-    /// KeyFormat for the public key not implemented
-    case notYetImplemented
 }
 
 public enum KeyFormat {
@@ -26,22 +23,25 @@ public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
     private let encoder: JSONEncoder
     
-    /// The public key in either raw or did:key format, as defined in the w3c specification.
+    /// The public key in either JWK or did:key format, as defined in IETF RFC7517 and the w3c specification.
+    /// https://datatracker.ietf.org/doc/html/rfc7517
     /// https://w3c-ccg.github.io/did-method-key/
     public func publicKey(format: KeyFormat) throws -> Data {
         guard let exportedKey = SecKeyCopyExternalRepresentation(keyStore.publicKey, nil)
                 as? Data else {
             throw SigningServiceError.couldNotCreatePublicKeyAsData
         }
+        let p256PublicKey = try P256.Signing.PublicKey(x963Representation: exportedKey)
+
         switch format {
         case .decentralisedIdentifier:
-            guard let didKey = try generateDidKey(exportedKey)
+            guard let didKey = generateDidKey(p256PublicKey)
                 .data(using: .utf8) else {
                 throw SigningServiceError.couldNotCreateDIDKeyAsData
             }
             return didKey
         case .jwk:
-            return try generateJWK(exportedKey)
+            return try generateJWK(p256PublicKey)
         }
     }
     
@@ -55,21 +55,14 @@ public final class CryptoSigningService: SigningService {
         self.encoder = encoder
     }
     
-    func generateJWK(_ key: Data) throws -> Data {
-        let p256PublicKey = try P256.Signing.PublicKey(x963Representation: key)
-        let jwk = p256PublicKey.jwkRepresentation
+    private func generateJWK(_ key: P256.Signing.PublicKey) throws -> Data {
+        let jwk = key.jwkRepresentation
         let jwks = JWKs(jwk: jwk)
         return try encoder.encode(jwks)
     }
     
-    /// Exports the public key from the Keychain to did:key format
-    /// did:key specification: https://w3c-ccg.github.io/did-method-key/
-    ///
-    /// - Throws: SigningServiceError.couldNotCreatePublicKeyAsData
-    /// - Returns: the public key in did:key format
-    private func generateDidKey(_ key: Data) throws -> String {
-        let p256PublicKey = try P256.Signing.PublicKey(x963Representation: key)
-        let compressedKey = p256PublicKey.compressedRepresentation
+    private func generateDidKey(_ key: P256.Signing.PublicKey) -> String {
+        let compressedKey = key.compressedRepresentation
 
         let multicodecPrefix: [UInt8] = [0x80, 0x24] // P-256 elliptic curve
         let multicodecData = multicodecPrefix + compressedKey
