@@ -25,14 +25,23 @@ extension P256.Signing.PublicKey {
             let yCoordinate = publicKeyUInt8[33...64]
             let xCoordinateData = Data([UInt8](xCoordinate))
             let yCoordinateData = Data([UInt8](yCoordinate))
-            let xCoordinateBase64 = xCoordinateData.base64EncodedString()
-            let yCoordinateBase64 = yCoordinateData.base64EncodedString()
+            let xCoordinateBase64 = xCoordinateData.base64URLEncodedString
+            let yCoordinateBase64 = yCoordinateData.base64URLEncodedString
             let appCheckJWKBody = AppCheckJWTBody(x: xCoordinateBase64,
                                                   y: yCoordinateBase64)
             let encoder = JSONEncoder()
             encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             return try encoder.encode(AppCheckJWT(jwk: appCheckJWKBody))
         }
+    }
+}
+
+extension Data {
+    var base64URLEncodedString: String {
+        let base64 = self.base64EncodedString()
+        return String(base64.split(separator: "=").first!)
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
     }
 }
 
