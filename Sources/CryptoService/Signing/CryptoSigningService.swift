@@ -42,7 +42,6 @@ public final class CryptoSigningService: SigningService {
             return didKey
         case .jwk:
             return try generateJWK(exportedKey)
-//            throw SigningServiceError.notYetImplemented
         }
     }
     

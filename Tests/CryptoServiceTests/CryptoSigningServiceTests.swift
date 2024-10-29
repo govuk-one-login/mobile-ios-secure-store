@@ -20,7 +20,6 @@ struct CryptoSigningServiceTests {
     @Test("Export public key in JWKs format")
     @available(iOS 16, macOS 13, *)
     func publicKey_JWKs() throws {
-        
         let key = try P256.Signing.PublicKey(pemRepresentation: """
         -----BEGIN PUBLIC KEY-----
         MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE18wHLeIgW9wVN6VD1Txgpqy2LszY
