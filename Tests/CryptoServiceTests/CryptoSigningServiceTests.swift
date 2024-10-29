@@ -15,8 +15,6 @@ struct CryptoSigningServiceTests {
         sut = CryptoSigningService(keyStore: keyStore, encoder: encoder)
     }
     
-    
-
     @Test("Export public key in JWKs format")
     @available(iOS 16, macOS 13, *)
     func publicKey_JWKs() throws {
