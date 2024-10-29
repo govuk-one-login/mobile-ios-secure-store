@@ -5,11 +5,14 @@ import Testing
 
 struct CryptoSigningServiceTests {
     let keyStore: MockKeyStore
+    let encoder: JSONEncoder
     let sut: CryptoSigningService
 
     init() {
         keyStore = MockKeyStore()
-        sut = CryptoSigningService(keyStore: keyStore)
+        encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        sut = CryptoSigningService(keyStore: keyStore, encoder: encoder)
     }
     
     
@@ -40,7 +43,7 @@ struct CryptoSigningServiceTests {
         #expect(
             jwk ==
             """
-            { 
+            {
               "jwk" : {
                 "crv" : "P-256",
                 "kty" : "EC",

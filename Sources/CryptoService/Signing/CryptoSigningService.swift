@@ -24,6 +24,7 @@ public enum KeyFormat {
 
 public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
+    private let encoder: JSONEncoder
     
     /// The public key in either raw or did:key format, as defined in the w3c specification.
     /// https://w3c-ccg.github.io/did-method-key/
@@ -46,17 +47,20 @@ public final class CryptoSigningService: SigningService {
     }
     
     public convenience init(configuration: CryptoServiceConfiguration) throws {
-        self.init(keyStore: try CryptoKeyStore(configuration: configuration))
+        self.init(keyStore: try CryptoKeyStore(configuration: configuration),
+                  encoder: JSONEncoder())
     }
     
-    init(keyStore: KeyStore) {
+    init(keyStore: KeyStore, encoder: JSONEncoder) {
         self.keyStore = keyStore
+        self.encoder = encoder
     }
     
     func generateJWK(_ key: Data) throws -> Data {
         let p256PublicKey = try P256.Signing.PublicKey(x963Representation: key)
-//        print(try JSONDecoder().decode(AppCheckJWT.self, from: p256PublicKey.JWT))
-        return try p256PublicKey.JWT
+        let jwk = p256PublicKey.jwkRepresentation
+        let jwks = JWKs(jwk: jwk)
+        return try encoder.encode(jwks)
     }
     
     /// Exports the public key from the Keychain to did:key format
