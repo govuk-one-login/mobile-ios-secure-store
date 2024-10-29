@@ -56,28 +56,6 @@ struct CryptoSigningServiceTests {
         )
     }
     
-//    @Test("export public key JWK format")
-//    func publicKey_JWK() throws {
-//        let keyData = Data(base64Encoded: "BDbZJ4xs5t9aF8a/xoR8XaFr74xhiqxLICQFLx9e1LykVtO1ebOWi+nPAQR9j0rkBIjdrywOFLR+qtnhTWcxgHw=")!
-//        let jwks = try sut.generateJWK(keyData)
-//        let jwksString = String(data: jwks, encoding: .utf8)
-//        #expect(jwksString == """
-//            { 
-//              "jwk" : {
-//                "crv" : "P-256",
-//                "kty" : EC",
-//                "use" : "sig",
-//                "x" : "DbZJ4xs5t9aF8a/xoR8XaFr74xhiqxLICQFLx9e1Lyk",
-//                "y" : "Ou1LmrOYh2+NTgRNa7ENRB0R9698W1k/pdMgiIqYPHU"
-//              }
-//            }
-//        """)
-//        
-//        #expect(throws: SigningServiceError.notYetImplemented) {
-//            try sut.publicKey(format: .jwk)
-//        }
-//    }
-
     @Test
     func publicKey_DID() throws {
         let didKeyString = try #require(String(data: sut.publicKey(format: .decentralisedIdentifier), encoding: .utf8))

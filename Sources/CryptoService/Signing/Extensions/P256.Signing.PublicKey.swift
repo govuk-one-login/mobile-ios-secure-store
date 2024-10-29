@@ -30,24 +30,3 @@ extension P256.Signing.PublicKey {
                    y: yCoordinateBase64)
     }
 }
-
-extension Data {
-    var base64URLEncodedString: String {
-        let base64 = self.base64EncodedString()
-        return String(base64.split(separator: "=").first!)
-            .replacingOccurrences(of: "+", with: "-")
-            .replacingOccurrences(of: "/", with: "_")
-    }
-}
-
-struct JWKs: Encodable {
-    let jwk: JWK
-}
-
-struct JWK: Encodable {
-    let kty = "EC"
-    let use = "sig"
-    let crv = "P-256"
-    let x: String
-    let y: String
-}
