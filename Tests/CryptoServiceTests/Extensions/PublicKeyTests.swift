@@ -31,8 +31,11 @@ struct PublicKeyTests {
                                  y: "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA")
         
         #expect(key.jwkRepresentation.kty == "EC")
+        #expect(key.jwkRepresentation.kty == constructedJWK.kty)
         #expect(key.jwkRepresentation.use == "sig")
+        #expect(key.jwkRepresentation.use == constructedJWK.use)
         #expect(key.jwkRepresentation.crv == "P-256")
+        #expect(key.jwkRepresentation.crv == constructedJWK.crv)
         #expect(key.jwkRepresentation.x == constructedJWK.x)
         #expect(key.jwkRepresentation.y == constructedJWK.y)
     }

@@ -12,10 +12,12 @@ struct CryptoSigningServiceTests {
         keyStore = MockKeyStore()
         encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        sut = CryptoSigningService(keyStore: keyStore, encoder: encoder)
+        
+        sut = CryptoSigningService(keyStore: keyStore,
+                                   encoder: encoder)
     }
     
-    @Test("Export public key in JWKs format")
+    @Test
     @available(iOS 16, macOS 13, *)
     func publicKey_JWKs() throws {
         let key = try P256.Signing.PublicKey(pemRepresentation: """
