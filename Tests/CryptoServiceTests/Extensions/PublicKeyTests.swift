@@ -30,12 +30,12 @@ struct PublicKeyTests {
         let constructedJWK = JWK(x: "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
                                  y: "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA")
         
-        #expect(key.jwkRepresentation.kty == "EC")
-        #expect(key.jwkRepresentation.kty == constructedJWK.kty)
-        #expect(key.jwkRepresentation.use == "sig")
-        #expect(key.jwkRepresentation.use == constructedJWK.use)
-        #expect(key.jwkRepresentation.crv == "P-256")
-        #expect(key.jwkRepresentation.crv == constructedJWK.crv)
+        #expect(key.jwkRepresentation.keyType == "EC")
+        #expect(key.jwkRepresentation.keyType == constructedJWK.keyType)
+        #expect(key.jwkRepresentation.intendedUse == .signing)
+        #expect(key.jwkRepresentation.intendedUse == constructedJWK.intendedUse)
+        #expect(key.jwkRepresentation.ellipticCurve == .primeField256Bit)
+        #expect(key.jwkRepresentation.ellipticCurve == constructedJWK.ellipticCurve)
         #expect(key.jwkRepresentation.x == constructedJWK.x)
         #expect(key.jwkRepresentation.y == constructedJWK.y)
     }
