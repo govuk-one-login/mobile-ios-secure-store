@@ -17,4 +17,16 @@ extension P256.Signing.PublicKey {
         let prefixArray = [prefix]
         return Data(prefixArray + mutableXCoordinateArrayUInt8)
     }
+    
+    var jwkRepresentation: JWK {
+        let publicKeyUInt8 = [UInt8](x963Representation)
+        let xCoordinate = publicKeyUInt8[1...32]
+        let yCoordinate = publicKeyUInt8[33...64]
+        let xCoordinateData = Data([UInt8](xCoordinate))
+        let yCoordinateData = Data([UInt8](yCoordinate))
+        let xCoordinateBase64 = xCoordinateData.base64URLEncodedString
+        let yCoordinateBase64 = yCoordinateData.base64URLEncodedString
+        return JWK(x: xCoordinateBase64,
+                   y: yCoordinateBase64)
+    }
 }

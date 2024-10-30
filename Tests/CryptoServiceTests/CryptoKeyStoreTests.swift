@@ -7,6 +7,9 @@ struct CryptoKeyStoreTests {
     let localAuthStrings: LocalAuthenticationLocalizedStrings
     let configuration: CryptoServiceConfiguration
     
+    let privateKeyRef: SecKey
+    let publicKeyRef: SecKey
+    
     init() {
         localAuthStrings = LocalAuthenticationLocalizedStrings(
             localizedReason: "test_reason",
@@ -18,13 +21,14 @@ struct CryptoKeyStoreTests {
             accessControlLevel: .open,
             localAuthStrings: localAuthStrings
         )
+        
+        let mockKeyStore = MockKeyStore()
+        privateKeyRef = mockKeyStore.privateKey
+        publicKeyRef = mockKeyStore.publicKey
     }
     
     @Test
     func setUp() throws {
-        let privateKeyRef = try #require(MockKeyStore().privateKey)
-        let publicKeyRef = try #require(MockKeyStore().privateKey)
-        
         let (privateKey, publicKey) = try CryptoKeyStore.setup(
             configuration: configuration
         ) { _, result in
@@ -40,8 +44,6 @@ struct CryptoKeyStoreTests {
     
     @Test
     func setUpThrows() throws {
-        let privateKeyRef = try #require(MockKeyStore().privateKey)
-        
         #expect(throws: KeyPairAdministratorError.cantCreatePublicKey) {
             try CryptoKeyStore.setup(
                 configuration: configuration
@@ -57,7 +59,6 @@ struct CryptoKeyStoreTests {
     @Test
     func getPrivateKey() throws {
         var cfDictionary: CFDictionary?
-        let privateKeyRef = try #require(MockKeyStore().privateKey)
         
         let privateKey = try CryptoKeyStore.getPrivateKey(
             configuration: configuration
@@ -83,7 +84,6 @@ struct CryptoKeyStoreTests {
     @Test
     func createPrivateKey() throws {
         var cfDictionary: CFDictionary?
-        let privateKeyRef = try #require(MockKeyStore().privateKey)
         
         let privateKey = try CryptoKeyStore.createPrivateKey(
             configuration: configuration
@@ -116,8 +116,6 @@ struct CryptoKeyStoreTests {
     
     @Test
     func deleteKeys() throws {
-        let privateKeyRef = try #require(MockKeyStore().privateKey)
-        let publicKeyRef = try #require(MockKeyStore().privateKey)
         var cfDictionary: CFDictionary?
         
         let sut = try CryptoKeyStore(configuration: configuration) { _, result in
@@ -141,9 +139,6 @@ struct CryptoKeyStoreTests {
     
     @Test
     func deleteKeysThrows() throws {
-        let privateKeyRef = try #require(MockKeyStore().privateKey)
-        let publicKeyRef = try #require(MockKeyStore().privateKey)
-        
         let sut = try CryptoKeyStore(configuration: configuration) { _, result in
             result?.pointee = privateKeyRef
             return errSecSuccess

@@ -20,7 +20,7 @@ public final class CryptoEncryptionService {
     }
     
     public func encryptData(dataToEncrypt: String) throws -> String {
-        guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
+        guard let formattedData = dataToEncrypt.data(using: .utf8) else {
             throw EncryptionServiceError.cantEncryptData
         }
         
