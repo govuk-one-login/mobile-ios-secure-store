@@ -34,14 +34,10 @@ public final class CryptoSigningService: SigningService {
         let p256PublicKey = try P256.Signing.PublicKey(x963Representation: exportedKey)
 
         switch format {
-        case .decentralisedIdentifier:
-            guard let didKey = generateDidKey(p256PublicKey)
-                .data(using: .utf8) else {
-                throw SigningServiceError.couldNotCreateDIDKeyAsData
-            }
-            return didKey
         case .jwk:
             return try generateJWK(p256PublicKey)
+        case .decentralisedIdentifier:
+            return try generateDidKey(p256PublicKey)
         }
     }
     
@@ -56,21 +52,21 @@ public final class CryptoSigningService: SigningService {
     }
     
     private func generateJWK(_ key: P256.Signing.PublicKey) throws -> Data {
-        let jwk = key.jwkRepresentation
-        let jwks = JWKs(jwk: jwk)
+        let jwks = JWKs(jwk: key.jwkRepresentation)
         return try encoder.encode(jwks)
     }
     
-    private func generateDidKey(_ key: P256.Signing.PublicKey) -> String {
-        let compressedKey = key.compressedRepresentation
-
+    private func generateDidKey(_ key: P256.Signing.PublicKey) throws -> Data {
         let multicodecPrefix: [UInt8] = [0x80, 0x24] // P-256 elliptic curve
-        let multicodecData = multicodecPrefix + compressedKey
+        let multicodecData = multicodecPrefix + key.compressedRepresentation
 
         let base58Data = Data(multicodecData).base58EncodedString()
-        let didKey = "did:key:z" + base58Data
+        let didKeyString = "did:key:z" + base58Data
 
-        return didKey
+        guard let didKeyData = didKeyString.data(using: .utf8) else {
+            throw SigningServiceError.couldNotCreateDIDKeyAsData
+        }
+        return didKeyData
     }
 
     public func sign(data: Data) throws -> Data {
