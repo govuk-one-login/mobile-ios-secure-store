@@ -20,6 +20,7 @@ extension P256.Signing.PublicKey {
     
     var jwkRepresentation: JWK {
         let publicKeyUInt8 = [UInt8](x963Representation)
+        print("PUBLIC KEY DATA COUNT", publicKeyUInt8.count)
         let xCoordinate = publicKeyUInt8[1...32]
         let yCoordinate = publicKeyUInt8[33...64]
         let xCoordinateData = Data([UInt8](xCoordinate))
