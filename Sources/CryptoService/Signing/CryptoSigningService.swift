@@ -86,7 +86,9 @@ public final class CryptoSigningService: SigningService {
             }
             throw error
         }
+        let ecdsaSignature = try P256.Signing.ECDSASignature(derRepresentation: signature)
+        let signatureBytes = ecdsaSignature.rawRepresentation
 
-        return signature
+        return signatureBytes
     }
 }
