@@ -76,7 +76,7 @@ public final class CryptoSigningService: SigningService {
         var createError: Unmanaged<CFError>?
         guard let signature = SecKeyCreateSignature(
             keyStore.privateKey,
-            .ecdsaSignatureRFC4754,
+            .ecdsaSignatureMessageX962SHA256,
             hashData as CFData,
             &createError
         ) as Data? else {
