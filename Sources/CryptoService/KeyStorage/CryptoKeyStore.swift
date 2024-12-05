@@ -1,5 +1,5 @@
-import Foundation
 import LocalAuthentication
+import Security
 
 public enum KeyPairAdministratorError: Error {
     /// The public key could not be created
@@ -46,6 +46,8 @@ final class CryptoKeyStore: KeyStore {
         )
         self.deleteMethod = deleteMethod
     }
+    
+
     
     static func setup(
         configuration: CryptoServiceConfiguration,
