@@ -13,8 +13,8 @@ public enum SigningServiceError: Error {
 }
 
 public enum KeyFormat {
-    case decentralisedIdentifier
     case jwk
+    case decentralisedIdentifier
 }
 
 public final class CryptoSigningService: SigningService {
@@ -63,7 +63,7 @@ public final class CryptoSigningService: SigningService {
 
     public func sign(data: Data) throws -> Data {
         let hashDigest = SHA256.hash(data: data)
-        let signature = try keyStore.privateKey.oneLoginSignature(for: hashDigest)
+        let signature = try keyStore.privateKey.signature(for: hashDigest)
         return signature.rawRepresentation
     }
 }
