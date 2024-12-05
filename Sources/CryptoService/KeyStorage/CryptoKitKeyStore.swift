@@ -67,7 +67,7 @@ final class CryptoKitKeyStore {
         
         let privateKey = try SecureEnclave.P256.Signing.PrivateKey(accessControl: access,
                                                                    authenticationContext: context)
-        UserDefaults.standard.set(privateKey, forKey: configuration.id)
+        UserDefaults.standard.set(privateKey.dataRepresentation, forKey: configuration.id)
         let publicKey = privateKey.publicKey
         return (privateKey: privateKey, publicKey: publicKey)
     }
