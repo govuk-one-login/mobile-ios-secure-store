@@ -23,6 +23,10 @@ let package = Package(
         .package(url: "https://github.com/attaswift/BigInt", from: "5.3.0")
     ],
     targets: [
+        .executableTarget(
+            name: "Testing",
+            dependencies: ["CryptoService"]
+        ),
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(

@@ -1,4 +1,5 @@
 import BigInt
+import LocalAuthentication
 import CryptoKit
 import Foundation
 import Security
@@ -73,22 +74,33 @@ public final class CryptoSigningService: SigningService {
         let hashDigest = SHA256.hash(data: data)
         let hashData = Data(hashDigest)
 
-        var createError: Unmanaged<CFError>?
-        guard let signature = SecKeyCreateSignature(
-            keyStore.privateKey,
-            .ecdsaSignatureMessageX962SHA256,
-            hashData as CFData,
-            &createError
-        ) as Data? else {
-            guard let error = createError?.takeRetainedValue()
-                    as? Error else {
-                throw SigningServiceError.unknownCreateSignatureError
-            }
-            throw error
-        }
-        let ecdsaSignature = try P256.Signing.ECDSASignature(derRepresentation: signature)
-        let signatureBytes = ecdsaSignature.rawRepresentation
+//        var createError: Unmanaged<CFError>?
+//        guard let signature = SecKeyCreateSignature(
+//            keyStore.privateKey,
+//            .ecdsaSignatureRFC4754,
+//            hashData as CFData,
+//            &createError
+//        ) as Data? else {
+//            guard let error = createError?.takeRetainedValue()
+//                    as? Error else {
+//                throw SigningServiceError.unknownCreateSignatureError
+//            }
+//            throw error
+//        }
+//        
+        let key = try SecureEnclave.P256.Signing.PrivateKey()
+        // store[id]: key.dataRepresentation
+        
+        // datarep = store[id]
+        
+        //let ecdsaSignature = try P256.Signing.ECDSASignature(rawRepresentation: signature)
+        let signatureBytes = try key.signature(for: hashDigest)
+        
+//        try print(String(data: publicKey(format: .jwk), encoding: .utf8))
 
-        return signatureBytes
+        print(key.publicKey.jwkRepresentation)
+        
+        return signatureBytes.rawRepresentation
+//        return signature
     }
 }
