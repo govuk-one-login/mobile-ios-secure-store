@@ -154,7 +154,7 @@ extension KeyManagerService {
         let publicKey = try retrieveKeys().publicKey
         
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw SecureStoreError.cantEncryptData
+            throw SecureStoreError.cantEncodeOrDecodeData
         }
         
         var error: Unmanaged<CFError>?
@@ -162,10 +162,18 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            guard let error = error?.takeRetainedValue() as? Error else {
+            guard let error = error?.takeRetainedValue() else {
                 throw SecureStoreError.cantEncryptData
             }
-            throw error
+            let code = CFErrorGetCode(error)
+            switch code {
+            case LAError.authenticationFailed.rawValue:
+                throw SecureStoreError.biometricsFailed
+            case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
+                throw SecureStoreError.biometricsCancelled
+            default:
+                throw error
+            }
         }
         
         let encryptedData = encryptData as Data
@@ -178,19 +186,31 @@ extension KeyManagerService {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
         
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw SecureStoreError.cantDecryptData
+            throw SecureStoreError.cantEncodeOrDecodeData
         }
         
+        var error: Unmanaged<CFError>?
         // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
         guard let decryptData = SecKeyCreateDecryptedData(privateKeyRepresentation,
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
-                                                          nil) else {
-            throw SecureStoreError.cantDecryptData
+                                                          &error) else {
+            guard let error = error?.takeRetainedValue() else {
+                throw SecureStoreError.cantDecryptData
+            }
+            let code = CFErrorGetCode(error)
+            switch code {
+            case LAError.authenticationFailed.rawValue:
+                throw SecureStoreError.biometricsFailed
+            case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
+                throw SecureStoreError.biometricsCancelled
+            default:
+                throw error
+            }
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw SecureStoreError.cantDecryptData
+            throw SecureStoreError.cantEncodeOrDecodeData
         }
         
         return decryptedString
