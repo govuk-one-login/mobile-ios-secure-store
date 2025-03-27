@@ -14,4 +14,16 @@ final class SecureStoreErrorTests: XCTestCase {
         XCTAssertEqual(SecureStoreError.biometricsFailed.localizedDescription, "Biometric authentication failed after multiple attempts or biometrics are not set up")
         XCTAssertEqual(SecureStoreError.cantEncodeOrDecodeData.localizedDescription, "Error while encoding or decoding data")
     }
+    
+    func test_biometricErrors() {
+        let authFailedError = CFErrorCreate(nil, "domain" as CFString, -1, nil)
+        XCTAssertEqual(SecureStoreError.biometricErrorHandling(error: authFailedError, defaultError: SecureStoreError.cantEncryptData) as? SecureStoreError, SecureStoreError.biometricsFailed)
+        XCTAssertNotEqual(SecureStoreError.biometricErrorHandling(error: authFailedError, defaultError: SecureStoreError.cantEncryptData) as? SecureStoreError, SecureStoreError.biometricsCancelled)
+        let userCancelError = CFErrorCreate(nil, "domain" as CFString, -2, nil)
+        XCTAssertEqual(SecureStoreError.biometricErrorHandling(error: userCancelError, defaultError: SecureStoreError.cantEncryptData) as? SecureStoreError, SecureStoreError.biometricsCancelled)
+        let systemCancelError = CFErrorCreate(nil, "domain" as CFString, -4, nil)
+        XCTAssertEqual(SecureStoreError.biometricErrorHandling(error: systemCancelError, defaultError: SecureStoreError.cantEncryptData) as? SecureStoreError, SecureStoreError.biometricsCancelled)
+        let otherErrors = CFErrorCreate(nil, "domain" as CFString, -5, nil)
+        XCTAssertEqual((SecureStoreError.biometricErrorHandling(error: otherErrors, defaultError: SecureStoreError.cantEncryptData) as! CFError), otherErrors)
+    }
 }
