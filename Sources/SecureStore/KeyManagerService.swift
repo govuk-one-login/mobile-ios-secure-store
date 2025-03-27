@@ -162,18 +162,7 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            guard let error = error?.takeRetainedValue() else {
-                throw SecureStoreError.cantEncryptData
-            }
-            let code = CFErrorGetCode(error)
-            switch code {
-            case LAError.authenticationFailed.rawValue:
-                throw SecureStoreError.biometricsFailed
-            case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
-                throw SecureStoreError.biometricsCancelled
-            default:
-                throw error
-            }
+            throw SecureStoreError.biometricErrorHandling(error: error?.takeRetainedValue(), defaultError: SecureStoreError.cantEncryptData)
         }
         
         let encryptedData = encryptData as Data
@@ -195,18 +184,7 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            guard let error = error?.takeRetainedValue() else {
-                throw SecureStoreError.cantDecryptData
-            }
-            let code = CFErrorGetCode(error)
-            switch code {
-            case LAError.authenticationFailed.rawValue:
-                throw SecureStoreError.biometricsFailed
-            case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
-                throw SecureStoreError.biometricsCancelled
-            default:
-                throw error
-            }
+            throw SecureStoreError.biometricErrorHandling(error: error?.takeRetainedValue(), defaultError: SecureStoreError.cantDecryptData)
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {

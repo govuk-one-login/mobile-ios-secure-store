@@ -1,4 +1,5 @@
 import Foundation
+import LocalAuthentication
 
 public enum SecureStoreError: Error {
     case unableToRetrieveFromUserDefaults
@@ -11,6 +12,21 @@ public enum SecureStoreError: Error {
     case biometricsCancelled
     case biometricsFailed
     case cantEncodeOrDecodeData
+
+    static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
+        guard let error = error else {
+            return defaultError
+        }
+        let code = CFErrorGetCode(error)
+        switch code {
+        case LAError.authenticationFailed.rawValue:
+            return self.biometricsFailed
+        case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
+            return self.biometricsCancelled
+        default:
+            return error
+        }
+    }
 }
 
 /// Use as: error.localizedDescription
