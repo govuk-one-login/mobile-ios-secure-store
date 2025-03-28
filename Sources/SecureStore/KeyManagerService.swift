@@ -154,7 +154,7 @@ extension KeyManagerService {
         let publicKey = try retrieveKeys().publicKey
         
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw SecureStoreError.cantEncryptData
+            throw SecureStoreError.cantEncodeData
         }
         
         var error: Unmanaged<CFError>?
@@ -162,10 +162,7 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            guard let error = error?.takeRetainedValue() as? Error else {
-                throw SecureStoreError.cantEncryptData
-            }
-            throw error
+            throw SecureStoreError.biometricErrorHandling(error: error?.takeRetainedValue(), defaultError: SecureStoreError.cantEncryptData)
         }
         
         let encryptedData = encryptData as Data
@@ -178,19 +175,20 @@ extension KeyManagerService {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
         
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw SecureStoreError.cantDecryptData
+            throw SecureStoreError.cantFormatData
         }
         
+        var error: Unmanaged<CFError>?
         // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
         guard let decryptData = SecKeyCreateDecryptedData(privateKeyRepresentation,
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
-                                                          nil) else {
-            throw SecureStoreError.cantDecryptData
+                                                          &error) else {
+            throw SecureStoreError.biometricErrorHandling(error: error?.takeRetainedValue(), defaultError: SecureStoreError.cantDecryptData)
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw SecureStoreError.cantDecryptData
+            throw SecureStoreError.cantDecodeData
         }
         
         return decryptedString

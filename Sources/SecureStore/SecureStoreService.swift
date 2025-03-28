@@ -1,5 +1,4 @@
 import Foundation
-import LocalAuthentication
 
 public class SecureStoreService {
     let keyManagerService: KeyManagerService
