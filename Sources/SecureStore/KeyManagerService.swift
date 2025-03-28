@@ -154,7 +154,7 @@ extension KeyManagerService {
         let publicKey = try retrieveKeys().publicKey
         
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw SecureStoreError.cantEncodeOrDecodeData
+            throw SecureStoreError.cantEncodeData
         }
         
         var error: Unmanaged<CFError>?
@@ -175,7 +175,7 @@ extension KeyManagerService {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
         
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw SecureStoreError.cantEncodeOrDecodeData
+            throw SecureStoreError.cantFormatData
         }
         
         var error: Unmanaged<CFError>?
@@ -188,7 +188,7 @@ extension KeyManagerService {
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw SecureStoreError.cantEncodeOrDecodeData
+            throw SecureStoreError.cantDecodeData
         }
         
         return decryptedString

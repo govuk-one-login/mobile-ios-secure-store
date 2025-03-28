@@ -11,7 +11,9 @@ public enum SecureStoreError: Error {
     case cantDecryptData
     case biometricsCancelled
     case biometricsFailed
-    case cantEncodeOrDecodeData
+    case cantEncodeData
+    case cantDecodeData
+    case cantFormatData
 
     static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
         guard let error else {
@@ -51,8 +53,12 @@ extension SecureStoreError: LocalizedError {
             return "User or system cancelled the biometric prompt"
         case .biometricsFailed:
             return "Biometric authentication failed after multiple attempts or biometrics are not set up"
-        case .cantEncodeOrDecodeData:
-            return "Error while encoding or decoding data"
+        case .cantEncodeData:
+            return "Error while encoding data"
+        case .cantDecodeData:
+            return "Error while decoding data"
+        case .cantFormatData:
+            return "Error while formatting data"
         }
     }
 }

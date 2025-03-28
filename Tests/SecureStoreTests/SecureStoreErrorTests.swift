@@ -12,7 +12,9 @@ final class SecureStoreErrorTests: XCTestCase {
         XCTAssertEqual(SecureStoreError.cantDecryptData.localizedDescription, "Error while decrypting data")
         XCTAssertEqual(SecureStoreError.biometricsCancelled.localizedDescription, "User or system cancelled the biometric prompt")
         XCTAssertEqual(SecureStoreError.biometricsFailed.localizedDescription, "Biometric authentication failed after multiple attempts or biometrics are not set up")
-        XCTAssertEqual(SecureStoreError.cantEncodeOrDecodeData.localizedDescription, "Error while encoding or decoding data")
+        XCTAssertEqual(SecureStoreError.cantEncodeData.localizedDescription, "Error while encoding data")
+        XCTAssertEqual(SecureStoreError.cantDecodeData.localizedDescription, "Error while decoding data")
+        XCTAssertEqual(SecureStoreError.cantFormatData.localizedDescription, "Error while formatting data")
     }
     
     func test_biometricErrors() {
