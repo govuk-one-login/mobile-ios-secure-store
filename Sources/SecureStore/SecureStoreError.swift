@@ -14,7 +14,7 @@ public enum SecureStoreError: Error {
     case cantEncodeOrDecodeData
 
     static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
-        guard let error = error else {
+        guard let error else {
             return defaultError
         }
         let code = CFErrorGetCode(error)
