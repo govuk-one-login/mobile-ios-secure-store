@@ -98,7 +98,7 @@ struct CryptoSigningServiceTests {
     
     @Test
     func deleteKeysSucceeds() {
-        var expectedError: Error? = nil
+        var expectedError: Error?
         do {
             try sut.deleteKeys()
         } catch {
