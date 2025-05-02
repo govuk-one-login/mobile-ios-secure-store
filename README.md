@@ -235,7 +235,11 @@ final class SignDataService {
     }
     
     func deleteKeys() throws {
-        try signingService.deleteKeys()
+        do {
+            try keyStore.deleteKeys()
+        } catch {
+            throw SigningServiceError.failedToDeleteKeys
+        }            
     }
 }
 }
