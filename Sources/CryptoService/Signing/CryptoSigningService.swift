@@ -12,6 +12,9 @@ public enum SigningServiceError: Error {
     
     /// No result was returned but no error was thrown creating the signature by the `Security` framework
     case unknownCreateSignatureError
+    
+    // The keys could not be deleted
+    case failedToDeleteKeys
 }
 
 public enum KeyFormat {
@@ -94,6 +97,10 @@ public final class CryptoSigningService: SigningService {
     }
     
     public func deleteKeys() throws {
-        try keyStore.deleteKeys()
+        do {
+            try keyStore.deleteKeys()
+        } catch {
+            throw SigningServiceError.failedToDeleteKeys
+        }            
     }
 }
