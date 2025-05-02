@@ -95,4 +95,24 @@ struct CryptoSigningServiceTests {
                 && error.code == -50
         })
     }
+    
+    @Test
+    func deleteKeysSucceeds() {
+        var expectedError: Error?
+        do {
+            try sut.deleteKeys()
+        } catch {
+            expectedError = error
+        }
+        #expect(expectedError == nil)
+    }
+    
+    @Test
+    func deleteKeysThrows() {
+        keyStore.errorToThrow = SigningServiceError.failedToDeleteKeys
+        
+        #expect(throws: SigningServiceError.failedToDeleteKeys) {
+            try sut.deleteKeys()
+        }
+    }
 }

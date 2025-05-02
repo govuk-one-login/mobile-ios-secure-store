@@ -145,7 +145,8 @@ public class CryptoEncryptionService: EncryptionService {
 ```swift
 public protocol SigningService {
     func publicKey(format KeyFormat) throws -> Data
-    func sign(data: Data) throws -> Data
+    func sign(data: Data) throws -> Data    
+    func deletePrivateKey() throws
 }
 
 public class CryptoSigningService: SigningService {
@@ -232,5 +233,14 @@ final class SignDataService {
             // handle signing error, perhaps by regenerating the keys
         }
     }
+    
+    func deleteKeys() throws {
+        do {
+            try keyStore.deleteKeys()
+        } catch {
+            throw SigningServiceError.failedToDeleteKeys
+        }            
+    }
+}
 }
 ```
