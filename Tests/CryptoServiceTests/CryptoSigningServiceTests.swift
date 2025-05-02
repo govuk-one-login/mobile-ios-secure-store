@@ -109,9 +109,9 @@ struct CryptoSigningServiceTests {
     
     @Test
     func deleteKeysThrows() {
-        keyStore.errorToThrow = SigningServiceError.failedToDeleteKeys
+        keyStore.errorToThrow = MockSigningServiceError.failedToDeleteKeys
         
-        #expect(throws: SigningServiceError.failedToDeleteKeys) {
+        #expect(throws: MockSigningServiceError.failedToDeleteKeys) {
             try sut.deleteKeys()
         }
     }

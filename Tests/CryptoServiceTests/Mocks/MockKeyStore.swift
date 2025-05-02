@@ -1,6 +1,11 @@
 @testable import CryptoService
 import Foundation
 
+public enum MockSigningServiceError: Error {
+    // The keys could not be deleted
+    case failedToDeleteKeys
+}
+
 final class MockKeyStore: KeyStore {
     var errorToThrow: Error?
     
