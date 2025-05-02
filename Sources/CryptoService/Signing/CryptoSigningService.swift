@@ -101,6 +101,6 @@ public final class CryptoSigningService: SigningService {
             try keyStore.deleteKeys()
         } catch {
             throw SigningServiceError.failedToDeleteKeys
-        }            
+        }
     }
 }
