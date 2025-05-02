@@ -12,6 +12,9 @@ public enum SigningServiceError: Error {
     
     /// No result was returned but no error was thrown creating the signature by the `Security` framework
     case unknownCreateSignatureError
+    
+    // The keys could not be deleted
+    case failedToDeleteKeys
 }
 
 public enum KeyFormat {
@@ -32,7 +35,7 @@ public final class CryptoSigningService: SigningService {
             throw SigningServiceError.couldNotCreatePublicKeyAsData
         }
         let p256PublicKey = try P256.Signing.PublicKey(x963Representation: exportedKey)
-
+        
         switch format {
         case .jwk:
             return try generateJWK(p256PublicKey)
@@ -46,7 +49,10 @@ public final class CryptoSigningService: SigningService {
                   encoder: JSONEncoder())
     }
     
-    init(keyStore: KeyStore, encoder: JSONEncoder) {
+    init(
+        keyStore: KeyStore,
+        encoder: JSONEncoder
+    ) {
         self.keyStore = keyStore
         self.encoder = encoder
     }
@@ -59,20 +65,20 @@ public final class CryptoSigningService: SigningService {
     private func generateDidKey(_ key: P256.Signing.PublicKey) throws -> Data {
         let multicodecPrefix: [UInt8] = [0x80, 0x24] // P-256 elliptic curve
         let multicodecData = multicodecPrefix + key.compressedRepresentation
-
+        
         let base58Data = Data(multicodecData).base58EncodedString()
         let didKeyString = "did:key:z" + base58Data
-
+        
         guard let didKeyData = didKeyString.data(using: .utf8) else {
             throw SigningServiceError.couldNotCreateDIDKeyAsData
         }
         return didKeyData
     }
-
+    
     public func sign(data: Data) throws -> Data {
         let hashDigest = SHA256.hash(data: data)
         let hashData = Data(hashDigest)
-
+        
         var createError: Unmanaged<CFError>?
         guard let signature = SecKeyCreateSignature(
             keyStore.privateKey,
@@ -86,7 +92,11 @@ public final class CryptoSigningService: SigningService {
             }
             throw error
         }
-
+        
         return signature
+    }
+    
+    public func deleteKeys() throws {
+        try keyStore.deleteKeys()
     }
 }

@@ -2,6 +2,8 @@
 import Foundation
 
 final class MockKeyStore: KeyStore {
+    var errorToThrow: Error? = nil
+    
     var publicKey: SecKey = {
         let keyString = "BCWJzI4K0QJ60ejmwbYQ7lGg3kKDx6134c0Zn4Q7WvtobY1uIVihxougBV8/Uv417M43z60dcBJP8ojfMEQ/t+E="
         let keyData = Data(base64Encoded: keyString)!
@@ -30,5 +32,9 @@ final class MockKeyStore: KeyStore {
         )!
     }()
 
-    func deleteKeys() throws { }
+    func deleteKeys() throws {
+        if let errorToThrow {
+            throw errorToThrow
+        }
+    }
 }
