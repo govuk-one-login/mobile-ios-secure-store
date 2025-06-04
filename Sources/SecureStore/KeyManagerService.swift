@@ -29,9 +29,15 @@ extension KeyManagerService {
             // Keys do not exist yet, continue below to create and save them
         }
         
+        #if targetEnvironment(simulator)
+        let requirement = SecureStorageConfiguration.AccessControlLevel.open.flags
+        #else
+        let requirement = configuration.accessControlLevel.flags
+        #endif
+        
         guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                                                           configuration.accessControlLevel.flags,
+                                                           requirement,
                                                            nil),
               let tag = name.data(using: .utf8) else { return }
         
