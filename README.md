@@ -147,6 +147,7 @@ public protocol SigningService {
     func publicKey(format KeyFormat) throws -> Data
     func sign(data: Data) throws -> Data    
     func deletePrivateKey() throws
+    static func deleteItem(for id: String) throws
 }
 
 public class CryptoSigningService: SigningService {
@@ -242,5 +243,23 @@ final class SignDataService {
         }            
     }
 }
+}
+```
+
+
+#### Example of deleting keys using CryptoSigningService when no local authentication is enabled
+
+```swift
+import SecureStore
+
+final class DeletionExample {
+    
+    public static func deleteProofKeys(
+        _ proofKeyID: UUID,
+        walletStoreType: AnyStoreWithKeyService.Type
+    ) throws {
+        try CryptoSigningService.deleteItem(for: proofKeyID.uuidString)
+    }
+    
 }
 ```
