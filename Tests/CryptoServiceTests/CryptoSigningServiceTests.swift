@@ -121,7 +121,7 @@ struct CryptoSigningServiceTests {
         // GIVEN
         let id = UUID().uuidString
         let sut: SigningService.Type = MockSigningService.self
-        var errorThrown: Error? = nil
+        var errorThrown: Error?
         
         // WHEN deleting the item by id
         do {

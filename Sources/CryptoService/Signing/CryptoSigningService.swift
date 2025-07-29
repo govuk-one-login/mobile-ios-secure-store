@@ -114,6 +114,6 @@ public final class CryptoSigningService: SigningService {
             )
         )
         
-        try signingService.deleteKeys()        
+        try signingService.deleteKeys()
     }
 }
