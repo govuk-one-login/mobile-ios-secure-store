@@ -125,7 +125,7 @@ struct CryptoSigningServiceTests {
         
         // WHEN deleting the item by id
         do {
-            try sut.deleteItem(for: id)
+            try sut.deleteKeys(for: id)
         } catch {
             errorThrown = error
         }

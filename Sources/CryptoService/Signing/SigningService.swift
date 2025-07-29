@@ -4,5 +4,5 @@ public protocol SigningService {
     func publicKey(format: KeyFormat) throws -> Data
     func sign(data: Data) throws -> Data
     func deleteKeys() throws
-    static func deleteItem(for id: String) throws
+    static func deleteKeys(for id: String) throws
 }

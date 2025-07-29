@@ -53,7 +53,7 @@ public final class MockSigningService: SigningService {
         didCallDeleteKeys = true
     }
     
-    public static func deleteItem(for id: String) throws {
+    public static func deleteKeys(for id: String) throws {
         let mockKeyStore = MockKeyStore()
         try mockKeyStore.deleteKeys()
     }

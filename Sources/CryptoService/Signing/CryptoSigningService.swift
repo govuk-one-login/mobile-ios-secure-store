@@ -106,7 +106,7 @@ public final class CryptoSigningService: SigningService {
         }
     }
     
-    public static func deleteItem(for id: String) throws {
+    public static func deleteKeys(for id: String) throws {
         let keystore = try CryptoKeyStore(
             configuration: CryptoServiceConfiguration(
                 id: id,
