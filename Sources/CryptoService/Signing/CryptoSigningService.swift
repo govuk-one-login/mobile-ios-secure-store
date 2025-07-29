@@ -107,13 +107,13 @@ public final class CryptoSigningService: SigningService {
     }
     
     public static func deleteItem(for id: String) throws {
-        let signingService = try CryptoSigningService(
+        let keystore = try CryptoKeyStore(
             configuration: CryptoServiceConfiguration(
                 id: id,
                 accessControlLevel: .open
             )
         )
         
-        try signingService.deleteKeys()
+        try keystore.deleteKeys()
     }
 }
