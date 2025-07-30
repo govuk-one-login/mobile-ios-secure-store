@@ -147,7 +147,7 @@ public protocol SigningService {
     func publicKey(format KeyFormat) throws -> Data
     func sign(data: Data) throws -> Data    
     func deletePrivateKey() throws
-    static func deleteItem(for id: String) throws
+    static func deleteKeys(for id: String) throws
 }
 
 public class CryptoSigningService: SigningService {
@@ -258,7 +258,7 @@ final class DeletionExample {
         _ proofKeyID: UUID,
         walletStoreType: AnyStoreWithKeyService.Type
     ) throws {
-        try CryptoSigningService.deleteItem(for: proofKeyID.uuidString)
+        try CryptoSigningService.deleteKeys(for: proofKeyID.uuidString)
     }
     
 }
