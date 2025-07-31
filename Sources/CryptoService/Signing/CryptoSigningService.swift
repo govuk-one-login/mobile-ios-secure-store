@@ -45,8 +45,10 @@ public final class CryptoSigningService: SigningService {
     }
     
     public convenience init(configuration: CryptoServiceConfiguration) throws {
-        self.init(keyStore: try CryptoKeyStore(configuration: configuration),
-                  encoder: JSONEncoder())
+        self.init(
+            keyStore: try CryptoKeyStore(configuration: configuration),
+            encoder: JSONEncoder()
+        )
     }
     
     init(
@@ -102,5 +104,16 @@ public final class CryptoSigningService: SigningService {
         } catch {
             throw SigningServiceError.failedToDeleteKeys
         }
+    }
+    
+    public static func deleteKeys(for id: String) throws {
+        let keystore = try CryptoKeyStore(
+            configuration: CryptoServiceConfiguration(
+                id: id,
+                accessControlLevel: .open
+            )
+        )
+        
+        try keystore.deleteKeys()
     }
 }

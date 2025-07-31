@@ -115,4 +115,23 @@ struct CryptoSigningServiceTests {
             try sut.deleteKeys()
         }
     }
+    
+    @Test
+    func deleteKeysWithOpen() throws {
+        // GIVEN
+        let id = UUID().uuidString
+        let sut: SigningService.Type = MockSigningService.self
+        var errorThrown: Error?
+        
+        // WHEN deleting the item by id
+        do {
+            try sut.deleteKeys(for: id)
+        } catch {
+            errorThrown = error
+        }
+        
+        // THEN no exception should be thrown
+        #expect(errorThrown == nil)
+    }
+    
 }
