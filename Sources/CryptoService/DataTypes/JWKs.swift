@@ -24,4 +24,14 @@ struct JWK: Encodable {
     enum EllipticCurve: String, Encodable {
         case primeField256Bit = "P-256"
     }
+    
+    var dictionary: [String: String] {
+        [
+            "kty": keyType,
+            "use": intendedUse.rawValue,
+            "crv": ellipticCurve.rawValue,
+            "x": x,
+            "y": y
+        ]
+    }
 }

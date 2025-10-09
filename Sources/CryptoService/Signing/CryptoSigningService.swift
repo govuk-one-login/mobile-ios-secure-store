@@ -26,21 +26,35 @@ public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
     private let encoder: JSONEncoder
     
+    var publicKeyRepresentation: P256.Signing.PublicKey {
+        get throws {
+            var error: UnsafeMutablePointer<Unmanaged<CFError>?>?
+            guard let exportedKey = SecKeyCopyExternalRepresentation(keyStore.publicKey, error)
+                    as? Data else {
+                guard let error = error?.pointee?.takeUnretainedValue() as? Error else {
+                    throw SigningServiceError.couldNotCreatePublicKeyAsData
+                }
+                throw error
+            }
+            return try P256.Signing.PublicKey(x963Representation: exportedKey)
+        }
+    }
+    
+    public var jwkDictionary: [String: String] {
+        get throws {
+            try publicKeyRepresentation.jwkRepresentation.dictionary
+        }
+    }
+    
     /// The public key in either JWK or did:key format, as defined in IETF RFC7517 and the w3c specification.
     /// https://datatracker.ietf.org/doc/html/rfc7517
     /// https://w3c-ccg.github.io/did-method-key/
     public func publicKey(format: KeyFormat) throws -> Data {
-        guard let exportedKey = SecKeyCopyExternalRepresentation(keyStore.publicKey, nil)
-                as? Data else {
-            throw SigningServiceError.couldNotCreatePublicKeyAsData
-        }
-        let p256PublicKey = try P256.Signing.PublicKey(x963Representation: exportedKey)
-        
         switch format {
         case .jwk:
-            return try generateJWK(p256PublicKey)
+            return try generateJWK(publicKeyRepresentation)
         case .decentralisedIdentifier:
-            return try generateDidKey(p256PublicKey)
+            return try generateDidKey(publicKeyRepresentation)
         }
     }
     
