@@ -63,7 +63,7 @@ struct CryptoSigningServiceTests {
         let sut = CryptoSigningService(
             keyStore: keyStore,
             encoder: encoder,
-            keyCopyMethod: { key, error in nil },
+            keyCopyMethod: { _, _ in nil },
             createSignatureMethod: SecKeyCreateSignature
         )
         
@@ -82,7 +82,7 @@ struct CryptoSigningServiceTests {
         let sut = CryptoSigningService(
             keyStore: keyStore,
             encoder: encoder,
-            keyCopyMethod: { key, error in
+            keyCopyMethod: { _, error in
                 error?.pointee = value
                 return nil
             },
@@ -202,7 +202,7 @@ struct CryptoSigningServiceTests {
             keyStore: keyStore,
             encoder: encoder,
             keyCopyMethod: SecKeyCopyExternalRepresentation,
-            createSignatureMethod: { key, algorithm, dataToSign, error in nil }
+            createSignatureMethod: { _, _, _, _ in nil }
         )
         
         let dataToSign = Data("mock_String".utf8)
@@ -223,7 +223,7 @@ struct CryptoSigningServiceTests {
             keyStore: keyStore,
             encoder: encoder,
             keyCopyMethod: SecKeyCopyExternalRepresentation,
-            createSignatureMethod: { key, algorithm, dataToSign, error in
+            createSignatureMethod: { _, _, _, error in
                 error?.pointee = value
                 return nil
             }
