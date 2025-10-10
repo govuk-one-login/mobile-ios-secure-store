@@ -8,6 +8,9 @@ public enum SigningServiceError: Error {
     case couldNotCreatePublicKeyAsData
     
     /// The did key external representation could not be created
+    case couldNotCreateJWKAsData
+    
+    /// The did key external representation could not be created
     case couldNotCreateDIDKeyAsData
     
     /// No result was returned but no error was thrown creating the signature by the `Security` framework
@@ -24,19 +27,38 @@ public enum KeyFormat {
 
 public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
-    private let encoder: JSONEncoder
+    private let encoder: JSONEncodable
+    
+    private let keyCopyMethod: (
+        _ key: SecKey,
+        _ error: UnsafeMutablePointer<Unmanaged<CFError>?>?
+    ) -> CFData?
+    
+    private let createSignatureMethod: (
+        _ key: SecKey,
+        _ algorithm: SecKeyAlgorithm,
+        _ dataToSign: CFData,
+        _ error: UnsafeMutablePointer<Unmanaged<CFError>?>?
+    ) -> CFData?
     
     var publicKeyRepresentation: P256.Signing.PublicKey {
         get throws {
-            var error: UnsafeMutablePointer<Unmanaged<CFError>?>?
-            guard let exportedKey = SecKeyCopyExternalRepresentation(keyStore.publicKey, error)
-                    as? Data else {
-                guard let error = error?.pointee?.takeUnretainedValue() as? Error else {
+            var error: Unmanaged<CFError>?
+            guard let exportedKey = keyCopyMethod(
+                keyStore.publicKey,
+                &error
+            ) as? Data else {
+                guard let error = error?.takeUnretainedValue()
+                        as? Error else {
                     throw SigningServiceError.couldNotCreatePublicKeyAsData
                 }
                 throw error
             }
-            return try P256.Signing.PublicKey(x963Representation: exportedKey)
+            do {
+                return try P256.Signing.PublicKey(x963Representation: exportedKey)
+            } catch {
+                throw SigningServiceError.couldNotCreatePublicKeyAsData
+            }
         }
     }
     
@@ -61,24 +83,42 @@ public final class CryptoSigningService: SigningService {
     public convenience init(configuration: CryptoServiceConfiguration) throws {
         self.init(
             keyStore: try CryptoKeyStore(configuration: configuration),
-            encoder: JSONEncoder()
+            encoder: JSONEncoder(),
+            keyCopyMethod: SecKeyCopyExternalRepresentation,
+            createSignatureMethod: SecKeyCreateSignature
         )
     }
     
     init(
         keyStore: KeyStore,
-        encoder: JSONEncoder
+        encoder: JSONEncodable,
+        keyCopyMethod: @escaping (
+            _ key: SecKey,
+            _ error: UnsafeMutablePointer<Unmanaged<CFError>?>?
+        ) -> CFData?,
+        createSignatureMethod: @escaping (
+            _ key: SecKey,
+            _ algorithm: SecKeyAlgorithm,
+            _ dataToSign: CFData,
+            _ error: UnsafeMutablePointer<Unmanaged<CFError>?>?
+        ) -> CFData?
     ) {
         self.keyStore = keyStore
         self.encoder = encoder
+        self.keyCopyMethod = keyCopyMethod
+        self.createSignatureMethod = createSignatureMethod
     }
     
-    private func generateJWK(_ key: P256.Signing.PublicKey) throws -> Data {
+    func generateJWK(_ key: P256.Signing.PublicKey) throws -> Data {
         let jwks = JWKs(jwk: key.jwkRepresentation)
-        return try encoder.encode(jwks)
+        do {
+            return try encoder.encode(jwks)
+        } catch {
+            throw SigningServiceError.couldNotCreateJWKAsData
+        }
     }
     
-    private func generateDidKey(_ key: P256.Signing.PublicKey) throws -> Data {
+    func generateDidKey(_ key: P256.Signing.PublicKey) throws -> Data {
         let multicodecPrefix: [UInt8] = [0x80, 0x24] // P-256 elliptic curve
         let multicodecData = multicodecPrefix + key.compressedRepresentation
         
@@ -96,7 +136,7 @@ public final class CryptoSigningService: SigningService {
         let hashData = Data(hashDigest)
         
         var createError: Unmanaged<CFError>?
-        guard let signature = SecKeyCreateSignature(
+        guard let signature = createSignatureMethod(
             keyStore.privateKey,
             .ecdsaSignatureRFC4754,
             hashData as CFData,
