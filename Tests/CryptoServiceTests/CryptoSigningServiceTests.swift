@@ -14,51 +14,6 @@ struct CryptoSigningServiceTests {
     }
     
     @Test
-    @available(iOS 14, macOS 13, *)
-    func publicKeyJWKs() throws {
-        let sut = CryptoSigningService(
-            keyStore: keyStore,
-            encoder: encoder,
-            keyCopyMethod: SecKeyCopyExternalRepresentation,
-            createSignatureMethod: SecKeyCreateSignature
-        )
-        
-        let key = try P256.Signing.PublicKey(pemRepresentation: """
-        -----BEGIN PUBLIC KEY-----
-        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE18wHLeIgW9wVN6VD1Txgpqy2LszY
-        kMf6J8njVAibvhP5Xh1LhRosyA//h9jiPyKvtyXVNeUV0CBzHnmjtORxIA==
-        -----END PUBLIC KEY-----
-        """)
-
-        let keyData = key.x963Representation
-        keyStore.publicKey = SecKeyCreateWithData(
-            keyData as NSData,
-            [
-                kSecAttrKeyType: kSecAttrKeyTypeEC,
-                kSecAttrKeyClass: kSecAttrKeyClassPublic
-            ] as NSDictionary,
-            nil
-        )!
-
-        let jwk = try String(data: sut.publicKey(format: .jwk), encoding: .utf8)!
-
-        #expect(
-            jwk ==
-            """
-            {
-              "jwk" : {
-                "crv" : "P-256",
-                "kty" : "EC",
-                "use" : "sig",
-                "x" : "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
-                "y" : "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA"
-              }
-            }
-            """
-        )
-    }
-    
-    @Test
     func publicKeyRepresentationThrows() throws {
         let sut = CryptoSigningService(
             keyStore: keyStore,
@@ -127,6 +82,51 @@ struct CryptoSigningServiceTests {
                 x: "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
                 y: "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA"
             ).dictionary
+        )
+    }
+    
+    @Test
+    @available(iOS 14, macOS 13, *)
+    func publicKeyJWKs() throws {
+        let sut = CryptoSigningService(
+            keyStore: keyStore,
+            encoder: encoder,
+            keyCopyMethod: SecKeyCopyExternalRepresentation,
+            createSignatureMethod: SecKeyCreateSignature
+        )
+        
+        let key = try P256.Signing.PublicKey(pemRepresentation: """
+        -----BEGIN PUBLIC KEY-----
+        MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE18wHLeIgW9wVN6VD1Txgpqy2LszY
+        kMf6J8njVAibvhP5Xh1LhRosyA//h9jiPyKvtyXVNeUV0CBzHnmjtORxIA==
+        -----END PUBLIC KEY-----
+        """)
+
+        let keyData = key.x963Representation
+        keyStore.publicKey = SecKeyCreateWithData(
+            keyData as NSData,
+            [
+                kSecAttrKeyType: kSecAttrKeyTypeEC,
+                kSecAttrKeyClass: kSecAttrKeyClassPublic
+            ] as NSDictionary,
+            nil
+        )!
+
+        let jwk = try String(data: sut.publicKey(format: .jwk), encoding: .utf8)!
+
+        #expect(
+            jwk ==
+            """
+            {
+              "jwk" : {
+                "crv" : "P-256",
+                "kty" : "EC",
+                "use" : "sig",
+                "x" : "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
+                "y" : "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA"
+              }
+            }
+            """
         )
     }
     

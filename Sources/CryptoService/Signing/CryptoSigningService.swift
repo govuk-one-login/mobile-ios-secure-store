@@ -68,18 +68,6 @@ public final class CryptoSigningService: SigningService {
         }
     }
     
-    /// The public key in either JWK or did:key format, as defined in IETF RFC7517 and the w3c specification.
-    /// https://datatracker.ietf.org/doc/html/rfc7517
-    /// https://w3c-ccg.github.io/did-method-key/
-    public func publicKey(format: KeyFormat) throws -> Data {
-        switch format {
-        case .jwk:
-            return try generateJWK(publicKeyRepresentation)
-        case .decentralisedIdentifier:
-            return try generateDidKey(publicKeyRepresentation)
-        }
-    }
-    
     public convenience init(configuration: CryptoServiceConfiguration) throws {
         self.init(
             keyStore: try CryptoKeyStore(configuration: configuration),
@@ -107,6 +95,18 @@ public final class CryptoSigningService: SigningService {
         self.encoder = encoder
         self.keyCopyMethod = keyCopyMethod
         self.createSignatureMethod = createSignatureMethod
+    }
+    
+    /// The public key in either JWK or did:key format, as defined in IETF RFC7517 and the w3c specification.
+    /// https://datatracker.ietf.org/doc/html/rfc7517
+    /// https://w3c-ccg.github.io/did-method-key/
+    public func publicKey(format: KeyFormat) throws -> Data {
+        switch format {
+        case .jwk:
+            return try generateJWK(publicKeyRepresentation)
+        case .decentralisedIdentifier:
+            return try generateDidKey(publicKeyRepresentation)
+        }
     }
     
     func generateJWK(_ key: P256.Signing.PublicKey) throws -> Data {
