@@ -1,7 +1,7 @@
 import Foundation
 
-protocol JSONEncodable {
+protocol JSONDataEncoder {
     func encode<T>(_ value: T) throws -> Data where T: Encodable
 }
 
-extension JSONEncoder: JSONEncodable { }
+extension JSONEncoder: JSONDataEncoder { }

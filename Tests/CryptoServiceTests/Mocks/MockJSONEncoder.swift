@@ -1,7 +1,7 @@
 @testable import CryptoService
 import Foundation
 
-struct MockJSONEncoder: JSONEncodable {
+struct MockJSONEncoder: JSONDataEncoder {
     var errorFromEncode: Error?
     
     func encode<T>(_ value: T) throws -> Data where T: Encodable {

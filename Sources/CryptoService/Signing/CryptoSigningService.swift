@@ -27,7 +27,7 @@ public enum KeyFormat {
 
 public final class CryptoSigningService: SigningService {
     private let keyStore: KeyStore
-    private let encoder: JSONEncodable
+    private let encoder: JSONDataEncoder
     
     private let keyCopyMethod: (
         _ key: SecKey,
@@ -79,7 +79,7 @@ public final class CryptoSigningService: SigningService {
     
     init(
         keyStore: KeyStore,
-        encoder: JSONEncodable,
+        encoder: JSONDataEncoder,
         keyCopyMethod: @escaping (
             _ key: SecKey,
             _ error: UnsafeMutablePointer<Unmanaged<CFError>?>?
