@@ -30,7 +30,7 @@ struct PublicKeyTests {
         let constructedJWK = JWK(x: "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
                                  y: "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA")
         
-        #expect(key.jwkRepresentation.keyType == "EC")
+        #expect(key.jwkRepresentation.keyType == .ec)
         #expect(key.jwkRepresentation.keyType == constructedJWK.keyType)
         #expect(key.jwkRepresentation.intendedUse == .signing)
         #expect(key.jwkRepresentation.intendedUse == constructedJWK.intendedUse)

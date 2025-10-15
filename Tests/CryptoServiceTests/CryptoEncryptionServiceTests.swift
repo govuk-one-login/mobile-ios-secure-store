@@ -14,11 +14,8 @@ struct CryptoEncryptionServiceTests {
     @Test
     func encryptData() throws {
         let token = "data_to_be_encrypted"
-        let encryptedString = try #require(
-            try sut.encryptData(dataToEncrypt: token)
-        )
         let encryptedData = try #require(
-            Data(base64Encoded: encryptedString)
+            Data(base64Encoded: sut.encryptData(dataToEncrypt: token))
         )
         
         let decryptedData = try #require(
@@ -65,14 +62,11 @@ struct CryptoEncryptionServiceTests {
     @Test
     func decryptData_throwsError_whenWrongKeyUsed() throws {
         let token = "data_to_be_encrypted"
-        let encryptedString = try #require(
-            try sut.encryptData(dataToEncrypt: token)
-        )
         
         keyStore.privateKey = keyStore.publicKey
         
         #expect(performing: {
-            try sut.decryptData(dataToDecrypt: encryptedString)
+            try sut.decryptData(dataToDecrypt: sut.encryptData(dataToEncrypt: token))
         }, throws: { error in
             let error = error as NSError
             return error.domain == NSOSStatusErrorDomain

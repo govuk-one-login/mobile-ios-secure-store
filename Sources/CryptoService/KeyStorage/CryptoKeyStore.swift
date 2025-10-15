@@ -152,8 +152,10 @@ final class CryptoKeyStore: KeyStore {
     
     func deleteKeys() throws {
         let tag = Data("\(configuration.id)PrivateKey".utf8)
-        let addquery: NSDictionary = [kSecClass: kSecClassKey,
-                         kSecAttrApplicationTag: tag]
+        let addquery: NSDictionary = [
+            kSecClass: kSecClassKey,
+            kSecAttrApplicationTag: tag
+        ]
         
         guard deleteMethod(addquery as CFDictionary) == errSecSuccess else {
             throw KeyPairAdministratorError.cantDeleteKeys
