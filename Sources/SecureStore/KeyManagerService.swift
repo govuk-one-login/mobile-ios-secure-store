@@ -6,12 +6,7 @@ final class KeyManagerService {
     
     init(configuration: SecureStorageConfiguration) {
         self.configuration = configuration
-        
-        do {
-            try createKeysIfNeeded()
-        } catch {
-            return
-        }
+        try? createKeysIfNeeded()
     }
     
     private lazy var privateKeyIdentifier = { configuration.id + "PrivateKey" }()
@@ -25,20 +20,20 @@ extension KeyManagerService {
     func createKeysIfNeeded() throws {
         // Check if keys already exist in storage
         do {
-            _ = try retrieveKeys()
+            try retrieveKeys()
             return
         } catch let error as SecureStoreError where error == .cantRetrieveKey {
             // Keys do not exist yet, continue below to create and save them
         }
+        
+        // Delete keys if none were found to avoid errors around multiple keys
+        try deleteKeys()
         
         #if targetEnvironment(simulator)
         let requirement = SecureStorageConfiguration.AccessControlLevel.open.flags
         #else
         let requirement = configuration.accessControlLevel.flags
         #endif
-        
-        // Delete keys if none were found to avoid errors around multiple keys
-        try deleteKeys()
         
         var flagError: Unmanaged<CFError>?
         guard let access = SecAccessControlCreateWithFlags(
@@ -128,8 +123,11 @@ extension KeyManagerService {
     }
     
     // Retrieve a key that has been stored before
-    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
-                                                                                               privateKey: SecKey) {
+    @discardableResult
+    func retrieveKeys(
+        localAuthStrings: LocalAuthenticationLocalizedStrings? = nil
+    ) throws -> (publicKey: SecKey,
+                 privateKey: SecKey) {
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
             let context = LAContext()

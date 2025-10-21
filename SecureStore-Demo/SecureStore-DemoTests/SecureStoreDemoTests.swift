@@ -70,7 +70,7 @@ extension SecureStoreDemoTests {
     
     func test_storeKeys() throws {
         do {
-            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+            try sut.keyManagerService.createKeysIfNeeded()
         } catch {
             print(error)
         }
@@ -82,7 +82,7 @@ extension SecureStoreDemoTests {
     
     func test_encryptDataWithPublicKey() throws {
         do {
-            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+            try sut.keyManagerService.createKeysIfNeeded()
         } catch {
             print(error)
         }
@@ -96,7 +96,7 @@ extension SecureStoreDemoTests {
     
     func test_decryptDataWithPrivateKey() throws {
         do {
-            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+            try sut.keyManagerService.createKeysIfNeeded()
         } catch {
             print(error)
         }
