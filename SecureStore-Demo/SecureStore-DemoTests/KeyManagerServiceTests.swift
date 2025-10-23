@@ -18,6 +18,10 @@ struct KeyManagerServiceTests: ~Copyable {
         ))
     }
 
+    deinit {
+        try? sut.deleteKeys()
+    }
+
     @Test("When initialised, KeyManagerService creates private key and stores this in keychain")
     func createsKeyOnInitialisation() async throws {
 
@@ -59,9 +63,5 @@ struct KeyManagerServiceTests: ~Copyable {
 
         let publicKey = try #require(SecKeyCopyPublicKey(privateKey))
         #expect(keys.publicKey == publicKey)
-    }
-
-    deinit {
-        try? sut.deleteKeys()
     }
 }
