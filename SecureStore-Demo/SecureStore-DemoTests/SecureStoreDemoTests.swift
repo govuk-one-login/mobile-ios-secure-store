@@ -60,7 +60,7 @@ extension SecureStoreDemoTests {
         try sut.delete()
         
         do {
-            try sut.saveItem(item: "", itemName: "")
+            try sut.keyManagerService.retrieveKeys()
         } catch let error as SecureStoreError where error == .cantRetrieveKey {
             exp.fulfill()
         }
