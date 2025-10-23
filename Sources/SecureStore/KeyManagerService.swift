@@ -24,6 +24,7 @@ extension KeyManagerService {
             return
         } catch let error as SecureStoreError where error == .cantRetrieveKey {
             // Keys do not exist yet, continue below to create and save them
+            debugPrint("SecureStore: CANT RETRIEVE KEYS")
         }
         
         // Delete keys if none were found to avoid errors around multiple keys
@@ -126,8 +127,7 @@ extension KeyManagerService {
     @discardableResult
     func retrieveKeys(
         localAuthStrings: LocalAuthenticationLocalizedStrings? = nil
-    ) throws -> (publicKey: SecKey,
-                 privateKey: SecKey) {
+    ) throws -> (publicKey: SecKey, privateKey: SecKey) {
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
             let context = LAContext()
@@ -182,10 +182,12 @@ extension KeyManagerService {
 // MARK: Encryption and Decryption
 extension KeyManagerService {
     func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
+        try createKeysIfNeeded()
+        
         var error: Unmanaged<CFError>?
         guard let encryptedData = SecKeyCreateEncryptedData(
             try retrieveKeys().publicKey,
-            SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
+            .eciesEncryptionStandardX963SHA256AESGCM,
             Data(dataToEncrypt.utf8) as CFData,
             &error
         ) else {
@@ -207,10 +209,15 @@ extension KeyManagerService {
         var error: Unmanaged<CFError>?
         guard let decryptedData = SecKeyCreateDecryptedData(
             try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey,
-            SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
+            .eciesEncryptionStandardX963SHA256AESGCM,
             formattedData as CFData,
             &error
         ) else {
+            if let error = error?.takeRetainedValue(),
+               CFErrorGetDomain(error) == NSOSStatusErrorDomain as CFString,
+               CFErrorGetCode(error) == -50 {
+                try deleteKeys()
+            }
             throw SecureStoreError.biometricErrorHandling(
                 error: error?.takeRetainedValue(),
                 defaultError: SecureStoreError.cantDecryptData

@@ -1,7 +1,7 @@
 import Foundation
 import LocalAuthentication
 
-public enum SecureStoreError: Error {
+public enum SecureStoreError: Error, CustomNSError {
     case unableToRetrieveFromUserDefaults
     case cantGetPublicKeyFromPrivateKey
     case cantDeleteKey
