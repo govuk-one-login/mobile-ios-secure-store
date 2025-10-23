@@ -17,6 +17,7 @@ final class KeyManagerService {
 extension KeyManagerService {
     // Creating a key pair where the public key is stored in the keychain
     // and the private key is stored in the Secure Enclave
+    // swiftlint:disable function_body_length
     func createKeysIfNeeded() throws {
         // Check if keys already exist in storage
         do {
@@ -84,6 +85,7 @@ extension KeyManagerService {
             name: publicKeyIdentifier
         )
     }
+    // swiftlint:enable function_body_length
     
     // Store a given key to the keychain in order to reuse it later
     func storeKeys(
