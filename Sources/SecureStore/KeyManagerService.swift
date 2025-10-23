@@ -84,11 +84,11 @@ extension KeyManagerService {
         try keyType.forEach { key in
             let keyName = configuration.id + key
             let tag = keyName.data(using: .utf8)!
-            let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
+            let deleteQuery: [String: Any] = [kSecClass as String: kSecClassKey,
                                            kSecAttrApplicationTag as String: tag]
             
-            let status = SecItemDelete(addquery as CFDictionary)
-            guard status == errSecSuccess else {
+            let status = SecItemDelete(deleteQuery as CFDictionary)
+            guard status == errSecSuccess || status == errSecItemNotFound else {
                 throw SecureStoreError.cantDeleteKey
             }
         }
