@@ -59,17 +59,12 @@ extension KeyManagerService {
             }
             throw error
         }
-        
-        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            throw SecureStoreError.cantGetPublicKeyFromPrivateKey
-        }
-        
-        try storeKeys(keyToStore: publicKey, name: "\(name)PublicKey")
-        try storeKeys(keyToStore: privateKey, name: "\(name)PrivateKey")
+
+        try storePrivateKey(keyToStore: privateKey, name: "\(name)PrivateKey")
     }
     
     // Store a given key to the keychain in order to reuse it later
-    func storeKeys(keyToStore: SecKey, name: String) throws {
+    func storePrivateKey(keyToStore: SecKey, name: String) throws {
         let key = keyToStore
         let tag = name.data(using: .utf8)!
         let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
@@ -103,7 +98,6 @@ extension KeyManagerService {
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
-        let publicKeyTag = Data("\(configuration.id)PublicKey".utf8)
         
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
@@ -124,33 +118,23 @@ extension KeyManagerService {
             ]
         }
         
-        var privateKey: CFTypeRef?
-        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKey)
-        
+        var privateKeyRef: CFTypeRef?
+        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKeyRef)
+
         // errSecSuccess is the result code returned when no error was found with the query
         guard privateStatus == errSecSuccess else {
             throw SecureStoreError.cantRetrieveKey
         }
+
+        // swiftlint:disable force_cast
+        let privateKey = privateKeyRef as! SecKey
+        // swiftlint:enable force_cast
         
-        // This constructs a query that will be sent to keychain
-        let publicQuery: NSDictionary = [
-            kSecClass: kSecClassKey,
-            kSecAttrApplicationTag: publicKeyTag,
-            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecReturnRef: true
-        ]
-        
-        var publicKey: CFTypeRef?
-        let publicStatus = SecItemCopyMatching(publicQuery as CFDictionary, &publicKey)
-        
-        // errSecSuccess is the result code returned when no error was found with the query
-        guard publicStatus == errSecSuccess else {
+        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
             throw SecureStoreError.cantRetrieveKey
         }
-        
-        // swiftlint:disable force_cast
-        return (publicKey as! SecKey, privateKey as! SecKey)
-        // swiftlint:enable force_cast
+
+        return (publicKey, privateKey)
     }
 }
 
