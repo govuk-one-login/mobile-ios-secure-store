@@ -1,9 +1,9 @@
-struct JWKs: Encodable {
-    let jwk: JWK
+public struct JWKs: Encodable {
+    public let jwk: JWK
 }
 
 /// JWK compliant with formating described in: https://datatracker.ietf.org/doc/html/rfc7517#section-4
-struct JWK: Encodable {
+public struct JWK: Encodable {
     let keyType: KeyType = .ec
     let intendedUse: IntendedUse = .signing
     let ellipticCurve: EllipticCurve = .primeField256Bit
