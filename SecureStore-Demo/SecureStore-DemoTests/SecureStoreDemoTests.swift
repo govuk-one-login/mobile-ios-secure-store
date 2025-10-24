@@ -55,8 +55,8 @@ extension SecureStoreDemoTests {
         wait(for: [exp], timeout: 3)
     }
     
-    func test_deleteStore() throws {
-        let exp = expectation(description: "correct error hit")
+    func test_saveItems_throwsError_whenNoKeysExist() throws {
+        let exp = expectation(description: "cannot retrieve non-existent key")
         try sut.delete()
         
         do {
