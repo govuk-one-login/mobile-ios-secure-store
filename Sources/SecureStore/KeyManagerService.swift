@@ -176,7 +176,7 @@ extension KeyManagerService {
                                                           &error) else {
             throw SecureStoreError.biometricErrorHandling(
                 error: error?.takeRetainedValue(),
-                defaultError: SecureStoreError.cantDecryptData
+                defaultError: SecureStoreError.defaultDecryptionError
             )
         }
         
