@@ -16,21 +16,24 @@ public enum SecureStoreError: Error {
     case cantFormatData
     case invalidContext
     case notInteractive
+    case cannotDecrypt
 
     static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
         guard let error else {
             return defaultError
         }
-        let code = CFErrorGetCode(error)
-        switch code {
-        case LAError.notInteractive.rawValue:
+        let code = CFErrorGetCode(error), domain = String(CFErrorGetDomain(error))
+        switch (code, domain) {
+        case (LAError.notInteractive.rawValue, LAErrorDomain):
             return self.notInteractive
-        case LAError.invalidContext.rawValue:
+        case (LAError.invalidContext.rawValue, LAErrorDomain):
             return self.invalidContext
-        case LAError.authenticationFailed.rawValue:
+        case (LAError.authenticationFailed.rawValue, LAErrorDomain):
             return self.biometricsFailed
-        case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
+        case (LAError.userCancel.rawValue, LAErrorDomain), (LAError.systemCancel.rawValue, LAErrorDomain):
             return self.biometricsCancelled
+        case (-50, NSOSStatusErrorDomain):
+            return self.cannotDecrypt
         default:
             return error
         }
@@ -69,6 +72,8 @@ extension SecureStoreError: LocalizedError {
             return "view context was invalidated"
         case .notInteractive:
             return "the app is not interactive to perform local auth"
+        case .cannotDecrypt:
+            return "cannot decrypt data"
         }
     }
 }

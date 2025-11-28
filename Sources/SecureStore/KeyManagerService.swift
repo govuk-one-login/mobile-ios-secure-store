@@ -174,7 +174,10 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            throw SecureStoreError.biometricErrorHandling(error: error?.takeRetainedValue(), defaultError: SecureStoreError.cantDecryptData)
+            throw SecureStoreError.biometricErrorHandling(
+                error: error?.takeRetainedValue(),
+                defaultError: SecureStoreError.cantDecryptData
+            )
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
