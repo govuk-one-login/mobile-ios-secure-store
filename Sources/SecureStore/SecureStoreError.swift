@@ -38,9 +38,10 @@ public enum SecureStoreError: Error {
         case (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain):
             return self.biometricsFailed
         case (LAError.userCancel.rawValue /* -2 */, LAErrorDomain),
-            (LAError.systemCancel.rawValue /* -3 */, LAErrorDomain):
+            (LAError.systemCancel.rawValue /* -4 */, LAErrorDomain),
+            (LAError.appCancel.rawValue /* -9 */, LAErrorDomain):
             return self.biometricsCancelled
-        case (LAError.userFallback.rawValue /* -4 */, LAErrorDomain):
+        case (LAError.userFallback.rawValue /* -3 */, LAErrorDomain):
             return self.userFallback
         case (LAError.passcodeNotSet.rawValue /* -5 */, LAErrorDomain):
             return self.passcodeNotSet
@@ -50,8 +51,6 @@ public enum SecureStoreError: Error {
             return self.biometryNotEnrolled
         case (LAError.biometryLockout.rawValue /* -8 */, LAErrorDomain):
             return self.biometryLockout
-        case (LAError.appCancel.rawValue /* -9 */, LAErrorDomain):
-            return self.biometricsCancelled
         case (LAError.invalidContext.rawValue /* -10 */, LAErrorDomain):
             return self.invalidContext
         case (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain):
@@ -60,7 +59,6 @@ public enum SecureStoreError: Error {
             return self.viewServiceIntialisationFailure
         case (-1000, LAErrorDomain):
             return self.serviceConnectionInvalidated
-        // double check if you can match the error code to a specific NSOSStatus error code
         case (-50, NSOSStatusErrorDomain):
             return self.cantDecryptData
         default:
