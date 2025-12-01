@@ -23,7 +23,7 @@ public enum SecureStoreError: Error {
         switch code {
         case LAError.authenticationFailed.rawValue:
             return self.biometricsFailed
-        case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
+        case LAError.userCancel.rawValue, LAError.systemCancel.rawValue, LAError.notInteractive.rawValue:
             return self.biometricsCancelled
         default:
             return error
