@@ -1,8 +1,9 @@
-@testable import SecureStore
 import LocalAuthentication
 import CoreFoundation
+@testable import SecureStore
 import Testing
 
+// swiftlint:disable type_body_length
 struct SecureStoreErrorTests {
     @Test
     func descriptions() {
@@ -370,3 +371,4 @@ struct SecureStoreErrorTests {
         )
     }
 }
+// swiftlint:enable type_body_length
