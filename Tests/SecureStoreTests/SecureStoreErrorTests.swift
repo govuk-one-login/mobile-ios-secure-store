@@ -1,11 +1,12 @@
-import LocalAuthentication
 import CoreFoundation
+import LocalAuthentication
 @testable import SecureStore
 import Testing
 
 // swiftlint:disable type_body_length
 struct SecureStoreErrorTests {
     @Test
+    // swiftlint:disable type_body_length
     func descriptions() {
         #expect(
             SecureStoreError.unableToRetrieveFromUserDefaults.localizedDescription ==
@@ -110,6 +111,7 @@ struct SecureStoreErrorTests {
             "Default error for cannot decrypt data. Used when there was no error passed."
         )
     }
+    // swiftlint:enable type_body_length
     
     @Test
     func defaultrror() {
