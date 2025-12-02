@@ -33,7 +33,9 @@ public enum SecureStoreError: Error {
         guard let error else {
             return defaultError
         }
-        let code = CFErrorGetCode(error), domain = String(CFErrorGetDomain(error))
+        let code = CFErrorGetCode(error)
+        let domain = String(CFErrorGetDomain(error))
+        
         switch (code, domain) {
         case (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain):
             return self.biometricsFailed
