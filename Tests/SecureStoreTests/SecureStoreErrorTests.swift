@@ -66,7 +66,7 @@ final class SecureStoreErrorTests: XCTestCase {
     
     func test_error_addAdditionalParameters() {
         let error = SecureStoreError(.biometricsCancelled,
-                                     additionalParameters: ["test" : "test"])
+                                     additionalParameters: ["test":"test"])
         
         XCTAssertEqual(error.errorUserInfo["test"] as? String, "test")
     }
