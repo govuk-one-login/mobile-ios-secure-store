@@ -38,6 +38,7 @@ extension BaseError {
     }
 }
 
+/// Needed for conformance to LoggableError
 extension BaseError {
     public var hash: String? {
         var string: String = ""

@@ -19,4 +19,10 @@ extension AnyErrorKind {
     }
 }
 
+extension AnyErrorKind where Self.RawValue == String {
+    public var localizedDescription: String {
+        self.rawValue
+    }
+}
+
 public enum ErrorKind {}

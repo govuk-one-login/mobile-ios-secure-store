@@ -134,12 +134,6 @@ extension SecureStoreError where Kind.RawValue == String {
     }
 }
 
-extension AnyErrorKind where Self.RawValue == String {
-    public var localizedDescription: String {
-        self.rawValue
-    }
-}
-
 extension ErrorKind {
     public enum SecureStore: String, AnyErrorKind, CaseIterable {
         case unableToRetrieveFromUserDefaults
