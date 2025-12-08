@@ -20,10 +20,19 @@ public enum SecureStoreError: Error {
             return defaultError
         }
         let code = CFErrorGetCode(error)
-        switch code {
-        case LAError.authenticationFailed.rawValue:
-            return self.biometricsFailed
-        case LAError.userCancel.rawValue, LAError.systemCancel.rawValue:
+        let domain = String(CFErrorGetDomain(error))
+        
+        switch (code, domain) {
+        case (LAError.userCancel.rawValue, LAErrorDomain),
+            (LAError.systemCancel.rawValue, LAErrorDomain):
+            return self.biometricsCancelled
+        // Transforming the below errors to `.biometricCancelled` as part of tactical fix for DCMAW-17186
+        // This will be updated during in strategic fix planned for the new year
+        case (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain),
+            (LAError.userFallback.rawValue /* -3 */, LAErrorDomain),
+            (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain),
+            (6, LAErrorDomain),
+            (-1000, LAErrorDomain):
             return self.biometricsCancelled
         default:
             return error
