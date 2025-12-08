@@ -11,7 +11,7 @@ public struct SecureStoreError<Kind: AnyErrorKind>: BaseError {
     public let line: Int
     public let resolvable: Bool
     public let originalError: Error?
-    public let additionalParameters: [String: Any]
+    public let additionalParameters: [String: any Sendable]
 
     public init(
         kind: Kind,
@@ -23,7 +23,7 @@ public struct SecureStoreError<Kind: AnyErrorKind>: BaseError {
         line: Int,
         resolvable: Bool,
         originalError: Error?,
-        additionalParameters: [String: Any]
+        additionalParameters: [String: any Sendable]
     ) {
         self.kind = kind
         self.reason = reason
@@ -49,7 +49,7 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         line: Int = #line,
         resolvable: Bool = true,
         originalError: Error? = nil,
-        additionalParameters: [String: Any] = [:]
+        additionalParameters: [String: any Sendable] = [:]
     ) {
         // Use the provided reason or fall back to a default based on the kind
         let errorReason = reason ?? SecureStoreError.errorReason(for: kind)

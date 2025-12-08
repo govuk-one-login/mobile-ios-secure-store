@@ -18,7 +18,7 @@ public protocol BaseError:
     var line: Int { get }
     var resolvable: Bool { get }
     var originalError: Error? { get }
-    var additionalParameters: [String: Any] { get }
+    var additionalParameters: [String: any Sendable] { get }
 }
 
 // Implementation for `Equatable` and pattern matching
