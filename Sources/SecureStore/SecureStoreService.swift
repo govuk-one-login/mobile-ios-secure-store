@@ -25,7 +25,7 @@ extension SecureStoreService: SecureStorable {
     
     public func readItem(itemName: String) throws -> String {
         guard let encryptedData = secureStoreDefaults.getItem(itemName: itemName) else {
-            throw SecureStoreError.unableToRetrieveFromUserDefaults
+            throw SecureStoreError(.unableToRetrieveFromUserDefaults)
         }
         return try keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedData)
     }

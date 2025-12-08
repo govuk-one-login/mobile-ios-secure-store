@@ -25,7 +25,7 @@ extension KeyManagerService {
         do {
             _ = try retrieveKeys()
             return
-        } catch let error as SecureStoreError where error == .cantRetrieveKey {
+        } catch let error as SecureStoreError<ErrorKind.SecureStore> where error.kind == .cantRetrieveKey {
             // Keys do not exist yet, continue below to create and save them
         }
         
@@ -55,7 +55,7 @@ extension KeyManagerService {
         var error: Unmanaged<CFError>?
         guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
             guard let error = error?.takeRetainedValue() as? Error else {
-                throw SecureStoreError.cantEncryptData
+                throw SecureStoreError(.cantEncryptData)
             }
             throw error
         }
@@ -74,7 +74,7 @@ extension KeyManagerService {
         // Add item to KeyChain
         let status = SecItemAdd(addquery as CFDictionary, nil)
         guard status == errSecSuccess else {
-            throw SecureStoreError.cantStoreKey
+            throw SecureStoreError(.cantStoreKey)
         }
     }
     
@@ -89,7 +89,7 @@ extension KeyManagerService {
             
             let status = SecItemDelete(deleteQuery as CFDictionary)
             guard status == errSecSuccess || status == errSecItemNotFound else {
-                throw SecureStoreError.cantDeleteKey
+                throw SecureStoreError(.cantDeleteKey)
             }
         }
     }
@@ -123,7 +123,7 @@ extension KeyManagerService {
 
         // errSecSuccess is the result code returned when no error was found with the query
         guard privateStatus == errSecSuccess else {
-            throw SecureStoreError.cantRetrieveKey
+            throw SecureStoreError(.cantRetrieveKey)
         }
 
         // swiftlint:disable force_cast
@@ -131,7 +131,7 @@ extension KeyManagerService {
         // swiftlint:enable force_cast
         
         guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            throw SecureStoreError.cantRetrieveKey
+            throw SecureStoreError(.cantRetrieveKey)
         }
 
         return (publicKey, privateKey)
@@ -144,7 +144,7 @@ extension KeyManagerService {
         let publicKey = try retrieveKeys().publicKey
         
         guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw SecureStoreError.cantEncodeData
+            throw SecureStoreError(.cantEncodeData)
         }
         
         var error: Unmanaged<CFError>?
@@ -152,7 +152,10 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            throw SecureStoreError.biometricErrorHandling(error: error?.takeRetainedValue(), defaultError: SecureStoreError.cantEncryptData)
+            throw SecureStoreError.biometricErrorHandling(
+                error: error?.takeRetainedValue(),
+                defaultError: SecureStoreError(.cantEncryptData)
+            )
         }
         
         let encryptedData = encryptData as Data
@@ -165,7 +168,7 @@ extension KeyManagerService {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
         
         guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw SecureStoreError.cantFormatData
+            throw SecureStoreError(.cantFormatData)
         }
         
         var error: Unmanaged<CFError>?
@@ -174,11 +177,14 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
-            throw SecureStoreError.biometricErrorHandling(error: error?.takeRetainedValue(), defaultError: SecureStoreError.cantDecryptData)
+            throw SecureStoreError.biometricErrorHandling(
+                error: error?.takeRetainedValue(),
+                defaultError: SecureStoreError(.cantDecryptData)
+            )
         }
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw SecureStoreError.cantDecodeData
+            throw SecureStoreError(.cantDecodeData)
         }
         
         return decryptedString

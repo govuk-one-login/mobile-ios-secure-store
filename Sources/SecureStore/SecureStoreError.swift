@@ -1,20 +1,73 @@
 import Foundation
 import LocalAuthentication
 
-public enum SecureStoreError: Error {
-    case unableToRetrieveFromUserDefaults
-    case cantGetPublicKeyFromPrivateKey
-    case cantDeleteKey
-    case cantStoreKey
-    case cantRetrieveKey
-    case cantEncryptData
-    case cantDecryptData
-    case biometricsCancelled
-    case biometricsFailed
-    case cantEncodeData
-    case cantDecodeData
-    case cantFormatData
+public struct SecureStoreError<Kind: AnyErrorKind>: BaseError {
+    public let kind: Kind
+    public let reason: String?
+    public let endpoint: String?
+    public let statusCode: Int?
+    public let file: String
+    public let function: String
+    public let line: Int
+    public let resolvable: Bool
+    public let originalError: Error?
+    public let additionalParameters: [String: Any]
 
+    public init(
+        kind: Kind,
+        reason: String?,
+        endpoint: String?,
+        statusCode: Int?,
+        file: String,
+        function: String,
+        line: Int,
+        resolvable: Bool,
+        originalError: Error?,
+        additionalParameters: [String: Any]
+    ) {
+        self.kind = kind
+        self.reason = reason
+        self.endpoint = endpoint
+        self.statusCode = statusCode
+        self.file = file
+        self.function = function
+        self.line = line
+        self.resolvable = resolvable
+        self.originalError = originalError
+        self.additionalParameters = additionalParameters
+    }
+}
+
+extension SecureStoreError where Kind == ErrorKind.SecureStore {
+    public init(
+        _ kind: ErrorKind.SecureStore,
+        reason: String? = nil,
+        endpoint: String? = nil,
+        statusCode: Int? = nil,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        resolvable: Bool = true, // maybe update?
+        originalError: Error? = nil,
+        additionalParameters: [String: Any] = [:]
+    ) {
+        // Use the provided reason or fall back to a default based on the kind
+        let errorReason = reason ?? SecureStoreError.errorReason(for: kind)
+        
+        self.init(
+            kind: kind,
+            reason: errorReason,
+            endpoint: endpoint,
+            statusCode: statusCode,
+            file: file,
+            function: function,
+            line: line,
+            resolvable: resolvable,
+            originalError: originalError,
+            additionalParameters: additionalParameters
+        )
+    }
+    
     static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
         guard let error else {
             return defaultError
@@ -25,25 +78,22 @@ public enum SecureStoreError: Error {
         switch (code, domain) {
         case (LAError.userCancel.rawValue, LAErrorDomain),
             (LAError.systemCancel.rawValue, LAErrorDomain):
-            return self.biometricsCancelled
-        // Transforming the below errors to `.biometricCancelled` as part of tactical fix for DCMAW-17186
-        // This will be updated during in strategic fix planned for the new year
+            return SecureStoreError(.biometricsCancelled)
+            // Transforming the below errors to `.biometricCancelled` as part of tactical fix for DCMAW-17186
+            // This will be updated during in strategic fix planned for the new year
         case (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain),
             (LAError.userFallback.rawValue /* -3 */, LAErrorDomain),
             (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain),
             (6, LAErrorDomain),
             (-1000, LAErrorDomain):
-            return self.biometricsCancelled
+            return SecureStoreError(.biometricsCancelled)
         default:
             return error
         }
     }
-}
-
-/// Use as: error.localizedDescription
-extension SecureStoreError: LocalizedError {
-    public var errorDescription: String? {
-        switch self {
+    
+    private static func errorReason(for kind: ErrorKind.SecureStore) -> String {
+        switch kind {
         case .unableToRetrieveFromUserDefaults:
             return "Error while retrieving item from User Defaults"
         case .cantGetPublicKeyFromPrivateKey:
@@ -69,5 +119,34 @@ extension SecureStoreError: LocalizedError {
         case .cantFormatData:
             return "Error while formatting data"
         }
+    }
+}
+
+extension SecureStoreError where Kind.RawValue == String {
+    public var localizedDescription: String {
+        kind.rawValue
+    }
+}
+
+extension AnyErrorKind where Self.RawValue == String {
+    public var localizedDescription: String {
+        self.rawValue
+    }
+}
+
+extension ErrorKind {
+    public enum SecureStore: String, AnyErrorKind, CaseIterable {
+        case unableToRetrieveFromUserDefaults
+        case cantGetPublicKeyFromPrivateKey
+        case cantDeleteKey
+        case cantStoreKey
+        case cantRetrieveKey
+        case cantEncryptData
+        case cantDecryptData
+        case biometricsCancelled
+        case biometricsFailed
+        case cantEncodeData
+        case cantDecodeData
+        case cantFormatData
     }
 }
