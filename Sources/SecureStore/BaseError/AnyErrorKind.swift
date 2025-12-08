@@ -11,14 +11,6 @@ extension AnyErrorKind {
     }
 }
 
-extension AnyErrorKind {
-    public var description: String {
-        rawValue == "\(self)" ?
-            "\(self)" :
-            "\(self) - \(rawValue)"
-    }
-}
-
 extension AnyErrorKind where Self.RawValue == String {
     public var localizedDescription: String {
         self.rawValue
