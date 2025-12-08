@@ -27,7 +27,7 @@ let package = Package(
         .package(
             url: "https://github.com/govuk-one-login/mobile-ios-logging",
             .upToNextMajor(from: "5.0.0")
-        ),
+        )
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
