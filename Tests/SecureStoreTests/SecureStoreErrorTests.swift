@@ -3,7 +3,7 @@ import LocalAuthentication
 import XCTest
 
 final class SecureStoreErrorTests: XCTestCase {
-    func test_descriptions() {
+    func test_error_reason() {
         XCTAssertEqual(SecureStoreError(.unableToRetrieveFromUserDefaults).reason,
                        "Error while retrieving item from User Defaults")
         XCTAssertEqual(SecureStoreError(.cantGetPublicKeyFromPrivateKey).reason,
@@ -28,6 +28,40 @@ final class SecureStoreErrorTests: XCTestCase {
                        "Error while decoding data")
         XCTAssertEqual(SecureStoreError(.cantFormatData).reason,
                        "Error while formatting data")
+    }
+    
+    func test_error_debugDescription() {
+        XCTAssertEqual(SecureStoreError(.biometricsCancelled).debugDescription,
+                       "User or system cancelled the biometric prompt")
+    }
+    
+    func test_error_debugDescription_whenOriginalErrorIsProvided() {
+        let originalError = CFErrorCreate(nil, LAErrorDomain as CFString, -1004, nil)
+        
+        let error = SecureStoreError(.biometricsCancelled,
+                                     originalError: originalError)
+        
+        XCTAssertEqual(error.errorUserInfo["originalError"] as? String,
+                       "The operation couldn’t be completed. (com.apple.LocalAuthentication error -1004.)")
+    }
+    
+    func test_error_hash() {
+        let error = SecureStoreError(.biometricsCancelled,
+                                     statusCode: 400)
+
+        XCTAssertEqual(error.hash, "598a956c10046522b4ac6d9189c530d3")
+    }
+    
+    func test_error_logToCrashlytics() {
+        let error = SecureStoreError(.biometricsCancelled)
+        
+        XCTAssertEqual(error.logToCrashlytics, true)
+    }
+    
+    func test_error_localizedDesecription() {
+        let error = SecureStoreError(.biometricsCancelled)
+        
+        XCTAssertEqual(error.localizedDescription, "biometricsCancelled")
     }
     
     func test_biometricErrors() {
