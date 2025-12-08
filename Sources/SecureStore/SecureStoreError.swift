@@ -47,7 +47,7 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         file: String = #file,
         function: String = #function,
         line: Int = #line,
-        resolvable: Bool = true, // maybe update?
+        resolvable: Bool = true,
         originalError: Error? = nil,
         additionalParameters: [String: Any] = [:]
     ) {
@@ -78,15 +78,21 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         switch (code, domain) {
         case (LAError.userCancel.rawValue, LAErrorDomain),
             (LAError.systemCancel.rawValue, LAErrorDomain):
-            return SecureStoreError(.biometricsCancelled)
-            // Transforming the below errors to `.biometricCancelled` as part of tactical fix for DCMAW-17186
-            // This will be updated during in strategic fix planned for the new year
+            return SecureStoreError(
+                .biometricsCancelled,
+                originalError: error
+            )
+        // Transforming the below errors to `.biometricCancelled` as part of tactical fix for DCMAW-17186
+        // This will be updated during in strategic fix planned for the new year
         case (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain),
             (LAError.userFallback.rawValue /* -3 */, LAErrorDomain),
             (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain),
             (6, LAErrorDomain),
             (-1000, LAErrorDomain):
-            return SecureStoreError(.biometricsCancelled)
+            return SecureStoreError(
+                .biometricsCancelled,
+                originalError: error
+            )
         default:
             return error
         }
