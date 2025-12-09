@@ -25,7 +25,7 @@ extension KeyManagerService {
         do {
             _ = try retrieveKeys()
             return
-        } catch let error as SecureStoreError<ErrorKind.SecureStore> where error.kind == .cantRetrieveKey {
+        } catch let error as SecureStoreError where error.kind == .cantRetrieveKey {
             // Keys do not exist yet, continue below to create and save them
         }
         

@@ -1,7 +1,7 @@
 import Foundation
 import LocalAuthentication
 
-public struct SecureStoreError<Kind: AnyErrorKind>: BaseError {
+public struct SecureStoreBaseError<Kind: AnyErrorKind>: BaseError {
     public let kind: Kind
     public let reason: String?
     public let endpoint: String?
@@ -37,6 +37,8 @@ public struct SecureStoreError<Kind: AnyErrorKind>: BaseError {
         self.additionalParameters = additionalParameters
     }
 }
+
+public typealias SecureStoreError = SecureStoreBaseError<ErrorKind.SecureStore>
 
 extension SecureStoreError where Kind == ErrorKind.SecureStore {
     public init(
