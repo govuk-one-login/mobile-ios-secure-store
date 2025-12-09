@@ -32,6 +32,7 @@ extension BaseError {
     }
 }
 
+// Needed for conformance to AnyErrorKind
 extension BaseError {
     public var logToCrashlytics: Bool {
         kind.logToCrashlytics
