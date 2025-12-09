@@ -64,6 +64,11 @@ final class SecureStoreErrorTests: XCTestCase {
         XCTAssertEqual(error.localizedDescription, "biometricsCancelled")
     }
     
+    func test_errorKind_localizedDescription() {
+        XCTAssertEqual(ErrorKind.SecureStore.biometricsCancelled.localizedDescription,
+                       "biometricsCancelled")
+    }
+    
     func test_error_addAdditionalParameters() {
         let error = SecureStoreError(.biometricsCancelled,
                                      additionalParameters: ["test": "test"])
