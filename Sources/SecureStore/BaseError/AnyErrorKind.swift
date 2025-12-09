@@ -1,7 +1,7 @@
 // does not conform to `CustomStringConvertable` or `CustomDebugStringConvertable` to avoid infinite loop
-public protocol AnyErrorKind:
-    RawRepresentable,
-    Equatable where RawValue == String {
+public protocol AnyErrorKind: Sendable,
+                              RawRepresentable,
+                              Equatable where RawValue == String {
     var logToCrashlytics: Bool { get }
 }
 
