@@ -48,7 +48,7 @@ extension SecureStoreDemoTests {
         
         do {
             _ = try sut.readItem(itemName: "ThisItem")
-        } catch let error as SecureStoreError where error == .unableToRetrieveFromUserDefaults {
+        } catch let error as SecureStoreError where error.kind == .unableToRetrieveFromUserDefaults {
             exp.fulfill()
         }
         
@@ -61,7 +61,7 @@ extension SecureStoreDemoTests {
         
         do {
             try sut.saveItem(item: "", itemName: "")
-        } catch let error as SecureStoreError where error == .cantRetrieveKey {
+        } catch let error as SecureStoreError where error.kind == .cantRetrieveKey {
             exp.fulfill()
         }
         
