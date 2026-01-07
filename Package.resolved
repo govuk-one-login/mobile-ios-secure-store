@@ -1,5 +1,5 @@
 {
-  "originHash" : "f3a6da7ee5953d808571043ca8d5c3386466f18dee3e0da95a9f0a4a8c3f2a22",
+  "originHash" : "e2ec9f63ccfd6917411e0728c82d82890445c206b2f6ef6a7001b422d2e36272",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/firebase-ios-sdk.git",
       "state" : {
-        "revision" : "793b67f4652e1a39d03fab6650033768afe6d15e",
-        "version" : "12.5.0"
+        "revision" : "45210bd1ea695779e6de016ab00fea8c0b7eb2ef",
+        "version" : "12.7.0"
       }
     },
     {
@@ -114,17 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/govuk-one-login/mobile-ios-logging",
       "state" : {
-        "revision" : "bbea076fdd61e1ef8de1e7a22d8970c88eb70734",
-        "version" : "5.1.1"
-      }
-    },
-    {
-      "identity" : "mobile-ios-networking",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/govuk-one-login/mobile-ios-networking.git",
-      "state" : {
-        "revision" : "854423afb6600ee31470c3bc9cc775ce8c003421",
-        "version" : "3.3.1"
+        "revision" : "ecbd183f6b771c748e12d38841c6dad0de17248e",
+        "version" : "6.0.0"
       }
     },
     {
