@@ -8,7 +8,7 @@ final class KeyManagerService {
         self.configuration = configuration
         
         do {
-            try createKeysIfNeeded(name: configuration.id)
+            try createKeysIfNeeded(name: configuration.newID)
         } catch {
             return
         }
