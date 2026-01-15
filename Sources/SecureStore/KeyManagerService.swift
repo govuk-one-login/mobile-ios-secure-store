@@ -117,39 +117,13 @@ extension KeyManagerService {
         }
         
         // swiftlint:disable force_cast
-        if privateStatus == errSecSuccess {
-            let key = privateKeyRef as! SecKey
-            
-            try deleteKey(for: configuration.id)
-            try deleteKey(for: configuration.id+"PublicKey")
-            
-            return key
-            
-//        } else if privateOldStatus == errSecSuccess {
-//            let key = privateKeyOldRef as! SecKey
-//            
-//            // save as configuration.id and delete configuration.id+"PrivateKey"
-//            try deleteKeys()
-//            
-//            let tag = configuration.id.data(using: .utf8)!
-//            let addquery: [String: Any] = [
-//                kSecClass as String: kSecClassKey,
-//                kSecAttrApplicationTag as String: tag,
-//                kSecValueRef as String: key
-//            ]
-//            
-//            // Add item to KeyChain
-//            let status = SecItemAdd(addquery as CFDictionary, nil)
-//            guard status == errSecSuccess else {
-//                throw SecureStoreError(.cantStoreKey)
-//            }
-//            
-//            return key
-            
-        } else {
-            throw SecureStoreError(.cantRetrieveKey)
-        }
+        let key = privateKeyRef as! SecKey
         // swiftlint:enable force_cast
+        
+        try deleteKey(for: configuration.id)
+        try deleteKey(for: configuration.id+"PublicKey")
+        
+        return key
     }
     
     private func retrievePrivateKey(for tag: String, localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, ref: inout CFTypeRef?) -> OSStatus {
