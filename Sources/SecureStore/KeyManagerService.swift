@@ -62,16 +62,16 @@ extension KeyManagerService {
             throw error
         }
     }
-    
 
     
-    // Deletes the private key from the keychain
+    // Deletes the keys from the keychain
     func deleteKeys() throws {
-        let tag1 = configuration.id.data(using: .utf8)!
-        let tag2 = (configuration.id + "PrivateKey").data(using: .utf8)!
-        let tag3 = (configuration.id + "PublicKey").data(using: .utf8)!
+        let tag1 = configuration.id
+        let tag2 = (configuration.newID)
+        let tag3 = (configuration.id + "PublicKey")
         
         try [tag1, tag2, tag3].forEach { tag in
+            let tag = tag.data(using: .utf8)!
             let deleteQuery: [String: Any] = [
                 kSecClass as String: kSecClassKey,
                 kSecAttrApplicationTag as String: tag
@@ -109,13 +109,10 @@ extension KeyManagerService {
     }
     
     private func retrievePrivateKey(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> SecKey {
-        var privateKeyOldRef: CFTypeRef?
-        let privateOldStatus = retrievePrivateKey(for: configuration.id+"PrivateKey", localAuthStrings: localAuthStrings, ref: &privateKeyOldRef)
-        
         var privateKeyRef: CFTypeRef?
-        let privateStatus = retrievePrivateKey(for: configuration.id, localAuthStrings: localAuthStrings, ref: &privateKeyRef)
+        let privateStatus = retrievePrivateKey(for: configuration.newID, localAuthStrings: localAuthStrings, ref: &privateKeyRef)
         
-        guard privateStatus == errSecSuccess || privateOldStatus == errSecSuccess else {
+        guard privateStatus == errSecSuccess else {
             throw SecureStoreError(.cantRetrieveKey)
         }
         
@@ -123,31 +120,31 @@ extension KeyManagerService {
         if privateStatus == errSecSuccess {
             let key = privateKeyRef as! SecKey
             
-            try deleteKey(for: configuration.id+"PrivateKey")
+            try deleteKey(for: configuration.id)
             try deleteKey(for: configuration.id+"PublicKey")
             
             return key
             
-        } else if privateOldStatus == errSecSuccess {
-            let key = privateKeyOldRef as! SecKey
-            
-            // save as configuration.id and delete configuration.id+"PrivateKey"
-            try deleteKeys()
-            
-            let tag = configuration.id.data(using: .utf8)!
-            let addquery: [String: Any] = [
-                kSecClass as String: kSecClassKey,
-                kSecAttrApplicationTag as String: tag,
-                kSecValueRef as String: key
-            ]
-            
-            // Add item to KeyChain
-            let status = SecItemAdd(addquery as CFDictionary, nil)
-            guard status == errSecSuccess else {
-                throw SecureStoreError(.cantStoreKey)
-            }
-            
-            return key
+//        } else if privateOldStatus == errSecSuccess {
+//            let key = privateKeyOldRef as! SecKey
+//            
+//            // save as configuration.id and delete configuration.id+"PrivateKey"
+//            try deleteKeys()
+//            
+//            let tag = configuration.id.data(using: .utf8)!
+//            let addquery: [String: Any] = [
+//                kSecClass as String: kSecClassKey,
+//                kSecAttrApplicationTag as String: tag,
+//                kSecValueRef as String: key
+//            ]
+//            
+//            // Add item to KeyChain
+//            let status = SecItemAdd(addquery as CFDictionary, nil)
+//            guard status == errSecSuccess else {
+//                throw SecureStoreError(.cantStoreKey)
+//            }
+//            
+//            return key
             
         } else {
             throw SecureStoreError(.cantRetrieveKey)
@@ -174,8 +171,7 @@ extension KeyManagerService {
                 kSecReturnRef: true
             ]
         }
-        
-//        var privateKeyRef: CFTypeRef?
+
         let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &ref)
         
         return privateStatus
