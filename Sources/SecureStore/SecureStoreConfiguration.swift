@@ -1,5 +1,7 @@
 import Foundation
 
+// TODO: simplify back to a single ID here and manage the complexity inside the service
+// cannot migrate private keys, but can (potentially) migrate encrypted things
 public struct SecureStorageConfiguration {
     let id: String
     let newID: String

@@ -152,6 +152,9 @@ extension KeyManagerService {
     }
 }
 
+// TODO: handle migration of encrypted things from `<ConfigTagName>PrivateKey` to `<ConfigTagName>`
+// this migration will require some changes above and potentially calling different functions below
+// to get old key, decrypt thing, save the new key and delete the old.
 // MARK: Encryption and Decryption
 extension KeyManagerService {
     func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
