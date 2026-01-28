@@ -46,9 +46,9 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
             (LAError.systemCancel.rawValue /* -4 */, LAErrorDomain),
             (LAError.appCancel.rawValue /* -9 */, LAErrorDomain),
             (LAError.invalidContext.rawValue /* -10 */, LAErrorDomain),
-            (LAError.biometryNotAvailable.rawValue,LAErrorDomain),
-            (LAError.biometryNotEnrolled.rawValue,LAErrorDomain),
-            (LAError.biometryLockout.rawValue,LAErrorDomain),
+            (LAError.biometryNotAvailable.rawValue, LAErrorDomain),
+            (LAError.biometryNotEnrolled.rawValue, LAErrorDomain),
+            (LAError.biometryLockout.rawValue, LAErrorDomain),
             (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain),
             (6, LAErrorDomain),
             (-1000, LAErrorDomain):
