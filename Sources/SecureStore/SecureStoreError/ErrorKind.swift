@@ -14,7 +14,8 @@ public enum ErrorKind {
         
         // LocalAuthentication errors mapped to the below
         case recoverable
-        case unreoverable
-        case biometricsCancelled
+        case unrecoverable
+        case userCancelled
+        case noLocalAuthEnrolled
     }
 }

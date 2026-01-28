@@ -40,21 +40,41 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         let domain = String(CFErrorGetDomain(error))
         
         switch (code, domain) {
-        case (LAError.userCancel.rawValue, LAErrorDomain),
-            (LAError.systemCancel.rawValue, LAErrorDomain):
-            return SecureStoreError(
-                .biometricsCancelled,
-                originalError: error
-            )
-        // Transforming the below errors to `.biometricCancelled` as part of tactical fix for DCMAW-17186
-        // This will be updated during in strategic fix planned for the new year
-        case (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain),
+        // LAErrors mapped to 'recoverable'
+        case (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain),
             (LAError.userFallback.rawValue /* -3 */, LAErrorDomain),
-            (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain),
+            (LAError.systemCancel.rawValue /* -4 */, LAErrorDomain),
+            (LAError.appCancel.rawValue /* -9 */, LAErrorDomain),
+            (LAError.invalidContext.rawValue /* -10 */, LAErrorDomain),
+            (LAError.biometryNotAvailable.rawValue,LAErrorDomain),
+            (LAError.biometryNotEnrolled.rawValue,LAErrorDomain),
+            (LAError.biometryLockout.rawValue,LAErrorDomain),
+            (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain),
             (6, LAErrorDomain),
             (-1000, LAErrorDomain):
             return SecureStoreError(
-                .biometricsCancelled,
+                .recoverable,
+                originalError: error
+            )
+
+        // LAEerrors mapped to 'userCancelled'
+        case (LAError.userCancel.rawValue /* -2 */, LAErrorDomain):
+            return SecureStoreError(
+                .userCancelled,
+                originalError: error
+            )
+
+        // LAErrors mapped to 'unrecoverable'
+        case (-50, NSOSStatusErrorDomain):
+            return SecureStoreError(
+                .unrecoverable,
+                originalError: error
+            )
+
+        // LAErrors mapped to `noLocalAuthEnrolled`
+        case (LAError.passcodeNotSet.rawValue /* -5 */, LAErrorDomain):
+            return SecureStoreError(
+                .noLocalAuthEnrolled,
                 originalError: error
             )
         default:
@@ -83,11 +103,13 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         case .cantFormatData:
             return "Error while formatting data"
         case .recoverable:
-            return "A recoverable error has been thrown from LocalAuthentication package"
-        case .unreoverable:
-            return "A unrecoverable error has been thrown from LocalAuthentication package"
-        case .biometricsCancelled:
-            return "User or system cancelled the biometric prompt"
+            return "A recoverable error has been thrown"
+        case .unrecoverable:
+            return "A unrecoverable error has been thrown"
+        case .userCancelled:
+            return "User cancelled the biometric prompt"
+        case .noLocalAuthEnrolled:
+            return "Passcode is not set on the device"
         }
     }
 }
