@@ -26,7 +26,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        "Error while formatting data")
     }
     
-    // swiftlint:disable type_body_length
+    // swiftlint:disable function_body_length
     func test_localAuthenticationErrors_recoverable() {
         let authenticationFailedError = CFErrorCreate(nil, LAErrorDomain as CFString, -1, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
@@ -117,7 +117,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
     }
-    // swiftlint:enable type_body_length
+    // swiftlint:enable function_body_length
     
     func test_localAuthenticationErrors_userCancelled() {
         let userCancelError = CFErrorCreate(nil, LAErrorDomain as CFString, -2, nil)
