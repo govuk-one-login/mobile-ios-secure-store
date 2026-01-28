@@ -64,21 +64,21 @@ public struct SecureStoreGDSError<Kind: GDSErrorKind>: GDSError {
             (6, LAErrorDomain),
             (-1000, LAErrorDomain):
             return SecureStoreError(
-                SecureStoreErrorKind.recoverable,
+                .recoverable,
                 originalError: error
             )
 
         // LAEerrors mapped to 'userCancelled'
         case (LAError.userCancel.rawValue /* -2 */, LAErrorDomain):
             return SecureStoreError(
-                SecureStoreErrorKind.userCancelled,
+                .userCancelled,
                 originalError: error
             )
 
         // LAErrors mapped to 'unrecoverable'
         case (-50, NSOSStatusErrorDomain):
             return SecureStoreError(
-                SecureStoreErrorKind.unrecoverable,
+                .unrecoverable,
                 originalError: error
             )
 

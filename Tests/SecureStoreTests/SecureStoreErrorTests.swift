@@ -149,7 +149,7 @@ final class SecureStoreErrorTests: XCTestCase {
     }
     
     func test_localAuthenticationErrors_noLocalAuthEnrolled() {
-        let noPasscodeSetError = CFErrorCreate(nil, LAErrorDomain as CFString, -3, nil)
+        let noPasscodeSetError = CFErrorCreate(nil, LAErrorDomain as CFString, -5, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: noPasscodeSetError,
             defaultError: SecureStoreError(.cantEncryptData)
