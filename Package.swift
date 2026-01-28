@@ -25,8 +25,8 @@ let package = Package(
             from: "5.3.0"
         ),
         .package(
-            url: "https://github.com/govuk-one-login/mobile-ios-logging",
-            .upToNextMajor(from: "6.0.0")
+            url: "https://github.com/govuk-one-login/mobile-ios-utilities",
+            branch: "feat/dcmaw-18125-creat-gds-error"
         )
     ],
     targets: [
@@ -35,7 +35,7 @@ let package = Package(
         .target(
             name: "SecureStore",
             dependencies: [
-                .product(name: "GDSAnalytics", package: "mobile-ios-logging")
+                .product(name: "GDSUtilities", package: "mobile-ios-utilities")
             ]
         ),
         .testTarget(

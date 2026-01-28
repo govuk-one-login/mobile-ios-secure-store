@@ -1,7 +1,8 @@
 import Foundation
+import GDSUtilities
 import LocalAuthentication
 
-public struct SecureStoreBaseError<Kind: AnyErrorKind>: BaseError {
+public struct SecureStoreBaseError<Kind: GDSErrorKind>: GDSError {
     public let kind: Kind
     public let reason: String?
     public let endpoint: String?
@@ -136,8 +137,8 @@ extension SecureStoreError where Kind.RawValue == String {
     }
 }
 
-extension ErrorKind {
-    public enum SecureStore: String, AnyErrorKind, CaseIterable {
+public enum ErrorKind {
+    public enum SecureStore: String, GDSErrorKind, CaseIterable {
         case unableToRetrieveFromUserDefaults
         case cantGetPublicKeyFromPrivateKey
         case cantDeleteKey
