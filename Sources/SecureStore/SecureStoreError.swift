@@ -91,9 +91,3 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         }
     }
 }
-
-extension SecureStoreError where Kind.RawValue == String {
-    public var localizedDescription: String {
-        kind.rawValue
-    }
-}

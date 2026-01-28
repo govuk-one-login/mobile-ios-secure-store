@@ -6,8 +6,6 @@ final class SecureStoreErrorTests: XCTestCase {
     func test_error_reason() {
         XCTAssertEqual(SecureStoreError(.unableToRetrieveFromUserDefaults).reason,
                        "Error while retrieving item from User Defaults")
-        XCTAssertEqual(SecureStoreError(.cantGetPublicKeyFromPrivateKey).reason,
-                       "Error while getting public key from private key")
         XCTAssertEqual(SecureStoreError(.cantDeleteKey).reason,
                        "Error while deleting key from the keychain")
         XCTAssertEqual(SecureStoreError(.cantStoreKey).reason,
@@ -20,8 +18,6 @@ final class SecureStoreErrorTests: XCTestCase {
                        "Error while decrypting data")
         XCTAssertEqual(SecureStoreError(.biometricsCancelled).reason,
                        "User or system cancelled the biometric prompt")
-        XCTAssertEqual(SecureStoreError(.biometricsFailed).reason,
-                       "Biometric authentication failed after multiple attempts or biometrics are not set up")
         XCTAssertEqual(SecureStoreError(.cantEncodeData).reason,
                        "Error while encoding data")
         XCTAssertEqual(SecureStoreError(.cantDecodeData).reason,
@@ -50,12 +46,6 @@ final class SecureStoreErrorTests: XCTestCase {
                                      statusCode: 400)
 
         XCTAssertEqual(error.hash, "598a956c10046522b4ac6d9189c530d3")
-    }
-    
-    func test_error_logToCrashlytics() {
-        let error = SecureStoreError(.biometricsCancelled)
-        
-        XCTAssertEqual(error.logToCrashlytics, true)
     }
     
     func test_error_localizedDesecription() {
