@@ -2,45 +2,6 @@ import Foundation
 import GDSUtilities
 import LocalAuthentication
 
-public struct SecureStoreBaseError<Kind: GDSErrorKind>: GDSError {
-    public let kind: Kind
-    public let reason: String?
-    public let endpoint: String?
-    public let statusCode: Int?
-    public let file: String
-    public let function: String
-    public let line: Int
-    public let resolvable: Bool
-    public let originalError: Error?
-    public let additionalParameters: [String: any Sendable]
-
-    public init(
-        kind: Kind,
-        reason: String?,
-        endpoint: String?,
-        statusCode: Int?,
-        file: String,
-        function: String,
-        line: Int,
-        resolvable: Bool,
-        originalError: Error?,
-        additionalParameters: [String: any Sendable]
-    ) {
-        self.kind = kind
-        self.reason = reason
-        self.endpoint = endpoint
-        self.statusCode = statusCode
-        self.file = file
-        self.function = function
-        self.line = line
-        self.resolvable = resolvable
-        self.originalError = originalError
-        self.additionalParameters = additionalParameters
-    }
-}
-
-public typealias SecureStoreError = SecureStoreBaseError<ErrorKind.SecureStore>
-
 extension SecureStoreError where Kind == ErrorKind.SecureStore {
     public init(
         _ kind: ErrorKind.SecureStore,
@@ -105,8 +66,6 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         switch kind {
         case .unableToRetrieveFromUserDefaults:
             return "Error while retrieving item from User Defaults"
-        case .cantGetPublicKeyFromPrivateKey:
-            return "Error while getting public key from private key"
         case .cantDeleteKey:
             return "Error while deleting key from the keychain"
         case .cantStoreKey:
@@ -117,16 +76,18 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
             return "Error while encrypting data"
         case .cantDecryptData:
             return "Error while decrypting data"
-        case .biometricsCancelled:
-            return "User or system cancelled the biometric prompt"
-        case .biometricsFailed:
-            return "Biometric authentication failed after multiple attempts or biometrics are not set up"
         case .cantEncodeData:
             return "Error while encoding data"
         case .cantDecodeData:
             return "Error while decoding data"
         case .cantFormatData:
             return "Error while formatting data"
+        case .recoverable:
+            return "A recoverable error has been thrown from LocalAuthentication package"
+        case .unreoverable:
+            return "A unrecoverable error has been thrown from LocalAuthentication package"
+        case .biometricsCancelled:
+            return "User or system cancelled the biometric prompt"
         }
     }
 }
@@ -134,22 +95,5 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
 extension SecureStoreError where Kind.RawValue == String {
     public var localizedDescription: String {
         kind.rawValue
-    }
-}
-
-public enum ErrorKind {
-    public enum SecureStore: String, GDSErrorKind, CaseIterable {
-        case unableToRetrieveFromUserDefaults
-        case cantGetPublicKeyFromPrivateKey
-        case cantDeleteKey
-        case cantStoreKey
-        case cantRetrieveKey
-        case cantEncryptData
-        case cantDecryptData
-        case biometricsCancelled
-        case biometricsFailed
-        case cantEncodeData
-        case cantDecodeData
-        case cantFormatData
     }
 }
