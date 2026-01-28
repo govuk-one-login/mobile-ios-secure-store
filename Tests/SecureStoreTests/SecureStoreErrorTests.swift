@@ -1,3 +1,4 @@
+import GDSUtilities
 import LocalAuthentication
 @testable import SecureStore
 import XCTest
@@ -26,6 +27,14 @@ final class SecureStoreErrorTests: XCTestCase {
                        "Error while formatting data")
     }
     
+    func test_secureStoreError_errorReasonReturnsNil() {
+        enum TestErrorKind: String, GDSErrorKind, CaseIterable {
+            case errorKindWithNoReason
+        }
+        
+        XCTAssertEqual(SecureStoreGDSError(TestErrorKind.errorKindWithNoReason).reason, nil)
+    }
+    
     // swiftlint:disable function_body_length
     func test_localAuthenticationErrors_recoverable() {
         let authenticationFailedError = CFErrorCreate(nil, LAErrorDomain as CFString, -1, nil)
@@ -36,7 +45,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
         
-        let userFallbackError = CFErrorCreate(nil, LAErrorDomain as CFString, LAError.userFallback.rawValue, nil)
+        let userFallbackError = CFErrorCreate(nil, LAErrorDomain as CFString, -3, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: userFallbackError,
             defaultError: SecureStoreError(.cantEncryptData)
@@ -53,7 +62,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
         
-        let appCancelError = CFErrorCreate(nil, LAErrorDomain as CFString, -4, nil)
+        let appCancelError = CFErrorCreate(nil, LAErrorDomain as CFString, -9, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: appCancelError,
             defaultError: SecureStoreError(.cantEncryptData)
@@ -61,7 +70,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
         
-        let invalidContextError = CFErrorCreate(nil, LAErrorDomain as CFString, -4, nil)
+        let invalidContextError = CFErrorCreate(nil, LAErrorDomain as CFString, -10, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: invalidContextError,
             defaultError: SecureStoreError(.cantEncryptData)
@@ -69,7 +78,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
         
-        let biometryNotAvailableError = CFErrorCreate(nil, LAErrorDomain as CFString, -4, nil)
+        let biometryNotAvailableError = CFErrorCreate(nil, LAErrorDomain as CFString, LAError.biometryNotAvailable.rawValue, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: biometryNotAvailableError,
             defaultError: SecureStoreError(.cantEncryptData)
@@ -77,7 +86,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
         
-        let biometryNotEnrolledError = CFErrorCreate(nil, LAErrorDomain as CFString, -4, nil)
+        let biometryNotEnrolledError = CFErrorCreate(nil, LAErrorDomain as CFString, LAError.biometryNotEnrolled.rawValue, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: biometryNotEnrolledError,
             defaultError: SecureStoreError(.cantEncryptData)
@@ -85,7 +94,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
         
-        let biometryLockoutError = CFErrorCreate(nil, LAErrorDomain as CFString, -4, nil)
+        let biometryLockoutError = CFErrorCreate(nil, LAErrorDomain as CFString, LAError.biometryLockout.rawValue, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: biometryLockoutError,
             defaultError: SecureStoreError(.cantEncryptData)
@@ -93,7 +102,7 @@ final class SecureStoreErrorTests: XCTestCase {
                        SecureStoreError(.recoverable)
         )
         
-        let notInteractiveError = CFErrorCreate(nil, LAErrorDomain as CFString, -4, nil)
+        let notInteractiveError = CFErrorCreate(nil, LAErrorDomain as CFString, -1004, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: notInteractiveError,
             defaultError: SecureStoreError(.cantEncryptData)
@@ -140,7 +149,7 @@ final class SecureStoreErrorTests: XCTestCase {
     }
     
     func test_localAuthenticationErrors_noLocalAuthEnrolled() {
-        let noPasscodeSetError = CFErrorCreate(nil, LAErrorDomain as CFString, LAError.passcodeNotSet.rawValue, nil)
+        let noPasscodeSetError = CFErrorCreate(nil, LAErrorDomain as CFString, -3, nil)
         XCTAssertEqual(SecureStoreError.biometricErrorHandling(
             error: noPasscodeSetError,
             defaultError: SecureStoreError(.cantEncryptData)

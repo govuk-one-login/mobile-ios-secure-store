@@ -2,9 +2,22 @@ import Foundation
 import GDSUtilities
 import LocalAuthentication
 
-extension SecureStoreError where Kind == ErrorKind.SecureStore {
+public typealias SecureStoreError = SecureStoreGDSError<SecureStoreErrorKind>
+
+public struct SecureStoreGDSError<Kind: GDSErrorKind>: GDSError {
+    public let kind: Kind
+    public let reason: String?
+    public let endpoint: String?
+    public let statusCode: Int?
+    public let file: String
+    public let function: String
+    public let line: Int
+    public let resolvable: Bool
+    public let originalError: Error?
+    public let additionalParameters: [String: any Sendable]
+
     public init(
-        _ kind: ErrorKind.SecureStore,
+        _ kind: Kind,
         reason: String? = nil,
         endpoint: String? = nil,
         statusCode: Int? = nil,
@@ -18,20 +31,18 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         // Use the provided reason or fall back to a default based on the kind
         let errorReason = reason ?? SecureStoreError.errorReason(for: kind)
         
-        self.init(
-            kind: kind,
-            reason: errorReason,
-            endpoint: endpoint,
-            statusCode: statusCode,
-            file: file,
-            function: function,
-            line: line,
-            resolvable: resolvable,
-            originalError: originalError,
-            additionalParameters: additionalParameters
-        )
+        self.kind = kind
+        self.reason = errorReason
+        self.endpoint = endpoint
+        self.statusCode = statusCode
+        self.file = file
+        self.function = function
+        self.line = line
+        self.resolvable = resolvable
+        self.originalError = originalError
+        self.additionalParameters = additionalParameters
     }
-    
+
     static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
         guard let error else {
             return defaultError
@@ -53,21 +64,21 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
             (6, LAErrorDomain),
             (-1000, LAErrorDomain):
             return SecureStoreError(
-                .recoverable,
+                SecureStoreErrorKind.recoverable,
                 originalError: error
             )
 
         // LAEerrors mapped to 'userCancelled'
         case (LAError.userCancel.rawValue /* -2 */, LAErrorDomain):
             return SecureStoreError(
-                .userCancelled,
+                SecureStoreErrorKind.userCancelled,
                 originalError: error
             )
 
         // LAErrors mapped to 'unrecoverable'
         case (-50, NSOSStatusErrorDomain):
             return SecureStoreError(
-                .unrecoverable,
+                SecureStoreErrorKind.unrecoverable,
                 originalError: error
             )
 
@@ -82,7 +93,11 @@ extension SecureStoreError where Kind == ErrorKind.SecureStore {
         }
     }
     
-    private static func errorReason(for kind: ErrorKind.SecureStore) -> String {
+    private static func errorReason(for kind: some GDSErrorKind) -> String? {
+        guard let kind = kind as? SecureStoreErrorKind else {
+            return nil
+        }
+        
         switch kind {
         case .unableToRetrieveFromUserDefaults:
             return "Error while retrieving item from User Defaults"
