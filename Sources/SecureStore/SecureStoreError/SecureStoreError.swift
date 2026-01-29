@@ -2,9 +2,9 @@ import Foundation
 import GDSUtilities
 import LocalAuthentication
 
-public typealias SecureStoreError = SecureStoreGDSError<SecureStoreErrorKind>
+public typealias SecureStoreError = GDSSecureStoreError<SecureStoreErrorKind>
 
-public struct SecureStoreGDSError<Kind: GDSErrorKind>: GDSError {
+public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
     public let kind: Kind
     public let reason: String?
     public let endpoint: String?
@@ -44,48 +44,50 @@ public struct SecureStoreGDSError<Kind: GDSErrorKind>: GDSError {
     }
 
     static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
-        guard let error else {
-            return defaultError
+        guard let error = error,
+              String(CFErrorGetDomain(error)) == LAErrorDomain else {
+            let code = CFErrorGetCode(error)
+            let domain = String(CFErrorGetDomain(error))
+            
+            // Error that maps to 'unrecoverable'
+            if (code, domain) == (-50, NSOSStatusErrorDomain) {
+                return SecureStoreError(
+                    .unrecoverable,
+                    originalError: error
+                )
+            } else {
+                return defaultError
+            }
         }
-        let code = CFErrorGetCode(error)
-        let domain = String(CFErrorGetDomain(error))
-        
-        switch (code, domain) {
-        // LAErrors mapped to 'recoverable'
-        case (LAError.authenticationFailed.rawValue /* -1 */, LAErrorDomain),
-            (LAError.userFallback.rawValue /* -3 */, LAErrorDomain),
-            (LAError.systemCancel.rawValue /* -4 */, LAErrorDomain),
-            (LAError.appCancel.rawValue /* -9 */, LAErrorDomain),
-            (LAError.invalidContext.rawValue /* -10 */, LAErrorDomain),
-            (LAError.biometryNotAvailable.rawValue, LAErrorDomain),
-            (LAError.biometryNotEnrolled.rawValue, LAErrorDomain),
-            (LAError.biometryLockout.rawValue, LAErrorDomain),
-            (LAError.notInteractive.rawValue /* -1004 */, LAErrorDomain),
-            (6, LAErrorDomain),
-            (-1000, LAErrorDomain):
-            return SecureStoreError(
-                .recoverable,
-                originalError: error
-            )
 
-        // LAEerrors mapped to 'userCancelled'
-        case (LAError.userCancel.rawValue /* -2 */, LAErrorDomain):
+        let laErrorCode = LAError.Code(rawValue: CFErrorGetCode(error))
+        switch laErrorCode {
+        // LAErrors mapped to 'userCancelled'
+        case .userCancel /* -2 */:
             return SecureStoreError(
                 .userCancelled,
                 originalError: error
             )
-
-        // LAErrors mapped to 'unrecoverable'
-        case (-50, NSOSStatusErrorDomain):
-            return SecureStoreError(
-                .unrecoverable,
-                originalError: error
-            )
-
-        // LAErrors mapped to `noLocalAuthEnrolled`
-        case (LAError.passcodeNotSet.rawValue /* -5 */, LAErrorDomain):
+        // LAErrors mapped to 'noLocalAuthEnrolled'
+        case .passcodeNotSet:
             return SecureStoreError(
                 .noLocalAuthEnrolled,
+                originalError: error
+            )
+        // LAErrors mapped to 'recoverable'
+        case .authenticationFailed /* -1 */,
+             .userFallback /* -3 */,
+             .systemCancel /* -4 */,
+             .appCancel /* -9 */,
+             .invalidContext /* -10 */,
+             .biometryNotAvailable,
+             .biometryNotEnrolled,
+             .biometryLockout,
+             .notInteractive /* -1004 */,
+            LAError.Code(rawValue: 6),
+            LAError.Code(rawValue: -1000):
+            return SecureStoreError(
+                .recoverable,
                 originalError: error
             )
         default:

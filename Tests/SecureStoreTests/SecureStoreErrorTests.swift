@@ -32,7 +32,7 @@ final class SecureStoreErrorTests: XCTestCase {
             case errorKindWithNoReason
         }
         
-        XCTAssertEqual(SecureStoreGDSError(TestErrorKind.errorKindWithNoReason).reason, nil)
+        XCTAssertEqual(GDSSecureStoreError(TestErrorKind.errorKindWithNoReason).reason, nil)
     }
     
     // swiftlint:disable function_body_length
