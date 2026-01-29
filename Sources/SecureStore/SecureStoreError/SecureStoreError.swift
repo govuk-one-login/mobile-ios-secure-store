@@ -49,7 +49,7 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
             let code = CFErrorGetCode(error)
             let domain = String(CFErrorGetDomain(error))
             
-            // Error that maps to 'unrecoverable'
+            // Error mapped to 'unrecoverable'
             if (code, domain) == (-50, NSOSStatusErrorDomain) {
                 return SecureStoreError(
                     .unrecoverable,
