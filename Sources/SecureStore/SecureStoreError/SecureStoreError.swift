@@ -69,7 +69,7 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
                 originalError: error
             )
         // LAErrors mapped to 'noLocalAuthEnrolled'
-        case .passcodeNotSet:
+        case .passcodeNotSet /* -5 */:
             return SecureStoreError(
                 .noLocalAuthEnrolled,
                 originalError: error
