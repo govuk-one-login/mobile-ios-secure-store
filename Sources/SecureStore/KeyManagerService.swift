@@ -153,7 +153,7 @@ extension KeyManagerService {
                                                           formattedData as CFData,
                                                           &error) else {
             throw SecureStoreError.biometricErrorHandling(
-                error: error?.takeRetainedValue(),
+                error: error?.takeRetainedValue() as? NSError,
                 defaultError: SecureStoreError(.cantEncryptData)
             )
         }
@@ -178,7 +178,7 @@ extension KeyManagerService {
                                                           formattedData as CFData,
                                                           &error) else {
             throw SecureStoreError.biometricErrorHandling(
-                error: error?.takeRetainedValue(),
+                error: error?.takeRetainedValue() as? NSError,
                 defaultError: SecureStoreError(.cantDecryptData)
             )
         }

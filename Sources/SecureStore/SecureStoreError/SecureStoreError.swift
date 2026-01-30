@@ -43,25 +43,19 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         self.additionalParameters = additionalParameters
     }
 
-    static func biometricErrorHandling(error: CFError?, defaultError: Self) -> Error {
-        guard let error = error,
-              String(CFErrorGetDomain(error)) == LAErrorDomain else {
-            let code = CFErrorGetCode(error)
-            let domain = String(CFErrorGetDomain(error))
-            
-            // Error mapped to 'unrecoverable'
-            if (code, domain) == (-50, NSOSStatusErrorDomain) {
+    static func biometricErrorHandling(error: NSError?, defaultError: Self) -> Error {
+        guard let laError = error as? LAError else {
+            if (error?.code, error?.domain) == (-50, NSOSStatusErrorDomain) {
                 return SecureStoreError(
                     .unrecoverable,
                     originalError: error
                 )
             } else {
-                return defaultError
+                return error ?? defaultError
             }
         }
 
-        let laErrorCode = LAError.Code(rawValue: CFErrorGetCode(error))
-        switch laErrorCode {
+        switch laError.code {
         // LAErrors mapped to 'userCancelled'
         case .userCancel /* -2 */:
             return SecureStoreError(
@@ -91,7 +85,7 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
                 originalError: error
             )
         default:
-            return error
+            return error ?? defaultError
         }
     }
     
