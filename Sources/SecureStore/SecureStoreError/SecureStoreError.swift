@@ -85,7 +85,7 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
                 originalError: error
             )
         default:
-            return error ?? defaultError
+            return laError
         }
     }
     

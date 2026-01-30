@@ -152,9 +152,14 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
+            let nsError = error?.takeRetainedValue() as? NSError
             throw SecureStoreError.biometricErrorHandling(
-                error: error?.takeRetainedValue() as? NSError,
-                defaultError: SecureStoreError(.cantEncryptData)
+                error: nsError,
+                defaultError: SecureStoreError(
+                    .cantEncryptData,
+                    reason: nsError?.localizedDescription,
+                    originalError: nsError
+                )
             )
         }
         
@@ -177,9 +182,14 @@ extension KeyManagerService {
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
+            let nsError = error?.takeRetainedValue() as? NSError
             throw SecureStoreError.biometricErrorHandling(
-                error: error?.takeRetainedValue() as? NSError,
-                defaultError: SecureStoreError(.cantDecryptData)
+                error: nsError,
+                defaultError: SecureStoreError(
+                    .cantDecryptData,
+                    reason: nsError?.localizedDescription,
+                    originalError: nsError
+                )
             )
         }
         
