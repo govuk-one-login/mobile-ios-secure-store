@@ -26,7 +26,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/govuk-one-login/mobile-ios-utilities",
-            branch: "feat/dcmaw-18125-creat-gds-error"
+            from: "0.0.0"
         )
     ],
     targets: [

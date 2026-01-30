@@ -1,5 +1,5 @@
 {
-  "originHash" : "7c69a8fd183ed261b8a1892ea8b093eb2c11e887cf889d7d18cb081da24c60ea",
+  "originHash" : "7e3cac157c979bce2c0cf1a75aaa2f7029657c292af91ffd92b46bfddf159c51",
   "pins" : [
     {
       "identity" : "bigint",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/govuk-one-login/mobile-ios-utilities",
       "state" : {
-        "branch" : "feat/dcmaw-18125-creat-gds-error",
-        "revision" : "0c5168eb62a7c92921d2f198c2cc08ab9ef05ac5"
+        "revision" : "4cc2ad140b9ea2eefec8ed4cd94567b7ee73bcb6",
+        "version" : "0.1.0"
       }
     },
     {
