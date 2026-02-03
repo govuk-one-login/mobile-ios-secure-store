@@ -1,7 +1,6 @@
 import Foundation
 
-// TODO: DCMAW-18331 delete class
-public class SecureStoreService {
+public class SecureStoreServiceV2 {
     let keyManagerService: KeyManagerService
     let secureStoreDefaults: DefaultsStore
     
@@ -18,7 +17,7 @@ public class SecureStoreService {
 }
 
 // MARK: SecureStorable Conformance
-extension SecureStoreService: SecureStorable {
+extension SecureStoreServiceV2: SecureStorableV2 {
     public func checkItemExists(itemName: String) -> Bool {
         guard secureStoreDefaults.getItem(itemName: itemName) != nil else { return false }
         return true
@@ -26,13 +25,13 @@ extension SecureStoreService: SecureStorable {
     
     public func readItem(itemName: String) throws -> String {
         guard let encryptedData = secureStoreDefaults.getItem(itemName: itemName) else {
-            throw SecureStoreError(.unableToRetrieveFromUserDefaults)
+            throw SecureStoreErrorV2(.unableToRetrieveFromUserDefaults)
         }
-        return try keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedData)
+        return try keyManagerService.decryptDataWithPrivateKeyV2(dataToDecrypt: encryptedData)
     }
     
     public func saveItem(item: String, itemName: String) throws {
-        let encryptedData = try keyManagerService.encryptDataWithPublicKey(dataToEncrypt: item)
+        let encryptedData = try keyManagerService.encryptDataWithPublicKeyV2(dataToEncrypt: item)
         secureStoreDefaults.saveItem(encyptedItem: encryptedData, itemName: itemName)
     }
     

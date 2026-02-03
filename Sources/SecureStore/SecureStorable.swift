@@ -6,8 +6,15 @@ public protocol SecureStorable {
     func saveItem(item: String, itemName: String) throws
     func readItem(itemName: String) throws -> String
     
-    func saveItemV2(item: String, itemName: String) throws
-    func readItemV2(itemName: String) throws -> String
+    func deleteItem(itemName: String)
+    func delete() throws
+    func checkItemExists(itemName: String) -> Bool
+}
+
+public protocol SecureStorableV2 {
+    func saveItem(item: String, itemName: String) throws
+    func readItem(itemName: String) throws -> String
+    
     func deleteItem(itemName: String)
     func delete() throws
     func checkItemExists(itemName: String) -> Bool
