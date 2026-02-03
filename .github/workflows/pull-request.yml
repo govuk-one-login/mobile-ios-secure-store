@@ -43,6 +43,7 @@ jobs:
       - name: Build and Test
         run: |
           set -o pipefail && xcodebuild -scheme SecureStore-Demo test \
+            -skipPackagePluginValidation \
             -destination "platform=iOS Simulator,name=iPhone 17,OS=26.1" \
             -testPlan UnitTestPlan \
             -enableCodeCoverage YES \
