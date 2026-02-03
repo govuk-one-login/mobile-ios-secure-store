@@ -1,5 +1,5 @@
 {
-  "originHash" : "e2ec9f63ccfd6917411e0728c82d82890445c206b2f6ef6a7001b422d2e36272",
+  "originHash" : "62a74df06e9bc04f0c4c4847782f8c3a663901d65c019dc8522eb3bb24c378ec",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -119,6 +119,15 @@
       }
     },
     {
+      "identity" : "mobile-ios-utilities",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/govuk-one-login/mobile-ios-utilities",
+      "state" : {
+        "revision" : "4cc2ad140b9ea2eefec8ed4cd94567b7ee73bcb6",
+        "version" : "0.1.0"
+      }
+    },
+    {
       "identity" : "nanopb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/nanopb.git",
@@ -143,6 +152,15 @@
       "state" : {
         "revision" : "c169a5744230951031770e27e475ff6eefe51f9d",
         "version" : "1.33.3"
+      }
+    },
+    {
+      "identity" : "swiftlintplugins",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SimplyDanny/SwiftLintPlugins",
+      "state" : {
+        "revision" : "8a4640d14777685ba8f14e832373160498fbab92",
+        "version" : "0.63.2"
       }
     }
   ],

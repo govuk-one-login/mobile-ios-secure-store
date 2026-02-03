@@ -1,0 +1,126 @@
+import Foundation
+import GDSUtilities
+import LocalAuthentication
+
+public typealias SecureStoreErrorV2 = GDSSecureStoreError<SecureStoreErrorKind>
+
+public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
+    public let kind: Kind
+    public let reason: String?
+    public let endpoint: String?
+    public let statusCode: Int?
+    public let file: String
+    public let function: String
+    public let line: Int
+    public let resolvable: Bool
+    public let originalError: Error?
+    public let additionalParameters: [String: any Sendable]
+
+    public init(
+        _ kind: Kind,
+        reason: String? = nil,
+        endpoint: String? = nil,
+        statusCode: Int? = nil,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        resolvable: Bool = true,
+        originalError: Error? = nil,
+        additionalParameters: [String: any Sendable] = [:]
+    ) {
+        // Use the provided reason or fall back to a default based on the kind
+        let errorReason = reason ?? SecureStoreErrorV2.errorReason(for: kind)
+
+        self.kind = kind
+        self.reason = errorReason
+        self.endpoint = endpoint
+        self.statusCode = statusCode
+        self.file = file
+        self.function = function
+        self.line = line
+        self.resolvable = resolvable
+        self.originalError = originalError
+        self.additionalParameters = additionalParameters
+    }
+
+    static func biometricErrorHandling(error: NSError?, defaultError: Self) -> Error {
+        guard let laError = error as? LAError else {
+            if (error?.code, error?.domain) == (-50, NSOSStatusErrorDomain) {
+                return SecureStoreErrorV2(
+                    .unrecoverable,
+                    originalError: error
+                )
+            } else {
+                return error ?? defaultError
+            }
+        }
+
+        switch laError.code {
+        // LAErrors mapped to 'userCancelled'
+        case .userCancel /* -2 */:
+            return SecureStoreErrorV2(
+                .userCancelled,
+                originalError: error
+            )
+        // LAErrors mapped to 'noLocalAuthEnrolled'
+        case .passcodeNotSet /* -5 */:
+            return SecureStoreErrorV2(
+                .noLocalAuthEnrolled,
+                originalError: error
+            )
+        // LAErrors mapped to 'recoverable'
+        case .authenticationFailed /* -1 */,
+             .userFallback /* -3 */,
+             .systemCancel /* -4 */,
+             .appCancel /* -9 */,
+             .invalidContext /* -10 */,
+             .biometryNotAvailable,
+             .biometryNotEnrolled,
+             .biometryLockout,
+             .notInteractive /* -1004 */,
+            LAError.Code(rawValue: 6),
+            LAError.Code(rawValue: -1000):
+            return SecureStoreErrorV2(
+                .recoverable,
+                originalError: error
+            )
+        default:
+            return laError
+        }
+    }
+
+    private static func errorReason(for kind: some GDSErrorKind) -> String? {
+        guard let kind = kind as? SecureStoreErrorKind else {
+            return nil
+        }
+
+        switch kind {
+        case .unableToRetrieveFromUserDefaults:
+            return "Error while retrieving item from User Defaults"
+        case .cantDeleteKey:
+            return "Error while deleting key from the keychain"
+        case .cantStoreKey:
+            return "Error while storing key to the keychain"
+        case .cantRetrieveKey:
+            return "Error while retrieving key from the keychain"
+        case .cantEncryptData:
+            return "Error while encrypting data"
+        case .cantDecryptData:
+            return "Error while decrypting data"
+        case .cantEncodeData:
+            return "Error while encoding data"
+        case .cantDecodeData:
+            return "Error while decoding data"
+        case .cantFormatData:
+            return "Error while formatting data"
+        case .recoverable:
+            return "A recoverable error has been thrown"
+        case .unrecoverable:
+            return "A unrecoverable error has been thrown"
+        case .userCancelled:
+            return "User cancelled the biometric prompt"
+        case .noLocalAuthEnrolled:
+            return "Passcode is not set on the device"
+        }
+    }
+}
