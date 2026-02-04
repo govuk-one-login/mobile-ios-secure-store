@@ -3,6 +3,7 @@ import LocalAuthentication
 @testable import SecureStore
 import XCTest
 
+// swiftlint:disable:next type_body_length
 final class SecureStoreErrorV2Tests: XCTestCase {
     func test_noError() {
         let error = SecureStoreErrorV2.biometricErrorHandling(
@@ -262,6 +263,7 @@ final class SecureStoreErrorV2Tests: XCTestCase {
         XCTAssertEqual(GDSSecureStoreError(TestErrorKind.errorKindWithNoReason).reason, nil)
     }
     
+    // swiftlint:disable:next function_body_length
     func test_error_reason() {
         XCTAssertEqual(SecureStoreErrorV2(.unableToRetrieveFromUserDefaults).reason,
                        "Error while retrieving item from User Defaults")

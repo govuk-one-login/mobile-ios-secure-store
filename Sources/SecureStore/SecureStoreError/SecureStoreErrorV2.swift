@@ -4,6 +4,7 @@ import LocalAuthentication
 
 public typealias SecureStoreErrorV2 = GDSSecureStoreError<SecureStoreErrorKind>
 
+// swiftlint:disable:next type_body_length
 public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
     public let kind: Kind
     public let reason: String?
@@ -41,6 +42,7 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         self.additionalParameters = additionalParameters
     }
     
+    // swiftlint:disable:next function_body_length
     static func biometricErrorHandling(error: NSError?) -> SecureStoreErrorV2 {
         guard let error else {
             return SecureStoreErrorV2(
@@ -195,12 +197,13 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
             )
         }
     }
-
+    
+    // swiftlint:disable:next function_body_length
     private static func errorReason(for kind: some GDSErrorKind) -> String? {
         guard let kind = kind as? SecureStoreErrorKind else {
             return nil
         }
-
+        
         switch kind {
         case .unableToRetrieveFromUserDefaults:
             return "Error while retrieving item from User Defaults"

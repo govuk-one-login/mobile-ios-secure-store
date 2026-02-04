@@ -40,4 +40,3 @@ struct PublicKeyTests {
         #expect(key.jwkRepresentation.y == constructedJWK.y)
     }
 }
-
