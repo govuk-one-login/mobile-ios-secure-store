@@ -1,7 +1,6 @@
 import GDSUtilities
 
-/// SecureStorable
-/// Used for saving items to keychain storage
+/// SecureStorable - used for saving items to keychain storage
 // TODO: DCMAW-18331 delete protocol
 public protocol SecureStorable {
     func saveItem(item: String, itemName: String) throws
