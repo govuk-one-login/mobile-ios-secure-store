@@ -140,6 +140,31 @@ extension KeyManagerService {
 
 // MARK: Encryption and Decryption
 extension KeyManagerService {
+    // TODO: DCMAW-18331 delete function
+    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
+        let publicKey = try retrieveKeys().publicKey
+        
+        guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
+            throw SecureStoreError(.cantEncodeData)
+        }
+        
+        var error: Unmanaged<CFError>?
+        guard let encryptData = SecKeyCreateEncryptedData(publicKey,
+                                                          SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
+                                                          formattedData as CFData,
+                                                          &error) else {
+            throw SecureStoreError.biometricErrorHandling(
+                error: error?.takeRetainedValue(),
+                defaultError: SecureStoreError(.cantEncryptData)
+            )
+        }
+        
+        let encryptedData = encryptData as Data
+        let encryptedString = encryptedData.base64EncodedString(options: [])
+        
+        return encryptedString
+    }
+    
     func encryptDataWithPublicKeyV2(dataToEncrypt: String) throws -> String {
         let publicKey = try retrieveKeys().publicKey
         
@@ -167,28 +192,30 @@ extension KeyManagerService {
     }
     
     // TODO: DCMAW-18331 delete function
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
-        let publicKey = try retrieveKeys().publicKey
+    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
+        let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
         
-        guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw SecureStoreError(.cantEncodeData)
+        guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
+            throw SecureStoreError(.cantFormatData)
         }
         
         var error: Unmanaged<CFError>?
-        guard let encryptData = SecKeyCreateEncryptedData(publicKey,
+        // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
+        guard let decryptData = SecKeyCreateDecryptedData(privateKeyRepresentation,
                                                           SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
                                                           formattedData as CFData,
                                                           &error) else {
             throw SecureStoreError.biometricErrorHandling(
                 error: error?.takeRetainedValue(),
-                defaultError: SecureStoreError(.cantEncryptData)
+                defaultError: SecureStoreError(.cantDecryptData)
             )
         }
         
-        let encryptedData = encryptData as Data
-        let encryptedString = encryptedData.base64EncodedString(options: [])
+        guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
+            throw SecureStoreError(.cantDecodeData)
+        }
         
-        return encryptedString
+        return decryptedString
     }
     
     func decryptDataWithPrivateKeyV2(dataToDecrypt: String) throws(SecureStoreErrorV2) -> String {
@@ -227,33 +254,6 @@ extension KeyManagerService {
             encoding: .utf8
         ) else {
             throw SecureStoreErrorV2(.cantDecodeData)
-        }
-        
-        return decryptedString
-    }
-    
-    // TODO: DCMAW-18331 delete function
-    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
-        let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
-        
-        guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw SecureStoreError(.cantFormatData)
-        }
-        
-        var error: Unmanaged<CFError>?
-        // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
-        guard let decryptData = SecKeyCreateDecryptedData(privateKeyRepresentation,
-                                                          SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
-                                                          formattedData as CFData,
-                                                          &error) else {
-            throw SecureStoreError.biometricErrorHandling(
-                error: error?.takeRetainedValue(),
-                defaultError: SecureStoreError(.cantDecryptData)
-            )
-        }
-        
-        guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw SecureStoreError(.cantDecodeData)
         }
         
         return decryptedString

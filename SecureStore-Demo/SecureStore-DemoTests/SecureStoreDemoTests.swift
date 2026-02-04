@@ -94,6 +94,21 @@ extension SecureStoreDemoTests {
         XCTAssertNotNil(encryptedString)
     }
     
+    
+    func test_encryptDataWithPublicKeyV2() throws {
+        do {
+            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+        } catch {
+            print(error)
+        }
+        
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.publicKey)
+        
+        let encryptedString = try sut.keyManagerService.encryptDataWithPublicKeyV2(dataToEncrypt: "This Data")
+        XCTAssertNotNil(encryptedString)
+    }
+    
     func test_decryptDataWithPrivateKey() throws {
         do {
             try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
@@ -105,6 +120,23 @@ extension SecureStoreDemoTests {
         XCTAssertNotNil(keys.privateKey)
         
         let encryptedString = try sut.keyManagerService.encryptDataWithPublicKey(dataToEncrypt: "Data")
+        
+        let decryptedString = try sut.keyManagerService
+            .decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
+        XCTAssertNotNil(decryptedString)
+    }
+    
+    func test_decryptDataWithPrivateKeyV2() throws {
+        do {
+            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
+        } catch {
+            print(error)
+        }
+        
+        let keys = try sut.keyManagerService.retrieveKeys()
+        XCTAssertNotNil(keys.privateKey)
+        
+        let encryptedString = try sut.keyManagerService.encryptDataWithPublicKeyV2(dataToEncrypt: "Data")
         
         let decryptedString = try sut.keyManagerService
             .decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
