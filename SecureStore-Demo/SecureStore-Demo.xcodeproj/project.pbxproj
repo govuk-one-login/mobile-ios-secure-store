@@ -13,6 +13,7 @@
 		2BCB23292B46D54000F3A832 /* SecureStoreDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */; };
 		2BCB23432B46D60A00F3A832 /* SecureStore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BCB23422B46D60A00F3A832 /* SecureStore */; };
 		7C58E8862EAA9AAD006AD752 /* KeyManagerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C58E8852EAA9AA9006AD752 /* KeyManagerServiceTests.swift */; };
+		C834E0172F33B6890090EA49 /* SecureStoreV2DemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C834E0162F33B6890090EA49 /* SecureStoreV2DemoTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 		2BCB23242B46D54000F3A832 /* SecureStore-DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SecureStore-DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStoreDemoTests.swift; sourceTree = "<group>"; };
 		7C58E8852EAA9AA9006AD752 /* KeyManagerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManagerServiceTests.swift; sourceTree = "<group>"; };
+		C834E0162F33B6890090EA49 /* SecureStoreV2DemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStoreV2DemoTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				7C58E8852EAA9AA9006AD752 /* KeyManagerServiceTests.swift */,
+				C834E0162F33B6890090EA49 /* SecureStoreV2DemoTests.swift */,
 				2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */,
 			);
 			path = "SecureStore-DemoTests";
@@ -198,6 +201,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2BCB23292B46D54000F3A832 /* SecureStoreDemoTests.swift in Sources */,
+				C834E0172F33B6890090EA49 /* SecureStoreV2DemoTests.swift in Sources */,
 				7C58E8862EAA9AAD006AD752 /* KeyManagerServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

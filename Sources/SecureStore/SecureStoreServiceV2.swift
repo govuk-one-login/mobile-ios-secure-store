@@ -5,8 +5,10 @@ public class SecureStoreServiceV2 {
     let secureStoreDefaults: DefaultsStore
     
     public convenience init(configuration: SecureStorageConfiguration) {
-        self.init(keyManagerService: KeyManagerService(configuration: configuration),
-                  defaultsStore: UserDefaultsStore())
+        self.init(
+            keyManagerService: KeyManagerService(configuration: configuration),
+            defaultsStore: UserDefaultsStore()
+        )
     }
     
     init(keyManagerService: KeyManagerService,
