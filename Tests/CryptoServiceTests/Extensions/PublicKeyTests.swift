@@ -1,4 +1,4 @@
-import CryptoKit
+import enum CryptoKit.P256
 @testable import CryptoService
 import Foundation
 import Testing
@@ -40,3 +40,4 @@ struct PublicKeyTests {
         #expect(key.jwkRepresentation.y == constructedJWK.y)
     }
 }
+

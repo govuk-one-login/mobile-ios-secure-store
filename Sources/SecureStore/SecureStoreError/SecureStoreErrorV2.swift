@@ -15,7 +15,7 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
     public let resolvable: Bool
     public let originalError: Error?
     public let additionalParameters: [String: any Sendable]
-
+    
     public init(
         _ kind: Kind,
         reason: String? = nil,
@@ -28,11 +28,9 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         originalError: Error? = nil,
         additionalParameters: [String: any Sendable] = [:]
     ) {
-        // Use the provided reason or fall back to a default based on the kind
-        let errorReason = reason ?? SecureStoreErrorV2.errorReason(for: kind)
-
         self.kind = kind
-        self.reason = errorReason
+        // Use the provided reason or fall back to a default based on the kind
+        self.reason = reason ?? SecureStoreErrorV2.errorReason(for: kind)
         self.endpoint = endpoint
         self.statusCode = statusCode
         self.file = file
@@ -42,50 +40,159 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         self.originalError = originalError
         self.additionalParameters = additionalParameters
     }
-
-    static func biometricErrorHandling(error: NSError?, defaultError: Self) -> Error {
+    
+    static func biometricErrorHandling(error: NSError?) -> SecureStoreErrorV2 {
+        guard let error else {
+            return SecureStoreErrorV2(
+                .noResultOrError
+            )
+        }
+        
         guard let laError = error as? LAError else {
-            if (error?.code, error?.domain) == (-50, NSOSStatusErrorDomain) {
+            if (error.code, error.domain) == (-50, NSOSStatusErrorDomain) {
                 return SecureStoreErrorV2(
-                    .unrecoverable,
+                    .cantDecryptData,
+                    reason: error.localizedDescription,
                     originalError: error
                 )
             } else {
-                return error ?? defaultError
+                return SecureStoreErrorV2(
+                    .unknownNSError,
+                    reason: error.localizedDescription,
+                    originalError: error
+                )
             }
         }
-
+        
         switch laError.code {
-        // LAErrors mapped to 'userCancelled'
+        case .authenticationFailed /* -1 */:
+            return SecureStoreErrorV2(
+                .authenticationFailed,
+                reason: error.localizedDescription,
+                originalError: error
+            )
         case .userCancel /* -2 */:
             return SecureStoreErrorV2(
-                .userCancelled,
+                .userCancel,
+                reason: error.localizedDescription,
                 originalError: error
             )
-        // LAErrors mapped to 'noLocalAuthEnrolled'
+        case .userFallback /* -3 */:
+            return SecureStoreErrorV2(
+                .userFallback,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .systemCancel /* -4 */:
+            return SecureStoreErrorV2(
+                .systemCancel,
+                reason: error.localizedDescription,
+                originalError: error
+            )
         case .passcodeNotSet /* -5 */:
             return SecureStoreErrorV2(
-                .noLocalAuthEnrolled,
+                .passcodeNotSet,
+                reason: error.localizedDescription,
                 originalError: error
             )
-        // LAErrors mapped to 'recoverable'
-        case .authenticationFailed /* -1 */,
-             .userFallback /* -3 */,
-             .systemCancel /* -4 */,
-             .appCancel /* -9 */,
-             .invalidContext /* -10 */,
-             .biometryNotAvailable,
-             .biometryNotEnrolled,
-             .biometryLockout,
-             .notInteractive /* -1004 */,
-            LAError.Code(rawValue: 6),
-            LAError.Code(rawValue: -1000):
+        case .biometryNotAvailable, .touchIDNotAvailable /* -6 */:
             return SecureStoreErrorV2(
-                .recoverable,
+                .biometryNotAvailable,
+                reason: error.localizedDescription,
                 originalError: error
             )
-        default:
-            return laError
+        case .biometryNotEnrolled, .touchIDNotEnrolled /* -7 */:
+            return SecureStoreErrorV2(
+                .biometryNotEnrolled,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .biometryLockout, .touchIDLockout /* -8 */:
+            return SecureStoreErrorV2(
+                .biometryLockout,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .appCancel /* -9 */:
+            return SecureStoreErrorV2(
+                .appCancel,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .invalidContext /* -10 */:
+            return SecureStoreErrorV2(
+                .invalidContext,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .companionNotAvailable /* -11 */:
+            return SecureStoreErrorV2(
+                .companionNotAvailable,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        #if os(macOS)
+        case .watchNotAvailable /* -11 */:
+            return SecureStoreErrorV2(
+                .watchNotAvailable,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .biometryNotPaired /* -12 */:
+            return SecureStoreErrorV2(
+                .biometryNotPaired,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .biometryDisconnected /* -13 */:
+            return SecureStoreErrorV2(
+                .biometryDisconnected,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case .invalidDimensions /* -14 */:
+            return SecureStoreErrorV2(
+                .invalidDimensions,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        #endif
+        case .notInteractive /* -1004 */:
+            return SecureStoreErrorV2(
+                .notInteractive,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case LAError.Code(rawValue: 4):
+            return SecureStoreErrorV2(
+                .invalidatedByHandleRequest,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case LAError.Code(rawValue: 6):
+            return SecureStoreErrorV2(
+                .viewServiceInitializationFailure,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case LAError.Code(rawValue: -1000):
+            return SecureStoreErrorV2(
+                .authenticationTimedOut,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        case LAError.Code(rawValue: -1003):
+            return SecureStoreErrorV2(
+                .uiActivationTimedOut,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        @unknown default:
+            return SecureStoreErrorV2(
+                .unknownLAError,
+                reason: error.localizedDescription,
+                originalError: error
+            )
         }
     }
 
@@ -113,14 +220,50 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
             return "Error while decoding data"
         case .cantFormatData:
             return "Error while formatting data"
-        case .recoverable:
-            return "A recoverable error has been thrown"
-        case .unrecoverable:
-            return "A unrecoverable error has been thrown"
-        case .userCancelled:
+        case .authenticationFailed:
+            return "User failed to provide valid credentials"
+        case .userCancel:
             return "User cancelled the biometric prompt"
-        case .noLocalAuthEnrolled:
-            return "Passcode is not set on the device"
+        case .userFallback:
+            return "No fallback is available for the authentication policy"
+        case .systemCancel:
+            return "System cancelled authentication"
+        case .passcodeNotSet:
+            return "A passcode isn't set on the device"
+        case .biometryNotAvailable:
+            return "No biometry available on the device"
+        case .biometryNotEnrolled:
+            return "Biometry is not enrolled on the device"
+        case .biometryLockout:
+            return "Biometry is locked out"
+        case .appCancel:
+            return "App cancelled authentication"
+        case .invalidContext:
+            return "The context was previously invalidated"
+        case .companionNotAvailable:
+            return "No paired companion device nearby"
+        case .biometryNotPaired:
+            return "Device supports biometry only via removable accessories and no accessory has been paired"
+        case .biometryDisconnected:
+            return "Device supports biometry only via removable accessories and the paired accessory is not connected."
+        case .invalidDimensions:
+            return "Dimensions of embedded UI are invalid"
+        case .notInteractive:
+            return "Displaying the required authentication user interface is forbidden"
+        case .invalidatedByHandleRequest:
+            return "Invalidated by handle request"
+        case .viewServiceInitializationFailure:
+            return "Invalidated due to view service initialization failure"
+        case .authenticationTimedOut:
+            return "Authentication timed out"
+        case .uiActivationTimedOut:
+            return "UI activation timed out after 5 seconds"
+        case .unknownLAError:
+            return "Unknown LAError"
+        case .unknownNSError:
+            return "Unknow NSError"
+        case .noResultOrError:
+            return "No result or error returned"
         }
     }
 }

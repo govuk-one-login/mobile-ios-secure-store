@@ -23,7 +23,7 @@ extension SecureStoreServiceV2: SecureStorableV2 {
         return true
     }
     
-    public func readItem(itemName: String) throws -> String {
+    public func readItem(itemName: String) throws(SecureStoreErrorV2) -> String {
         guard let encryptedData = secureStoreDefaults.getItem(itemName: itemName) else {
             throw SecureStoreErrorV2(.unableToRetrieveFromUserDefaults)
         }
