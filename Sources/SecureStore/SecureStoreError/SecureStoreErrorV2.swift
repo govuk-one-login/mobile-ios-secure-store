@@ -27,7 +27,7 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         line: Int = #line,
         resolvable: Bool = true,
         originalError: Error? = nil,
-        additionalParameters: [String: Any]
+        additionalParameters: [String: Any] = [:]
     ) {
         self.kind = kind
         // Use the provided reason or fall back to a default based on the kind
@@ -40,31 +40,6 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         self.resolvable = resolvable
         self.originalError = originalError
         self.additionalParameters = additionalParameters.compactMapValues { String(describing: $0) }
-    }
-    
-    public init(
-        _ kind: Kind,
-        reason: String? = nil,
-        endpoint: String? = nil,
-        statusCode: Int? = nil,
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line,
-        resolvable: Bool = true,
-        originalError: Error? = nil,
-        additionalParameters: [String: any Sendable] = [:]
-    ) {
-        self.kind = kind
-        // Use the provided reason or fall back to a default based on the kind
-        self.reason = reason ?? SecureStoreErrorV2.errorReason(for: kind)
-        self.endpoint = endpoint
-        self.statusCode = statusCode
-        self.file = file
-        self.function = function
-        self.line = line
-        self.resolvable = resolvable
-        self.originalError = originalError
-        self.additionalParameters = additionalParameters
     }
     
     // swiftlint:disable:next function_body_length
