@@ -164,6 +164,15 @@ final class SecureStoreErrorV2Tests: XCTestCase {
     }
     
     #if os(macOS)
+    func test_watchNotAvailableError() {
+        let watchNotAvailableError = LAError(.watchNotAvailable) as NSError
+        XCTAssertEqual(
+            SecureStoreErrorV2.biometricErrorHandling(
+                error: watchNotAvailableError
+            ),
+            SecureStoreErrorV2(.watchNotAvailable)
+        )
+    }
     func test_biometryNotPairedError() {
         let biometryNotPairedError = LAError(.biometryNotPaired) as NSError
         XCTAssertEqual(
@@ -306,6 +315,8 @@ final class SecureStoreErrorV2Tests: XCTestCase {
         XCTAssertEqual(SecureStoreErrorV2(.companionNotAvailable).reason,
                        "No paired companion device nearby")
         #if os(macOS)
+        XCTAssertEqual(SecureStoreErrorV2(.watchNotAvailable).reason,
+                       "No paired watch nearby")
         XCTAssertEqual(SecureStoreErrorV2(.biometryNotPaired).reason,
                        "Device supports biometry only via removable accessories and no accessory has been paired")
         XCTAssertEqual(SecureStoreErrorV2(.biometryDisconnected).reason,

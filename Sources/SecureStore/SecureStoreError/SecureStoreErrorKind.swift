@@ -25,7 +25,7 @@ public enum SecureStoreErrorKind: String, GDSErrorKind {
     @available(iOS, unavailable) case watchNotAvailable // -11
     @available(iOS, unavailable) case biometryNotPaired // -12
     @available(iOS, unavailable) case biometryDisconnected // -13
-    case invalidDimensions // -14
+    @available(iOS, unavailable) case invalidDimensions // -14
     case notInteractive // -1004
     
     case invalidatedByHandleRequest // 4

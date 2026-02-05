@@ -245,6 +245,8 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
             return "The context was previously invalidated"
         case .companionNotAvailable:
             return "No paired companion device nearby"
+        case .watchNotAvailable:
+            return "No paired watch nearby"
         case .biometryNotPaired:
             return "Device supports biometry only via removable accessories and no accessory has been paired"
         case .biometryDisconnected:
