@@ -27,6 +27,31 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         line: Int = #line,
         resolvable: Bool = true,
         originalError: Error? = nil,
+        additionalParameters: [String: Any]
+    ) {
+        self.kind = kind
+        // Use the provided reason or fall back to a default based on the kind
+        self.reason = reason ?? SecureStoreErrorV2.errorReason(for: kind)
+        self.endpoint = endpoint
+        self.statusCode = statusCode
+        self.file = file
+        self.function = function
+        self.line = line
+        self.resolvable = resolvable
+        self.originalError = originalError
+        self.additionalParameters = additionalParameters.compactMapValues { String(describing: $0) }
+    }
+    
+    public init(
+        _ kind: Kind,
+        reason: String? = nil,
+        endpoint: String? = nil,
+        statusCode: Int? = nil,
+        file: String = #file,
+        function: String = #function,
+        line: Int = #line,
+        resolvable: Bool = true,
+        originalError: Error? = nil,
         additionalParameters: [String: any Sendable] = [:]
     ) {
         self.kind = kind
@@ -55,13 +80,15 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
                 return SecureStoreErrorV2(
                     .cantDecryptData,
                     reason: error.localizedDescription,
-                    originalError: error
+                    originalError: error,
+                    additionalParameters: error.userInfo
                 )
             } else {
                 return SecureStoreErrorV2(
                     .unknownNSError,
                     reason: error.localizedDescription,
-                    originalError: error
+                    originalError: error,
+                    additionalParameters: error.userInfo
                 )
             }
         }
@@ -71,129 +98,150 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
             return SecureStoreErrorV2(
                 .authenticationFailed,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .userCancel: // -2
             return SecureStoreErrorV2(
                 .userCancel,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .userFallback: // -3
             return SecureStoreErrorV2(
                 .userFallback,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .systemCancel: // -4
             return SecureStoreErrorV2(
                 .systemCancel,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .passcodeNotSet: // -5
             return SecureStoreErrorV2(
                 .passcodeNotSet,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .biometryNotAvailable, .touchIDNotAvailable: // -6
             return SecureStoreErrorV2(
                 .biometryNotAvailable,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .biometryNotEnrolled, .touchIDNotEnrolled: // -7
             return SecureStoreErrorV2(
                 .biometryNotEnrolled,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .biometryLockout, .touchIDLockout: // -8
             return SecureStoreErrorV2(
                 .biometryLockout,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .appCancel: // -9
             return SecureStoreErrorV2(
                 .appCancel,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .invalidContext: // -10
             return SecureStoreErrorV2(
                 .invalidContext,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .companionNotAvailable: // -11
             return SecureStoreErrorV2(
                 .companionNotAvailable,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         #if os(macOS)
         case .watchNotAvailable: // -11
             return SecureStoreErrorV2(
                 .watchNotAvailable,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .biometryNotPaired: // -12
             return SecureStoreErrorV2(
                 .biometryNotPaired,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .biometryDisconnected: // -13
             return SecureStoreErrorV2(
                 .biometryDisconnected,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case .invalidDimensions: // -14
             return SecureStoreErrorV2(
                 .invalidDimensions,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         #endif
         case .notInteractive: // -1004
             return SecureStoreErrorV2(
                 .notInteractive,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case LAError.Code(rawValue: 4):
             return SecureStoreErrorV2(
                 .invalidatedByHandleRequest,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case LAError.Code(rawValue: 6):
             return SecureStoreErrorV2(
                 .viewServiceInitializationFailure,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case LAError.Code(rawValue: -1000):
             return SecureStoreErrorV2(
                 .authenticationTimedOut,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         case LAError.Code(rawValue: -1003):
             return SecureStoreErrorV2(
                 .uiActivationTimedOut,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         @unknown default:
             return SecureStoreErrorV2(
                 .unknownLAError,
                 reason: error.localizedDescription,
-                originalError: error
+                originalError: error,
+                additionalParameters: error.userInfo
             )
         }
     }
