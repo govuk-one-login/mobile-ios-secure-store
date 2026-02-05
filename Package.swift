@@ -31,7 +31,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/govuk-one-login/mobile-ios-utilities",
-            branch: "add-explicit-error-conformance-to-GDSError"
+            .upToNextMajor(from: "0.0.0")
         )
     ],
     targets: [

@@ -227,11 +227,12 @@ extension KeyManagerService {
         } catch {
             throw SecureStoreErrorV2(
                 .cantRetrieveKey,
+                reason: error.localizedDescription,
                 originalError: error
             )
         }
         
-        guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
+        guard let formattedData = Data(base64Encoded: dataToDecrypt)  else {
             throw SecureStoreErrorV2(.cantFormatData)
         }
         

@@ -256,7 +256,7 @@ final class SecureStoreErrorV2Tests: XCTestCase {
     }
     
     func test_secureStoreError_errorReasonReturnsNil() {
-        enum TestErrorKind: String, GDSErrorKind, CaseIterable {
+        enum TestErrorKind: String, GDSErrorKind {
             case errorKindWithNoReason
         }
         

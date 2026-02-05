@@ -1,5 +1,5 @@
 {
-  "originHash" : "5f8c5280f9c64519eb54f2dcb8e185fd89f4fe76c5bcde129648e105c3904437",
+  "originHash" : "0eb37dba83dfb63176ae08f08bc714c6fa3737e2d24f04273f70ae6b47542d5e",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/govuk-one-login/mobile-ios-utilities",
       "state" : {
-        "branch" : "add-explicit-error-conformance-to-GDSError",
-        "revision" : "77f0caf80daaca69c832abe7a900ba2f205e4429"
+        "revision" : "5d927095528f7d50f597fa65badc9a9f90255c6d",
+        "version" : "0.1.1"
       }
     },
     {

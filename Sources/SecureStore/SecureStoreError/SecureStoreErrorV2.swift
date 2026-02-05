@@ -67,99 +67,99 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
         }
         
         switch laError.code {
-        case .authenticationFailed /* -1 */:
+        case .authenticationFailed: // -1
             return SecureStoreErrorV2(
                 .authenticationFailed,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .userCancel /* -2 */:
+        case .userCancel: // -2
             return SecureStoreErrorV2(
                 .userCancel,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .userFallback /* -3 */:
+        case .userFallback: // -3
             return SecureStoreErrorV2(
                 .userFallback,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .systemCancel /* -4 */:
+        case .systemCancel: // -4
             return SecureStoreErrorV2(
                 .systemCancel,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .passcodeNotSet /* -5 */:
+        case .passcodeNotSet: // -5
             return SecureStoreErrorV2(
                 .passcodeNotSet,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .biometryNotAvailable, .touchIDNotAvailable /* -6 */:
+        case .biometryNotAvailable, .touchIDNotAvailable: // -6
             return SecureStoreErrorV2(
                 .biometryNotAvailable,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .biometryNotEnrolled, .touchIDNotEnrolled /* -7 */:
+        case .biometryNotEnrolled, .touchIDNotEnrolled: // -7
             return SecureStoreErrorV2(
                 .biometryNotEnrolled,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .biometryLockout, .touchIDLockout /* -8 */:
+        case .biometryLockout, .touchIDLockout: // -8
             return SecureStoreErrorV2(
                 .biometryLockout,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .appCancel /* -9 */:
+        case .appCancel: // -9
             return SecureStoreErrorV2(
                 .appCancel,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .invalidContext /* -10 */:
+        case .invalidContext: // -10
             return SecureStoreErrorV2(
                 .invalidContext,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .companionNotAvailable /* -11 */:
+        case .companionNotAvailable: // -11
             return SecureStoreErrorV2(
                 .companionNotAvailable,
                 reason: error.localizedDescription,
                 originalError: error
             )
         #if os(macOS)
-        case .watchNotAvailable /* -11 */:
+        case .watchNotAvailable: // -11
             return SecureStoreErrorV2(
                 .watchNotAvailable,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .biometryNotPaired /* -12 */:
+        case .biometryNotPaired: // -12
             return SecureStoreErrorV2(
                 .biometryNotPaired,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .biometryDisconnected /* -13 */:
+        case .biometryDisconnected: // -13
             return SecureStoreErrorV2(
                 .biometryDisconnected,
                 reason: error.localizedDescription,
                 originalError: error
             )
-        case .invalidDimensions /* -14 */:
+        case .invalidDimensions: // -14
             return SecureStoreErrorV2(
                 .invalidDimensions,
                 reason: error.localizedDescription,
                 originalError: error
             )
         #endif
-        case .notInteractive /* -1004 */:
+        case .notInteractive: // -1004
             return SecureStoreErrorV2(
                 .notInteractive,
                 reason: error.localizedDescription,
