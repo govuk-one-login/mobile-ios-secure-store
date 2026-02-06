@@ -1,9 +1,19 @@
+import GDSUtilities
+
 /// SecureStorable
-///
 /// Used for saving items to keychain storage
 public protocol SecureStorable {
     func saveItem(item: String, itemName: String) throws
     func readItem(itemName: String) throws -> String
+    func deleteItem(itemName: String)
+    func delete() throws
+    func checkItemExists(itemName: String) -> Bool
+}
+
+// TODO: DCMAW-18331 delete SecureStorableV2 protocol
+public protocol SecureStorableV2 {
+    func saveItem(item: String, itemName: String) throws
+    func readItem(itemName: String) throws(SecureStoreErrorV2) -> String
     func deleteItem(itemName: String)
     func delete() throws
     func checkItemExists(itemName: String) -> Bool

@@ -33,30 +33,6 @@
             default = "YES">
          </TestPlanReference>
       </TestPlans>
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2BCB23232B46D54000F3A832"
-               BuildableName = "SecureStore-DemoTests.xctest"
-               BlueprintName = "SecureStore-DemoTests"
-               ReferencedContainer = "container:SecureStore-Demo.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2BCB232D2B46D54000F3A832"
-               BuildableName = "SecureStore-DemoUITests"
-               BlueprintName = "SecureStore-DemoUITests"
-               ReferencedContainer = "container:SecureStore-Demo.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

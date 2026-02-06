@@ -1,18 +1,24 @@
 @testable import SecureStore
 import XCTest
 
-final class SecureStoreDemoTests: XCTestCase {
+final class SecureStoreV2DemoTests: XCTestCase {
     var testAuthStrings: LocalAuthenticationLocalizedStrings!
-    var sut: SecureStoreService!
+    var sut: SecureStoreServiceV2!
     
     override func setUp() {
         super.setUp()
-        testAuthStrings = LocalAuthenticationLocalizedStrings(localizedReason: "Local Authentication Reason",
-                                                              localisedFallbackTitle: "Enter passcode",
-                                                              localisedCancelTitle: "Cancel")
-        sut = SecureStoreService(configuration: .init(id: "id",
-                                                      accessControlLevel: .open,
-                                                      localAuthStrings: testAuthStrings))
+        testAuthStrings = LocalAuthenticationLocalizedStrings(
+            localizedReason: "Local Authentication Reason",
+            localisedFallbackTitle: "Enter passcode",
+            localisedCancelTitle: "Cancel"
+        )
+        sut = SecureStoreServiceV2(
+            configuration: .init(
+                id: "id",
+                accessControlLevel: .open,
+                localAuthStrings: testAuthStrings
+            )
+        )
     }
     
     override func tearDown() {
@@ -22,7 +28,7 @@ final class SecureStoreDemoTests: XCTestCase {
     }
 }
 
-extension SecureStoreDemoTests {
+extension SecureStoreV2DemoTests {
     func test_keysCreatedOnInit() throws {
         try sut.saveItem(item: "This", itemName: "ThisHere")
     }
@@ -48,8 +54,10 @@ extension SecureStoreDemoTests {
         
         do {
             _ = try sut.readItem(itemName: "ThisItem")
-        } catch let error as SecureStoreError where error.kind == .unableToRetrieveFromUserDefaults {
-            exp.fulfill()
+        } catch {
+            if error.kind == .unableToRetrieveFromUserDefaults {
+                exp.fulfill()
+            }
         }
         
         wait(for: [exp], timeout: 3)
@@ -61,8 +69,10 @@ extension SecureStoreDemoTests {
         
         do {
             try sut.saveItem(item: "", itemName: "")
-        } catch let error as SecureStoreError where error.kind == .cantRetrieveKey {
-            exp.fulfill()
+        } catch let error as SecureStoreError {
+            if error.kind == .cantRetrieveKey {
+                exp.fulfill()
+            }
         }
         
         wait(for: [exp], timeout: 3)

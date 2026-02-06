@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SecureStore",
-    platforms: [.iOS(.v15), .macOS(.v11)],
+    platforms: [.iOS(.v15), .macOS(.v12)],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
@@ -24,9 +24,14 @@ let package = Package(
             url: "https://github.com/attaswift/BigInt",
             from: "5.3.0"
         ),
+        // TODO: DCMAW-18331 delete import
         .package(
             url: "https://github.com/govuk-one-login/mobile-ios-logging",
             .upToNextMajor(from: "6.0.0")
+        ),
+        .package(
+            url: "https://github.com/govuk-one-login/mobile-ios-utilities",
+            .upToNextMajor(from: "0.0.0")
         )
     ],
     targets: [
@@ -35,7 +40,8 @@ let package = Package(
         .target(
             name: "SecureStore",
             dependencies: [
-                .product(name: "GDSAnalytics", package: "mobile-ios-logging")
+                .product(name: "GDSAnalytics", package: "mobile-ios-logging"),
+                .product(name: "GDSUtilities", package: "mobile-ios-utilities")
             ]
         ),
         .testTarget(

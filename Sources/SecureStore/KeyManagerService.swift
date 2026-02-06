@@ -140,6 +140,7 @@ extension KeyManagerService {
 
 // MARK: Encryption and Decryption
 extension KeyManagerService {
+    // TODO: DCMAW-18331 delete function
     func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
         let publicKey = try retrieveKeys().publicKey
         
@@ -164,6 +165,33 @@ extension KeyManagerService {
         return encryptedString
     }
     
+    func encryptDataWithPublicKeyV2(dataToEncrypt: String) throws -> String {
+        let publicKey = try retrieveKeys().publicKey
+        
+        guard let formattedData = dataToEncrypt.data(using: .utf8) else {
+            throw SecureStoreErrorV2(.cantEncodeData)
+        }
+        
+        var error: Unmanaged<CFError>?
+        guard let encryptData = SecKeyCreateEncryptedData(
+            publicKey,
+            .eciesEncryptionStandardX963SHA256AESGCM,
+            formattedData as CFData,
+            &error
+        ) else {
+            let nsError = error?.takeRetainedValue() as? NSError
+            throw SecureStoreErrorV2.biometricErrorHandling(
+                error: nsError
+            )
+        }
+        
+        let encryptedData = encryptData as Data
+        let encryptedString = encryptedData.base64EncodedString()
+        
+        return encryptedString
+    }
+    
+    // TODO: DCMAW-18331 delete function
     func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
         let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
         
@@ -185,6 +213,48 @@ extension KeyManagerService {
         
         guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
             throw SecureStoreError(.cantDecodeData)
+        }
+        
+        return decryptedString
+    }
+    
+    func decryptDataWithPrivateKeyV2(dataToDecrypt: String) throws(SecureStoreErrorV2) -> String {
+        let privateKeyRepresentation: SecKey
+        do {
+            privateKeyRepresentation = try retrieveKeys(
+                localAuthStrings: configuration.localAuthStrings
+            ).privateKey
+        } catch {
+            throw SecureStoreErrorV2(
+                .cantRetrieveKey,
+                reason: error.localizedDescription,
+                originalError: error
+            )
+        }
+        
+        guard let formattedData = Data(base64Encoded: dataToDecrypt)  else {
+            throw SecureStoreErrorV2(.cantFormatData)
+        }
+        
+        var error: Unmanaged<CFError>?
+        // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
+        guard let decryptData = SecKeyCreateDecryptedData(
+            privateKeyRepresentation,
+            .eciesEncryptionStandardX963SHA256AESGCM,
+            formattedData as CFData,
+            &error
+        ) else {
+            let nsError = error?.takeRetainedValue() as? NSError
+            throw SecureStoreErrorV2.biometricErrorHandling(
+                error: nsError
+            )
+        }
+        
+        guard let decryptedString = String(
+            data: decryptData as Data,
+            encoding: .utf8
+        ) else {
+            throw SecureStoreErrorV2(.cantDecodeData)
         }
         
         return decryptedString

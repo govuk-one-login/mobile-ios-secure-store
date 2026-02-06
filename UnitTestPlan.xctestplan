@@ -9,6 +9,11 @@
     }
   ],
   "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:SecureStore-Demo.xcodeproj",
+      "identifier" : "2BCB23132B46D53E00F3A832",
+      "name" : "SecureStore-Demo"
+    },
     "testTimeoutsEnabled" : true
   },
   "testTargets" : [
