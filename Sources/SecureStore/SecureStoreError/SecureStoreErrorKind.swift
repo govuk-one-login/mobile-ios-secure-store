@@ -30,8 +30,8 @@ public enum SecureStoreErrorKind: String, GDSErrorKind {
     
     case invalidatedByHandleRequest // 4
     case viewServiceInitializationFailure // 6
-    case authenticationTimedOut // -1003
     case uiActivationTimedOut // -1000
+    case authenticationTimedOut // -1003
     
     case noResultOrError
     case unknownLAError
