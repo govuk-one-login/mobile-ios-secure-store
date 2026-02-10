@@ -234,23 +234,23 @@ final class SecureStoreErrorV2Tests: XCTestCase {
         )
     }
     
-    func test_authenticationTimedOutError() throws {
-        let authenticationTimedOutError = LAError(try XCTUnwrap(LAError.Code(rawValue: -1000))) as NSError
-        XCTAssertEqual(
-            SecureStoreErrorV2.biometricErrorHandling(
-                error: authenticationTimedOutError
-            ),
-            SecureStoreErrorV2(.authenticationTimedOut)
-        )
-    }
-    
     func test_uiActivationTimedOutError() throws {
-        let uiActivationTimedOutError = LAError(try XCTUnwrap(LAError.Code(rawValue: -1003))) as NSError
+        let uiActivationTimedOutError = LAError(try XCTUnwrap(LAError.Code(rawValue: -1000))) as NSError
         XCTAssertEqual(
             SecureStoreErrorV2.biometricErrorHandling(
                 error: uiActivationTimedOutError
             ),
             SecureStoreErrorV2(.uiActivationTimedOut)
+        )
+    }
+    
+    func test_authenticationTimedOutError() throws {
+        let authenticationTimedOutError = LAError(try XCTUnwrap(LAError.Code(rawValue: -1003))) as NSError
+        XCTAssertEqual(
+            SecureStoreErrorV2.biometricErrorHandling(
+                error: authenticationTimedOutError
+            ),
+            SecureStoreErrorV2(.authenticationTimedOut)
         )
     }
     

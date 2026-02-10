@@ -199,14 +199,14 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
             )
         case LAError.Code(rawValue: -1000):
             return SecureStoreErrorV2(
-                .authenticationTimedOut,
+                .uiActivationTimedOut,
                 reason: error.localizedDescription,
                 originalError: error,
                 additionalParameters: error.userInfo
             )
         case LAError.Code(rawValue: -1003):
             return SecureStoreErrorV2(
-                .uiActivationTimedOut,
+                .authenticationTimedOut,
                 reason: error.localizedDescription,
                 originalError: error,
                 additionalParameters: error.userInfo
