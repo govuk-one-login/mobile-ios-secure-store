@@ -8,7 +8,7 @@ final class KeyManagerService {
         self.configuration = configuration
         
         do {
-            try createKeysIfNeeded(name: configuration.id)
+            try createKeysIfNeeded(name: configuration.newID)
         } catch {
             return
         }
@@ -17,16 +17,15 @@ final class KeyManagerService {
 
 // MARK: Interaction with SecureEnclave
 extension KeyManagerService {
-    // Creating a key pair where the public key is stored in the keychain
-    // and the private key is stored in the Secure Enclave
+    // Creating a key pair where the private key is stored in the Secure Enclave
     func createKeysIfNeeded(name: String) throws {
         
-        // Check if keys already exist in storage
+        // Check if key already exists
         do {
-            _ = try retrieveKeys()
+            _ = try retrievePrivateKey()
             return
-        } catch let error as SecureStoreError where error.kind == .cantRetrieveKey {
-            // Keys do not exist yet, continue below to create and save them
+        } catch {
+            // Key does not exist yet, continue below to create it
         }
         
         #if targetEnvironment(simulator)
@@ -35,11 +34,14 @@ extension KeyManagerService {
         let requirement = configuration.accessControlLevel.flags
         #endif
         
-        guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
-                                                           kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                                                           requirement,
-                                                           nil),
-              let tag = name.data(using: .utf8) else { return }
+        guard let access = SecAccessControlCreateWithFlags(
+            kCFAllocatorDefault,
+            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            requirement,
+            nil
+        ),
+              let tag = name.data(using: .utf8)
+        else { return }
         
         let attributes: NSDictionary = [
             kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
@@ -53,39 +55,27 @@ extension KeyManagerService {
         ]
         
         var error: Unmanaged<CFError>?
-        guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
+        guard SecKeyCreateRandomKey(attributes, &error) != nil else {
             guard let error = error?.takeRetainedValue() as? Error else {
                 throw SecureStoreError(.cantEncryptData)
             }
             throw error
         }
+    }
 
-        try storePrivateKey(keyToStore: privateKey, name: "\(name)PrivateKey")
-    }
     
-    // Store a given key to the keychain in order to reuse it later
-    func storePrivateKey(keyToStore: SecKey, name: String) throws {
-        let key = keyToStore
-        let tag = name.data(using: .utf8)!
-        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
-                                       kSecAttrApplicationTag as String: tag,
-                                       kSecValueRef as String: key]
-        
-        // Add item to KeyChain
-        let status = SecItemAdd(addquery as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw SecureStoreError(.cantStoreKey)
-        }
-    }
-    
-    // Deletes a given key to the keychain
+    // Deletes the keys from the keychain
     func deleteKeys() throws {
-        let keyType = ["PublicKey", "PrivateKey"]
-        try keyType.forEach { key in
-            let keyName = configuration.id + key
-            let tag = keyName.data(using: .utf8)!
-            let deleteQuery: [String: Any] = [kSecClass as String: kSecClassKey,
-                                           kSecAttrApplicationTag as String: tag]
+        let tag1 = configuration.id
+        let tag2 = (configuration.newID)
+        let tag3 = (configuration.id + "PublicKey")
+        
+        try [tag1, tag2, tag3].forEach { tag in
+            let tag = tag.data(using: .utf8)!
+            let deleteQuery: [String: Any] = [
+                kSecClass as String: kSecClassKey,
+                kSecAttrApplicationTag as String: tag
+            ]
             
             let status = SecItemDelete(deleteQuery as CFDictionary)
             guard status == errSecSuccess || status == errSecItemNotFound else {
@@ -94,17 +84,55 @@ extension KeyManagerService {
         }
     }
     
-    // Retrieve a key that has been stored before
-    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
-                                                                                               privateKey: SecKey) {
-        let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
+    func deleteKey(for tag: String) throws {
+        let tag = tag.data(using: .utf8)!
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassKey,
+            kSecAttrApplicationTag as String: tag
+        ]
         
-        // This constructs a query that will be sent to keychain
+        let status = SecItemDelete(deleteQuery as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw SecureStoreError(.cantDeleteKey)
+        }
+    }
+    
+    // Retrieve the private key and derive the public key from it
+    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey, privateKey: SecKey) {
+        let privateKey = try retrievePrivateKey(localAuthStrings: localAuthStrings)
+        
+        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
+            throw SecureStoreError(.cantGetPublicKeyFromPrivateKey)
+        }
+
+        return (publicKey, privateKey)
+    }
+    
+    private func retrievePrivateKey(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> SecKey {
+        var privateKeyRef: CFTypeRef?
+        let privateStatus = retrievePrivateKey(for: configuration.newID, localAuthStrings: localAuthStrings, ref: &privateKeyRef)
+        
+        guard privateStatus == errSecSuccess else {
+            throw SecureStoreError(.cantRetrieveKey)
+        }
+        
+        // swiftlint:disable force_cast
+        let key = privateKeyRef as! SecKey
+        // swiftlint:enable force_cast
+        
+        try deleteKey(for: configuration.id)
+        try deleteKey(for: configuration.id+"PublicKey")
+        
+        return key
+    }
+    
+    private func retrievePrivateKey(for tag: String, localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, ref: inout CFTypeRef?) -> OSStatus {
+        let privateKeyTag = Data(tag.utf8)
+        
         var privateQuery: NSDictionary {
             let context = LAContext()
             
             if let localAuthStrings {
-                // Local Authentication prompt strings
                 context.localizedReason = localAuthStrings.localizedReason
                 context.localizedFallbackTitle = localAuthStrings.localisedFallbackTitle
                 context.localizedCancelTitle = localAuthStrings.localisedCancelTitle
@@ -117,27 +145,16 @@ extension KeyManagerService {
                 kSecReturnRef: true
             ]
         }
+
+        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &ref)
         
-        var privateKeyRef: CFTypeRef?
-        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKeyRef)
-
-        // errSecSuccess is the result code returned when no error was found with the query
-        guard privateStatus == errSecSuccess else {
-            throw SecureStoreError(.cantRetrieveKey)
-        }
-
-        // swiftlint:disable force_cast
-        let privateKey = privateKeyRef as! SecKey
-        // swiftlint:enable force_cast
-        
-        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            throw SecureStoreError(.cantRetrieveKey)
-        }
-
-        return (publicKey, privateKey)
+        return privateStatus
     }
 }
 
+// TODO: handle migration of encrypted things from `<ConfigTagName>PrivateKey` to `<ConfigTagName>`
+// this migration will require some changes above and potentially calling different functions below
+// to get old key, decrypt thing, save the new key and delete the old.
 // MARK: Encryption and Decryption
 extension KeyManagerService {
     // TODO: DCMAW-18331 delete function
