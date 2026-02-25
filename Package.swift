@@ -27,7 +27,7 @@ let package = Package(
         // TODO: DCMAW-18331 delete import
         .package(
             url: "https://github.com/govuk-one-login/mobile-ios-logging",
-            .upToNextMajor(from: "6.0.0")
+            .upToNextMajor(from: "7.0.0")
         ),
         .package(
             url: "https://github.com/govuk-one-login/mobile-ios-utilities",
