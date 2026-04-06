@@ -9,10 +9,15 @@ final class SecureStoreTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        let config = SecureStorageConfiguration(id: "New_ID", accessControlLevel: .open)
+        let config = SecureStorageConfiguration(
+            id: "New_ID",
+            accessControlLevel: .open
+        )
         mockDefaultsStore = MockDefaultsStore()
-        sut = SecureStoreService(keyManagerService: KeyManagerService(configuration: config),
-                                 defaultsStore: mockDefaultsStore)
+        sut = SecureStoreService(
+            keyManagerService: KeyManagerService(configuration: config),
+            defaultsStore: mockDefaultsStore
+        )
     }
     
     override func tearDown() {
