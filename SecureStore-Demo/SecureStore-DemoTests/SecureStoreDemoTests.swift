@@ -7,12 +7,18 @@ final class SecureStoreDemoTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        testAuthStrings = LocalAuthenticationLocalizedStrings(localizedReason: "Local Authentication Reason",
-                                                              localisedFallbackTitle: "Enter passcode",
-                                                              localisedCancelTitle: "Cancel")
-        sut = SecureStoreService(configuration: .init(id: "id",
-                                                      accessControlLevel: .open,
-                                                      localAuthStrings: testAuthStrings))
+        testAuthStrings = LocalAuthenticationLocalizedStrings(
+            localizedReason: "Local Authentication Reason",
+            localisedFallbackTitle: "Enter passcode",
+            localisedCancelTitle: "Cancel"
+        )
+        sut = SecureStoreService(
+            configuration: .init(
+                id: "id",
+                accessControlLevel: .open,
+                localAuthStrings: testAuthStrings
+            )
+        )
     }
     
     override func tearDown() {
@@ -48,8 +54,10 @@ extension SecureStoreDemoTests {
         
         do {
             _ = try sut.readItem(itemName: "ThisItem")
-        } catch let error as SecureStoreError where error.kind == .unableToRetrieveFromUserDefaults {
-            exp.fulfill()
+        } catch {
+            if error.kind == .unableToRetrieveFromUserDefaults {
+                exp.fulfill()
+            }
         }
         
         wait(for: [exp], timeout: 3)
@@ -61,8 +69,10 @@ extension SecureStoreDemoTests {
         
         do {
             try sut.saveItem(item: "", itemName: "")
-        } catch let error as SecureStoreError where error.kind == .cantRetrieveKey {
-            exp.fulfill()
+        } catch let error as SecureStoreError {
+            if error.kind == .cantRetrieveKey {
+                exp.fulfill()
+            }
         }
         
         wait(for: [exp], timeout: 3)
@@ -95,20 +105,6 @@ extension SecureStoreDemoTests {
     }
     
     
-    func test_encryptDataWithPublicKeyV2() throws {
-        do {
-            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
-        } catch {
-            print(error)
-        }
-        
-        let keys = try sut.keyManagerService.retrieveKeys()
-        XCTAssertNotNil(keys.publicKey)
-        
-        let encryptedString = try sut.keyManagerService.encryptDataWithPublicKeyV2(dataToEncrypt: "This Data")
-        XCTAssertNotNil(encryptedString)
-    }
-    
     func test_decryptDataWithPrivateKey() throws {
         do {
             try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
@@ -123,23 +119,6 @@ extension SecureStoreDemoTests {
         
         let decryptedString = try sut.keyManagerService
             .decryptDataWithPrivateKey(dataToDecrypt: encryptedString)
-        XCTAssertNotNil(decryptedString)
-    }
-    
-    func test_decryptDataWithPrivateKeyV2() throws {
-        do {
-            try sut.keyManagerService.createKeysIfNeeded(name: "Test_Keys")
-        } catch {
-            print(error)
-        }
-        
-        let keys = try sut.keyManagerService.retrieveKeys()
-        XCTAssertNotNil(keys.privateKey)
-        
-        let encryptedString = try sut.keyManagerService.encryptDataWithPublicKeyV2(dataToEncrypt: "Data")
-        
-        let decryptedString = try sut.keyManagerService
-            .decryptDataWithPrivateKeyV2(dataToDecrypt: encryptedString)
         XCTAssertNotNil(decryptedString)
     }
 }

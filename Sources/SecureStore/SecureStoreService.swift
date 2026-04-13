@@ -1,13 +1,17 @@
 import Foundation
 
-// TODO: DCMAW-18331 delete class
+@available(*, deprecated, renamed: "SecureStoreService")
+public typealias SecureStoreServiceV2 = SecureStoreService
+
 public class SecureStoreService {
     let keyManagerService: KeyManagerService
     let secureStoreDefaults: DefaultsStore
     
     public convenience init(configuration: SecureStorageConfiguration) {
-        self.init(keyManagerService: KeyManagerService(configuration: configuration),
-                  defaultsStore: UserDefaultsStore())
+        self.init(
+            keyManagerService: KeyManagerService(configuration: configuration),
+            defaultsStore: UserDefaultsStore()
+        )
     }
     
     init(keyManagerService: KeyManagerService,
@@ -24,7 +28,7 @@ extension SecureStoreService: SecureStorable {
         return true
     }
     
-    public func readItem(itemName: String) throws -> String {
+    public func readItem(itemName: String) throws(SecureStoreError) -> String {
         guard let encryptedData = secureStoreDefaults.getItem(itemName: itemName) else {
             throw SecureStoreError(.unableToRetrieveFromUserDefaults)
         }

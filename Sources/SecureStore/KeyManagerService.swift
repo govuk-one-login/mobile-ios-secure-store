@@ -140,36 +140,11 @@ extension KeyManagerService {
 
 // MARK: Encryption and Decryption
 extension KeyManagerService {
-    // TODO: DCMAW-18331 delete function
     func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
         let publicKey = try retrieveKeys().publicKey
         
-        guard let formattedData = dataToEncrypt.data(using: String.Encoding.utf8) else {
-            throw SecureStoreError(.cantEncodeData)
-        }
-        
-        var error: Unmanaged<CFError>?
-        guard let encryptData = SecKeyCreateEncryptedData(publicKey,
-                                                          SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
-                                                          formattedData as CFData,
-                                                          &error) else {
-            throw SecureStoreError.biometricErrorHandling(
-                error: error?.takeRetainedValue(),
-                defaultError: SecureStoreError(.cantEncryptData)
-            )
-        }
-        
-        let encryptedData = encryptData as Data
-        let encryptedString = encryptedData.base64EncodedString(options: [])
-        
-        return encryptedString
-    }
-    
-    func encryptDataWithPublicKeyV2(dataToEncrypt: String) throws -> String {
-        let publicKey = try retrieveKeys().publicKey
-        
         guard let formattedData = dataToEncrypt.data(using: .utf8) else {
-            throw SecureStoreErrorV2(.cantEncodeData)
+            throw SecureStoreError(.cantEncodeData)
         }
         
         var error: Unmanaged<CFError>?
@@ -180,7 +155,7 @@ extension KeyManagerService {
             &error
         ) else {
             let nsError = error?.takeRetainedValue() as? NSError
-            throw SecureStoreErrorV2.biometricErrorHandling(
+            throw SecureStoreError.biometricErrorHandling(
                 error: nsError
             )
         }
@@ -191,41 +166,14 @@ extension KeyManagerService {
         return encryptedString
     }
     
-    // TODO: DCMAW-18331 delete function
-    func decryptDataWithPrivateKey(dataToDecrypt: String) throws -> String {
-        let privateKeyRepresentation = try retrieveKeys(localAuthStrings: configuration.localAuthStrings).privateKey
-        
-        guard let formattedData = Data(base64Encoded: dataToDecrypt, options: [])  else {
-            throw SecureStoreError(.cantFormatData)
-        }
-        
-        var error: Unmanaged<CFError>?
-        // Pulls from Secure Enclave - here is where we will look for FaceID/Passcode
-        guard let decryptData = SecKeyCreateDecryptedData(privateKeyRepresentation,
-                                                          SecKeyAlgorithm.eciesEncryptionStandardX963SHA256AESGCM,
-                                                          formattedData as CFData,
-                                                          &error) else {
-            throw SecureStoreError.biometricErrorHandling(
-                error: error?.takeRetainedValue(),
-                defaultError: SecureStoreError(.cantDecryptData)
-            )
-        }
-        
-        guard let decryptedString = String(data: decryptData as Data, encoding: .utf8) else {
-            throw SecureStoreError(.cantDecodeData)
-        }
-        
-        return decryptedString
-    }
-    
-    func decryptDataWithPrivateKeyV2(dataToDecrypt: String) throws(SecureStoreErrorV2) -> String {
+    func decryptDataWithPrivateKey(dataToDecrypt: String) throws(SecureStoreError) -> String {
         let privateKeyRepresentation: SecKey
         do {
             privateKeyRepresentation = try retrieveKeys(
                 localAuthStrings: configuration.localAuthStrings
             ).privateKey
         } catch {
-            throw SecureStoreErrorV2(
+            throw SecureStoreError(
                 .cantRetrieveKey,
                 reason: error.localizedDescription,
                 originalError: error
@@ -233,7 +181,7 @@ extension KeyManagerService {
         }
         
         guard let formattedData = Data(base64Encoded: dataToDecrypt)  else {
-            throw SecureStoreErrorV2(.cantFormatData)
+            throw SecureStoreError(.cantFormatData)
         }
         
         var error: Unmanaged<CFError>?
@@ -245,7 +193,7 @@ extension KeyManagerService {
             &error
         ) else {
             let nsError = error?.takeRetainedValue() as? NSError
-            throw SecureStoreErrorV2.biometricErrorHandling(
+            throw SecureStoreError.biometricErrorHandling(
                 error: nsError
             )
         }
@@ -254,7 +202,7 @@ extension KeyManagerService {
             data: decryptData as Data,
             encoding: .utf8
         ) else {
-            throw SecureStoreErrorV2(.cantDecodeData)
+            throw SecureStoreError(.cantDecodeData)
         }
         
         return decryptedString
