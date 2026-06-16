@@ -8,7 +8,7 @@ struct KeyManagerServiceTests: ~Copyable {
     private let sut: KeyManagerService
 
     private var keyTag: Data {
-        Data("\(testRunID)PrivateKey".utf8)
+        Data(("\(testRunID)"+"PrivateKey").utf8)
     }
 
     init() {
