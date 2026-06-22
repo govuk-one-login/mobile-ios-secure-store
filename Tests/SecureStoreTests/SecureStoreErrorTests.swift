@@ -1,10 +1,12 @@
+// swiftlint:disable file_length
 import GDSUtilities
 import LocalAuthentication
 @testable import SecureStore
+import Testing
 import XCTest
 
 // swiftlint:disable:next type_body_length
-final class SecureStoreErrorTests: XCTestCase {
+final class SecureStoreErrorXCTests: XCTestCase {
     func test_noError() {
         let error = SecureStoreError.biometricErrorHandling(
             error: nil
@@ -265,8 +267,12 @@ final class SecureStoreErrorTests: XCTestCase {
     }
     
     func test_secureStoreError_errorReasonReturnsNil() {
-        enum TestErrorKind: String, GDSErrorKind {
-            case errorKindWithNoReason
+        enum TestErrorKind: Int, GDSErrorKind {
+            case errorKindWithNoReason = 1
+            
+            var description: String {
+                "errorKindWithNoReason"
+            }
         }
         
         XCTAssertEqual(GDSSecureStoreError(TestErrorKind.errorKindWithNoReason).reason, nil)
@@ -341,4 +347,59 @@ final class SecureStoreErrorTests: XCTestCase {
         XCTAssertEqual(SecureStoreError(.noResultOrError).reason,
                        "No result or error returned")
     }
+}
+
+struct SecureStoreErrorTests {
+    static let allSecureStoreError = [
+        (error: SecureStoreError(.unableToRetrieveFromUserDefaults, reason: "unableToRetrieveFromUserDefaults"), debugDescription: "unableToRetrieveFromUserDefaults"),
+        (error: SecureStoreError(.cantDeleteKey, reason: "cantDeleteKey"), debugDescription: "cantDeleteKey"),
+        (error: SecureStoreError(.cantStoreKey, reason: "cantStoreKey"), debugDescription: "cantStoreKey"),
+        (error: SecureStoreError(.cantRetrieveKey, reason: "cantRetrieveKey"), debugDescription: "cantRetrieveKey"),
+        (error: SecureStoreError(.cantEncryptData, reason: "cantEncryptData"), debugDescription: "cantEncryptData"),
+        (error: SecureStoreError(.cantDecryptData, reason: "cantDecryptData"), debugDescription: "cantDecryptData"),
+        (error: SecureStoreError(.cantEncodeData, reason: "cantEncodeData"), debugDescription: "cantEncodeData"),
+        (error: SecureStoreError(.cantDecodeData, reason: "cantDecodeData"), debugDescription: "cantDecodeData"),
+        (error: SecureStoreError(.cantFormatData, reason: "cantFormatData"), debugDescription: "cantFormatData"),
+        (error: SecureStoreError(.authenticationFailed, reason: "authenticationFailed"), debugDescription: "authenticationFailed"),
+        (error: SecureStoreError(.userCancel, reason: "userCancel"), debugDescription: "userCancel"),
+        (error: SecureStoreError(.userFallback, reason: "userFallback"), debugDescription: "userFallback"),
+        (error: SecureStoreError(.systemCancel, reason: "systemCancel"), debugDescription: "systemCancel"),
+        (error: SecureStoreError(.passcodeNotSet, reason: "passcodeNotSet"), debugDescription: "passcodeNotSet"),
+        (error: SecureStoreError(.biometryNotAvailable, reason: "biometryNotAvailable"), debugDescription: "biometryNotAvailable"),
+        (error: SecureStoreError(.biometryNotEnrolled, reason: "biometryNotEnrolled"), debugDescription: "biometryNotEnrolled"),
+        (error: SecureStoreError(.biometryLockout, reason: "biometryLockout"), debugDescription: "biometryLockout"),
+        (error: SecureStoreError(.appCancel, reason: "appCancel"), debugDescription: "appCancel"),
+        (error: SecureStoreError(.invalidContext, reason: "invalidContext"), debugDescription: "invalidContext"),
+        (error: SecureStoreError(.companionNotAvailable, reason: "companionNotAvailable"), debugDescription: "companionNotAvailable"),
+        (error: SecureStoreError(.notInteractive, reason: "notInteractive"), debugDescription: "notInteractive"),
+        (error: SecureStoreError(.invalidatedByHandleRequest, reason: "invalidatedByHandleRequest"), debugDescription: "invalidatedByHandleRequest"),
+        (error: SecureStoreError(.viewServiceInitializationFailure, reason: "viewServiceInitializationFailure"), debugDescription: "viewServiceInitializationFailure"),
+        (error: SecureStoreError(.uiActivationTimedOut, reason: "uiActivationTimedOut"), debugDescription: "uiActivationTimedOut"),
+        (error: SecureStoreError(.authenticationTimedOut, reason: "authenticationTimedOut"), debugDescription: "authenticationTimedOut"),
+        (error: SecureStoreError(.noResultOrError, reason: "noResultOrError"), debugDescription: "noResultOrError"),
+        (error: SecureStoreError(.unknownLAError, reason: "unknownLAError"), debugDescription: "unknownLAError"),
+        (error: SecureStoreError(.unknownNSError, reason: "unknownNSError"), debugDescription: "unknownNSError")
+        ]
+
+    #if os(macOS)
+    static let allMacOSErrors = [
+        (error: SecureStoreError(.watchNotAvailable, reason: "watchNotAvailable"), debugDescription: "watchNotAvailable"),
+        (error: SecureStoreError(.biometryNotPaired, reason: "biometryNotPaired"), debugDescription: "biometryNotPaired"),
+        (error: SecureStoreError(.biometryDisconnected, reason: "biometryDisconnected"), debugDescription: "biometryDisconnected"),
+        (error: SecureStoreError(.invalidDimensions, reason: "invalidDimensions"), debugDescription: "invalidDimensions")
+        ]
+    #endif
+
+    @Test("assert debugDescription matches reason", arguments: SecureStoreErrorTests.allSecureStoreError)
+    func test_debugDescription(sut: SecureStoreError, debugDescription: String) async throws {
+        #expect(sut.debugDescription == debugDescription)
+    }
+
+    #if os(macOS)
+    @Test("assert debugDescription matches reason for non iOS errors", arguments: SecureStoreErrorTests.allMacOSErrors)
+    func test_debugDescriptionForMacOSErrors(sut: SecureStoreError, debugDescription: String) async throws {
+        #expect(sut.debugDescription == debugDescription)
+    }
+    #endif
+
 }
