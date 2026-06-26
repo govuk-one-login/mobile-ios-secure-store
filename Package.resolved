@@ -1,5 +1,5 @@
 {
-  "originHash" : "9b4ee7d9d44a8c2f0e1eae79ac28e0c105357dc88337f2cd083c492bbbc99479",
+  "originHash" : "dd5484bd7ab11b5b0954e1bc5160ac016f53667ab088d0484ed34ab027ec9713",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/govuk-one-login/mobile-ios-utilities",
       "state" : {
-        "revision" : "e81ec582b5d3e063af5391b61e96cc2bbbe2bad9",
-        "version" : "0.1.4"
+        "branch" : "feat/DCMAW-21004-keymanagerserivce-handle-case-of-failure-to-init",
+        "revision" : "cba9ac605b32f170acf790b9e9f1eba6bab3f880"
       }
     },
     {
