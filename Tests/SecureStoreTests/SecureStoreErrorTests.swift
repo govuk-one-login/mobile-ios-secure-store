@@ -390,6 +390,11 @@ struct SecureStoreErrorTests {
         ]
     #endif
 
+    @Test
+    func test_domain() async throws {
+        #expect(SecureStoreError.errorDomain == "SecureStoreErrorKind")
+    }
+
     @Test("assert debugDescription matches reason", arguments: SecureStoreErrorTests.allSecureStoreError)
     func test_debugDescription(sut: SecureStoreError, debugDescription: String) async throws {
         #expect(sut.debugDescription == debugDescription)

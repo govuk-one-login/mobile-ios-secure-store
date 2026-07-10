@@ -1,6 +1,9 @@
 import GDSUtilities
 
 public enum SecureStoreErrorKind: Int, GDSErrorKind {
+    
+    // MARK: SecureStoreErrorKind
+    case noResultOrError = 1000
     case unableToRetrieveFromUserDefaults = 1001
     case cantDeleteKey = 1002
     case cantStoreKey = 1003
@@ -11,6 +14,8 @@ public enum SecureStoreErrorKind: Int, GDSErrorKind {
     case cantDecodeData = 1008
     case cantFormatData = 1009
 
+    // MARK: LAErrorDomain
+    case unknownLAError = 2000
     case authenticationFailed = 2001 // -1
     case userCancel = 2002 // -2
     case userFallback = 2003 // -3
@@ -22,21 +27,19 @@ public enum SecureStoreErrorKind: Int, GDSErrorKind {
     case appCancel = 2009 // -9
     case invalidContext = 2010 // -10
     case companionNotAvailable = 2011 // -11
+    case notInteractive = 2012 // -1004
+    case invalidatedByHandleRequest = 2013 // 4
+    case viewServiceInitializationFailure = 2014 // 6
+    case uiActivationTimedOut = 2015 // -1000
+    case authenticationTimedOut = 2016 // -1003
     @available(iOS, unavailable) case watchNotAvailable = 2101 // -11
     @available(iOS, unavailable) case biometryNotPaired = 2102 // -12
     @available(iOS, unavailable) case biometryDisconnected = 2103 // -13
     @available(iOS, unavailable) case invalidDimensions = 2104 // -14
-    case notInteractive = 2105 // -1004
-    
-    case invalidatedByHandleRequest = 3001 // 4
-    case viewServiceInitializationFailure = 3002 // 6
-    case uiActivationTimedOut = 3003 // -1000
-    case authenticationTimedOut = 3004 // -1003
 
-    case noResultOrError = 4001
-    case unknownLAError = 4002
-    case unknownNSError = 4003
-    
+    // MARK: NSErrorDomain
+    case unknownNSError = 3001
+
     public var description: String {
         switch self {
         case .unableToRetrieveFromUserDefaults:
