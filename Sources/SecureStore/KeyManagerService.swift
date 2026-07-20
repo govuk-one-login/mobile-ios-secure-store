@@ -53,7 +53,7 @@ extension KeyManagerService {
         ]
         
         var error: Unmanaged<CFError>?
-        guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
+        guard let _ = SecKeyCreateRandomKey(attributes, &error) else {
             guard let error = error?.takeRetainedValue() as? Error else {
                 throw SecureStoreError(.cantEncryptData)
             }
