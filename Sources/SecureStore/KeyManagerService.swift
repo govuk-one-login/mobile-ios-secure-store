@@ -59,28 +59,11 @@ extension KeyManagerService {
             }
             throw error
         }
-
-        try storePrivateKey(keyToStore: privateKey, name: "\(name)PrivateKey")
-    }
-    
-    // Store a given key to the keychain in order to reuse it later
-    func storePrivateKey(keyToStore: SecKey, name: String) throws {
-        let key = keyToStore
-        let tag = name.data(using: .utf8)!
-        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
-                                       kSecAttrApplicationTag as String: tag,
-                                       kSecValueRef as String: key]
-        
-        // Add item to KeyChain
-        let status = SecItemAdd(addquery as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            throw SecureStoreError(.cantStoreKey)
-        }
     }
     
     // Deletes a given key to the keychain
     func deleteKeys() throws {
-        let keyType = ["PublicKey", "PrivateKey"]
+        let keyType = ["PublicKey", "PrivateKey", ""]
         try keyType.forEach { key in
             let keyName = configuration.id + key
             let tag = keyName.data(using: .utf8)!
@@ -97,7 +80,7 @@ extension KeyManagerService {
     // Retrieve a key that has been stored before
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
-        let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
+        let privateKeyTag = Data("\(configuration.id)".utf8)
         
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
