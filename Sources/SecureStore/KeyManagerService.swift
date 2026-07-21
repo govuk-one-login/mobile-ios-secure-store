@@ -3,6 +3,7 @@ import LocalAuthentication
 
 final class KeyManagerService {
     let configuration: SecureStorageConfiguration
+    var initError: Error?
     
     init(configuration: SecureStorageConfiguration) {
         self.configuration = configuration
@@ -10,6 +11,7 @@ final class KeyManagerService {
         do {
             try createKeysIfNeeded(name: configuration.id)
         } catch {
+            self.initError = error
             return
         }
     }
@@ -35,11 +37,17 @@ extension KeyManagerService {
         let requirement = configuration.accessControlLevel.flags
         #endif
         
+        var accessControlCreateWithFlagsError: Unmanaged<CFError>?
         guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
                                                            requirement,
-                                                           nil),
-              let tag = name.data(using: .utf8) else { return }
+                                                           &accessControlCreateWithFlagsError),
+              let tag = name.data(using: .utf8) else {
+            guard let error = accessControlCreateWithFlagsError?.takeRetainedValue() as? Error else {
+                throw SecureStoreError(.noResultOrError)
+            }
+            throw error
+        }
         
         let attributes: NSDictionary = [
             kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
@@ -72,13 +80,21 @@ extension KeyManagerService {
             
             let status = SecItemDelete(deleteQuery as CFDictionary)
             guard status == errSecSuccess || status == errSecItemNotFound else {
-                throw SecureStoreError(.cantDeleteKey)
+                throw SecureStoreError(.cantDeleteKey, originalError: OSStatusError.make(status: status, underlyingError: self.initError))
             }
         }
     }
     
-    // Retrieve a key that has been stored before
-    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil) throws -> (publicKey: SecKey,
+    /// Retrieve the key stored under ``SecureStorageConfiguration/id``+"PrivateKey".
+    ///
+    /// - Parameters:
+    ///     - localAuthStrings: optional; in case your code expects the user to be prompted and need to provide a
+    ///         `localizedReason`,   `localizedFallbackTitle` and `localizedCancelTitle`; default `nil`
+    ///     - initError: optional, in case your code needs to also record the underlying error raised when this
+    ///         ``KeyManagerService`` was ``init( configuration:)``,  pass the error (i.e. ``self.initError``)
+    /// - throws: ``SecureStoreError(.cantRetrieveKey)`` in case either the private or its corresponding public key cannot be retrieved;
+    ///     the "root underlying error" error holds the value of the error passed in as `initError`
+    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
         let privateKeyTag = Data("\(configuration.id)".utf8)
         
@@ -106,7 +122,7 @@ extension KeyManagerService {
 
         // errSecSuccess is the result code returned when no error was found with the query
         guard privateStatus == errSecSuccess else {
-            throw SecureStoreError(.cantRetrieveKey)
+            throw SecureStoreError(.cantRetrieveKey, originalError: OSStatusError.make(status: privateStatus, underlyingError: initError))
         }
 
         // swiftlint:disable force_cast
@@ -114,7 +130,7 @@ extension KeyManagerService {
         // swiftlint:enable force_cast
         
         guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
-            throw SecureStoreError(.cantRetrieveKey)
+            throw SecureStoreError(.cantRetrieveKey, originalError: initError)
         }
 
         return (publicKey, privateKey)
@@ -124,10 +140,10 @@ extension KeyManagerService {
 // MARK: Encryption and Decryption
 extension KeyManagerService {
     func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
-        let publicKey = try retrieveKeys().publicKey
+        let publicKey = try retrieveKeys(initError: self.initError).publicKey
         
         guard let formattedData = dataToEncrypt.data(using: .utf8) else {
-            throw SecureStoreError(.cantEncodeData)
+            throw SecureStoreError(.cantEncodeData, originalError: self.initError)
         }
         
         var error: Unmanaged<CFError>?
@@ -153,7 +169,8 @@ extension KeyManagerService {
         let privateKeyRepresentation: SecKey
         do {
             privateKeyRepresentation = try retrieveKeys(
-                localAuthStrings: configuration.localAuthStrings
+                localAuthStrings: configuration.localAuthStrings,
+                initError: self.initError
             ).privateKey
         } catch {
             throw SecureStoreError(
@@ -164,7 +181,7 @@ extension KeyManagerService {
         }
         
         guard let formattedData = Data(base64Encoded: dataToDecrypt)  else {
-            throw SecureStoreError(.cantFormatData)
+            throw SecureStoreError(.cantFormatData, originalError: self.initError)
         }
         
         var error: Unmanaged<CFError>?
@@ -185,7 +202,7 @@ extension KeyManagerService {
             data: decryptData as Data,
             encoding: .utf8
         ) else {
-            throw SecureStoreError(.cantDecodeData)
+            throw SecureStoreError(.cantDecodeData, originalError: self.initError)
         }
         
         return decryptedString
