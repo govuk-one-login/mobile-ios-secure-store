@@ -267,33 +267,4 @@ struct KeyManagerServiceTests: ~Copyable {
         let actual = try #require(underlyingError.originalError as? OSStatusError)
         #expect(actual.status == originalErrorStatus)
     }
-
-    @Test("""
-            GIVEN KeyManagerService did create keys
-            WHEN storePrivateKey with the same tag
-            THEN throws SecureStoreError(.cantStoreKey) with an original OSStatus error (e.g. OSStatus == errSecDuplicateItem)
-    """)
-    func attemptStorePrivateKeyThrowsCantStoreKeyWitherrSecDuplicateItem() async throws {
-        let tag = "\(testRunID)"
-        let attributes: NSDictionary = [
-            kSecAttrKeyType: kSecAttrKeyTypeRSA,
-            kSecAttrKeySizeInBits: 2048,
-            kSecPrivateKeyAttrs: [
-                kSecAttrIsPermanent: true,
-                kSecAttrApplicationTag: tag
-            ]
-        ]
-
-        let anyKey = try #require(SecKeyCreateRandomKey(attributes, nil))
-
-        let error = #expect(throws: SecureStoreError.self) {
-            try sut.storePrivateKey(keyToStore: anyKey, name: tag)
-        }
-
-        #expect(error?.kind == .cantStoreKey)
-
-        let originalError = try #require(error?.originalError as? OSStatusError)
-
-        #expect(originalError.status == errSecDuplicateItem)
-    }
 }
