@@ -85,7 +85,7 @@ extension KeyManagerService {
         }
     }
     
-    /// Retrieve the key stored under ``SecureStorageConfiguration/id``+"PrivateKey".
+    /// Retrieve the key stored under ``SecureStorageConfiguration/id``
     ///
     /// - Parameters:
     ///     - localAuthStrings: optional; in case your code expects the user to be prompted and need to provide a
