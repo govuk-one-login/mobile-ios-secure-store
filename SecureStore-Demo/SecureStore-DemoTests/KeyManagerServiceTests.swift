@@ -3,7 +3,7 @@ import LocalAuthentication
 @testable import SecureStore
 import Testing
 
-@Suite
+@Suite(.serialized)
 struct KeyManagerServiceTests: ~Copyable {
     private let testRunID = UUID()
     private let sut: KeyManagerService
@@ -25,7 +25,6 @@ struct KeyManagerServiceTests: ~Copyable {
 
     @Test("When initialised, KeyManagerService creates private key and stores this in keychain")
     func createsKeyOnInitialisation() async throws {
-
         let query = NSDictionary(dictionary: [
             kSecClass: kSecClassKey,
             kSecAttrApplicationTag: keyTag,
@@ -65,6 +64,61 @@ struct KeyManagerServiceTests: ~Copyable {
         let publicKey = try #require(SecKeyCopyPublicKey(privateKey))
         #expect(keys.publicKey == publicKey)
     }
+    
+    @Test("There should only be 1 private key generated")
+    func checkNumberofGeneratedKeysIsOne() async throws {
+        // delete all keys from previous tests
+        let deleteQuery: [String: Any] = [kSecClass as String: kSecClassKey]
+        let _ = SecItemDelete(deleteQuery as CFDictionary)
+        
+        // creates private key
+        let _ = KeyManagerService(configuration: .init(
+            id: testRunID.uuidString,
+            accessControlLevel: .open
+        ))
+
+        let query = NSDictionary(dictionary: [
+            kSecClass: kSecClassKey,
+            kSecMatchLimit: kSecMatchLimitAll,
+            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecReturnRef: true
+        ])
+
+        var privateKeyRef: CFTypeRef?
+        let _ = SecItemCopyMatching(query as CFDictionary, &privateKeyRef)
+        let array = try #require(privateKeyRef as? Array<SecKey>)
+
+        // No duplicate keys created
+        #expect(array.count == 1)
+    }
+    
+    @Test("Make sure there are no keys remaining in the keychain after deleting")
+    func checkDeleteKeysDeletesAllKeysWithNoRemaining() async throws {
+        // delete all keys from previous tests
+        let deleteQuery: [String: Any] = [kSecClass as String: kSecClassKey]
+        let _ = SecItemDelete(deleteQuery as CFDictionary)
+        
+        // creates private key
+        let _ = KeyManagerService(configuration: .init(
+            id: testRunID.uuidString,
+            accessControlLevel: .open
+        ))
+
+        try sut.deleteKeys()
+        
+        let query = NSDictionary(dictionary: [
+            kSecClass: kSecClassKey,
+            kSecMatchLimit: kSecMatchLimitAll,
+            kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecReturnRef: true
+        ])
+
+        var privateKeyRef: CFTypeRef?
+        let _ = SecItemCopyMatching(query as CFDictionary, &privateKeyRef)
+
+        // No keys in the keychain returns nil
+        #expect(privateKeyRef == nil)
+    }
 
     /// This is a case where a as part of instantiating a `KeyManagerService`, a new set of keys is created
     /// that is tied to the Secure Enclave (i.e. `kSecAttrTokenID: kSecAttrTokenIDSecureEnclave`).
@@ -82,7 +136,6 @@ struct KeyManagerServiceTests: ~Copyable {
             AND the `originalError` is `errSecParam` (i.e. -50 OSStatus)
     """)
     func decryptKeyWithWrongPrivateKey() async throws {
-
         let anyString = "any"
         let encrypted = try sut.encryptDataWithPublicKey(dataToEncrypt: anyString)
                 
@@ -128,7 +181,6 @@ struct KeyManagerServiceTests: ~Copyable {
             AND the `originalError` is `errSecParam` (i.e. -50 OSStatus)
     """)
     func decryptKeyWithWrongPrivateKeyDueToOriginalKeyGoneMising() async throws {
-
         let anyString = "any"
         let encrypted = try sut.encryptDataWithPublicKey(dataToEncrypt: anyString)
         
