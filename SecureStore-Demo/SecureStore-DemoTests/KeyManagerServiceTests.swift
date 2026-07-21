@@ -222,7 +222,7 @@ struct KeyManagerServiceTests: ~Copyable {
             THEN throws SecureStoreError(.cantStoreKey) with an original OSStatus error (e.g. OSStatus == errSecDuplicateItem)
     """)
     func attemptStorePrivateKeyThrowsCantStoreKeyWitherrSecDuplicateItem() async throws {
-        let tag = "\(testRunID)PrivateKey"
+        let tag = "\(testRunID)"
         let attributes: NSDictionary = [
             kSecAttrKeyType: kSecAttrKeyTypeRSA,
             kSecAttrKeySizeInBits: 2048,
