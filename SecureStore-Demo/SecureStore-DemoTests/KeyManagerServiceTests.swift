@@ -69,10 +69,10 @@ struct KeyManagerServiceTests: ~Copyable {
     func checkNumberofGeneratedKeysIsOne() async throws {
         // delete all keys from previous tests
         let deleteQuery: [String: Any] = [kSecClass as String: kSecClassKey]
-        let _ = SecItemDelete(deleteQuery as CFDictionary)
+        _ = SecItemDelete(deleteQuery as CFDictionary)
         
         // creates private key
-        let _ = KeyManagerService(configuration: .init(
+        _ = KeyManagerService(configuration: .init(
             id: testRunID.uuidString,
             accessControlLevel: .open
         ))
@@ -85,8 +85,8 @@ struct KeyManagerServiceTests: ~Copyable {
         ])
 
         var privateKeyRef: CFTypeRef?
-        let _ = SecItemCopyMatching(query as CFDictionary, &privateKeyRef)
-        let array = try #require(privateKeyRef as? Array<SecKey>)
+        _ = SecItemCopyMatching(query as CFDictionary, &privateKeyRef)
+        let array = try #require(privateKeyRef as? [SecKey])
 
         // No duplicate keys created
         #expect(array.count == 1)
@@ -96,10 +96,10 @@ struct KeyManagerServiceTests: ~Copyable {
     func checkDeleteKeysDeletesAllKeysWithNoRemaining() async throws {
         // delete all keys from previous tests
         let deleteQuery: [String: Any] = [kSecClass as String: kSecClassKey]
-        let _ = SecItemDelete(deleteQuery as CFDictionary)
+        _ = SecItemDelete(deleteQuery as CFDictionary)
         
         // creates private key
-        let _ = KeyManagerService(configuration: .init(
+        _ = KeyManagerService(configuration: .init(
             id: testRunID.uuidString,
             accessControlLevel: .open
         ))
@@ -114,7 +114,7 @@ struct KeyManagerServiceTests: ~Copyable {
         ])
 
         var privateKeyRef: CFTypeRef?
-        let _ = SecItemCopyMatching(query as CFDictionary, &privateKeyRef)
+        _ = SecItemCopyMatching(query as CFDictionary, &privateKeyRef)
 
         // No keys in the keychain returns nil
         #expect(privateKeyRef == nil)
