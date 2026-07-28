@@ -351,42 +351,42 @@ final class SecureStoreErrorXCTests: XCTestCase {
 
 struct SecureStoreErrorTests {
     static let allSecureStoreError = [
-        (error: SecureStoreError(.unableToRetrieveFromUserDefaults, reason: "unableToRetrieveFromUserDefaults"), debugDescription: "unableToRetrieveFromUserDefaults"),
-        (error: SecureStoreError(.cantDeleteKey, reason: "cantDeleteKey"), debugDescription: "cantDeleteKey"),
-        (error: SecureStoreError(.cantStoreKey, reason: "cantStoreKey"), debugDescription: "cantStoreKey"),
-        (error: SecureStoreError(.cantRetrieveKey, reason: "cantRetrieveKey"), debugDescription: "cantRetrieveKey"),
-        (error: SecureStoreError(.cantEncryptData, reason: "cantEncryptData"), debugDescription: "cantEncryptData"),
-        (error: SecureStoreError(.cantDecryptData, reason: "cantDecryptData"), debugDescription: "cantDecryptData"),
-        (error: SecureStoreError(.cantEncodeData, reason: "cantEncodeData"), debugDescription: "cantEncodeData"),
-        (error: SecureStoreError(.cantDecodeData, reason: "cantDecodeData"), debugDescription: "cantDecodeData"),
-        (error: SecureStoreError(.cantFormatData, reason: "cantFormatData"), debugDescription: "cantFormatData"),
-        (error: SecureStoreError(.authenticationFailed, reason: "authenticationFailed"), debugDescription: "authenticationFailed"),
-        (error: SecureStoreError(.userCancel, reason: "userCancel"), debugDescription: "userCancel"),
-        (error: SecureStoreError(.userFallback, reason: "userFallback"), debugDescription: "userFallback"),
-        (error: SecureStoreError(.systemCancel, reason: "systemCancel"), debugDescription: "systemCancel"),
-        (error: SecureStoreError(.passcodeNotSet, reason: "passcodeNotSet"), debugDescription: "passcodeNotSet"),
-        (error: SecureStoreError(.biometryNotAvailable, reason: "biometryNotAvailable"), debugDescription: "biometryNotAvailable"),
-        (error: SecureStoreError(.biometryNotEnrolled, reason: "biometryNotEnrolled"), debugDescription: "biometryNotEnrolled"),
-        (error: SecureStoreError(.biometryLockout, reason: "biometryLockout"), debugDescription: "biometryLockout"),
-        (error: SecureStoreError(.appCancel, reason: "appCancel"), debugDescription: "appCancel"),
-        (error: SecureStoreError(.invalidContext, reason: "invalidContext"), debugDescription: "invalidContext"),
-        (error: SecureStoreError(.companionNotAvailable, reason: "companionNotAvailable"), debugDescription: "companionNotAvailable"),
-        (error: SecureStoreError(.notInteractive, reason: "notInteractive"), debugDescription: "notInteractive"),
-        (error: SecureStoreError(.invalidatedByHandleRequest, reason: "invalidatedByHandleRequest"), debugDescription: "invalidatedByHandleRequest"),
-        (error: SecureStoreError(.viewServiceInitializationFailure, reason: "viewServiceInitializationFailure"), debugDescription: "viewServiceInitializationFailure"),
-        (error: SecureStoreError(.uiActivationTimedOut, reason: "uiActivationTimedOut"), debugDescription: "uiActivationTimedOut"),
-        (error: SecureStoreError(.authenticationTimedOut, reason: "authenticationTimedOut"), debugDescription: "authenticationTimedOut"),
-        (error: SecureStoreError(.noResultOrError, reason: "noResultOrError"), debugDescription: "noResultOrError"),
-        (error: SecureStoreError(.unknownLAError, reason: "unknownLAError"), debugDescription: "unknownLAError"),
-        (error: SecureStoreError(.unknownNSError, reason: "unknownNSError"), debugDescription: "unknownNSError")
-        ]
+        (error: SecureStoreError(.unableToRetrieveFromUserDefaults), debugDescription: "Error Domain=SecureStoreErrorKind Code=1001 \"unableToRetrieveFromUserDefaults\""),
+        (error: SecureStoreError(.cantDeleteKey), debugDescription: "Error Domain=SecureStoreErrorKind Code=1002 \"cantDeleteKey\""),
+        (error: SecureStoreError(.cantStoreKey), debugDescription: "Error Domain=SecureStoreErrorKind Code=1003 \"cantStoreKey\""),
+        (error: SecureStoreError(.cantRetrieveKey), debugDescription: "Error Domain=SecureStoreErrorKind Code=1004 \"cantRetrieveKey\""),
+        (error: SecureStoreError(.cantEncryptData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1005 \"cantEncryptData\""),
+        (error: SecureStoreError(.cantDecryptData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1006 \"cantDecryptData\""),
+        (error: SecureStoreError(.cantEncodeData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1007 \"cantEncodeData\""),
+        (error: SecureStoreError(.cantDecodeData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1008 \"cantDecodeData\""),
+        (error: SecureStoreError(.cantFormatData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1009 \"cantFormatData\""),
+        (error: SecureStoreError(.authenticationFailed), debugDescription: "Error Domain=SecureStoreErrorKind Code=2001 \"authenticationFailed\""),
+        (error: SecureStoreError(.userCancel), debugDescription: "Error Domain=SecureStoreErrorKind Code=2002 \"userCancel\""),
+        (error: SecureStoreError(.userFallback), debugDescription: "Error Domain=SecureStoreErrorKind Code=2003 \"userFallback\""),
+        (error: SecureStoreError(.systemCancel), debugDescription: "Error Domain=SecureStoreErrorKind Code=2004 \"systemCancel\""),
+        (error: SecureStoreError(.passcodeNotSet), debugDescription: "Error Domain=SecureStoreErrorKind Code=2005 \"passcodeNotSet\""),
+        (error: SecureStoreError(.biometryNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2006 \"biometryNotAvailable\""),
+        (error: SecureStoreError(.biometryNotEnrolled), debugDescription: "Error Domain=SecureStoreErrorKind Code=2007 \"biometryNotEnrolled\""),
+        (error: SecureStoreError(.biometryLockout), debugDescription: "Error Domain=SecureStoreErrorKind Code=2008 \"biometryLockout\""),
+        (error: SecureStoreError(.appCancel), debugDescription: "Error Domain=SecureStoreErrorKind Code=2009 \"appCancel\""),
+        (error: SecureStoreError(.invalidContext), debugDescription: "Error Domain=SecureStoreErrorKind Code=2010 \"invalidContext\""),
+        (error: SecureStoreError(.companionNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2011 \"companionNotAvailable\""),
+        (error: SecureStoreError(.notInteractive), debugDescription: "Error Domain=SecureStoreErrorKind Code=2012 \"notInteractive\""),
+        (error: SecureStoreError(.invalidatedByHandleRequest), debugDescription: "Error Domain=SecureStoreErrorKind Code=2013 \"invalidatedByHandleRequest\""),
+        (error: SecureStoreError(.viewServiceInitializationFailure), debugDescription: "Error Domain=SecureStoreErrorKind Code=2014 \"viewServiceInitializationFailure\""),
+        (error: SecureStoreError(.uiActivationTimedOut), debugDescription: "Error Domain=SecureStoreErrorKind Code=2015 \"uiActivationTimedOut\""),
+        (error: SecureStoreError(.authenticationTimedOut), debugDescription: "Error Domain=SecureStoreErrorKind Code=2016 \"authenticationTimedOut\""),
+        (error: SecureStoreError(.noResultOrError), debugDescription: "Error Domain=SecureStoreErrorKind Code=1000 \"noResultOrError\""),
+        (error: SecureStoreError(.unknownLAError), debugDescription: "Error Domain=SecureStoreErrorKind Code=2000 \"unknownLAError\""),
+        (error: SecureStoreError(.unknownNSError), debugDescription: "Error Domain=SecureStoreErrorKind Code=3001 \"unknownNSError\"")
+    ]
 
     #if os(macOS)
     static let allMacOSErrors = [
-        (error: SecureStoreError(.watchNotAvailable, reason: "watchNotAvailable"), debugDescription: "watchNotAvailable"),
-        (error: SecureStoreError(.biometryNotPaired, reason: "biometryNotPaired"), debugDescription: "biometryNotPaired"),
-        (error: SecureStoreError(.biometryDisconnected, reason: "biometryDisconnected"), debugDescription: "biometryDisconnected"),
-        (error: SecureStoreError(.invalidDimensions, reason: "invalidDimensions"), debugDescription: "invalidDimensions")
+        (error: SecureStoreError(.watchNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2101 \"watchNotAvailable\""),
+        (error: SecureStoreError(.biometryNotPaired), debugDescription: "Error Domain=SecureStoreErrorKind Code=2102 \"biometryNotPaired\""),
+        (error: SecureStoreError(.biometryDisconnected), debugDescription: "Error Domain=SecureStoreErrorKind Code=2103 \"biometryDisconnected\""),
+        (error: SecureStoreError(.invalidDimensions), debugDescription: "Error Domain=SecureStoreErrorKind Code=2104 \"invalidDimensions\"")
         ]
     #endif
 
@@ -395,13 +395,13 @@ struct SecureStoreErrorTests {
         #expect(SecureStoreError.errorDomain == "SecureStoreErrorKind")
     }
 
-    @Test("assert debugDescription matches reason", arguments: SecureStoreErrorTests.allSecureStoreError)
+    @Test("assert debugDescription", arguments: SecureStoreErrorTests.allSecureStoreError)
     func test_debugDescription(sut: SecureStoreError, debugDescription: String) async throws {
         #expect(sut.debugDescription == debugDescription)
     }
 
     #if os(macOS)
-    @Test("assert debugDescription matches reason for non iOS errors", arguments: SecureStoreErrorTests.allMacOSErrors)
+    @Test("assert debugDescription for non iOS errors", arguments: SecureStoreErrorTests.allMacOSErrors)
     func test_debugDescriptionForMacOSErrors(sut: SecureStoreError, debugDescription: String) async throws {
         #expect(sut.debugDescription == debugDescription)
     }
