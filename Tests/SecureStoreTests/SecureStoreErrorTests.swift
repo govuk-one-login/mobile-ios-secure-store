@@ -392,11 +392,13 @@ struct SecureStoreErrorTests {
 
     #if os(macOS)
     static let allMacOSErrors = [
+        // swiftlint:disable line_length
         Case(error: SecureStoreError(.watchNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2101 \"watchNotAvailable\"", kind: "watchNotAvailable"),
         Case(error: SecureStoreError(.biometryNotPaired), debugDescription: "Error Domain=SecureStoreErrorKind Code=2102 \"biometryNotPaired\"", kind: "biometryNotPaired"),
         Case(error: SecureStoreError(.biometryDisconnected), debugDescription: "Error Domain=SecureStoreErrorKind Code=2103 \"biometryDisconnected\"", kind: "biometryDisconnected"),
         Case(error: SecureStoreError(.invalidDimensions), debugDescription: "Error Domain=SecureStoreErrorKind Code=2104 \"invalidDimensions\"", kind: "invalidDimensions")
         ]
+        // swiftlint:enable line_length
     #endif
 
     @Test
