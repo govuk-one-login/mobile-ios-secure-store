@@ -61,17 +61,34 @@ extension KeyManagerService {
         ]
         
         var error: Unmanaged<CFError>?
-        guard SecKeyCreateRandomKey(attributes, &error) != nil else {
+        guard let privateKey = SecKeyCreateRandomKey(attributes, &error) else {
             guard let error = error?.takeRetainedValue() as? Error else {
                 throw SecureStoreError(.cantEncryptData)
             }
             throw error
         }
+
+        try storePrivateKey(keyToStore: privateKey, name: "\(name)PrivateKey")
+    }
+    
+    // Store a given key to the keychain in order to reuse it later
+    func storePrivateKey(keyToStore: SecKey, name: String) throws {
+        let key = keyToStore
+        let tag = name.data(using: .utf8)!
+        let addquery: [String: Any] = [kSecClass as String: kSecClassKey,
+                                       kSecAttrApplicationTag as String: tag,
+                                       kSecValueRef as String: key]
+        
+        // Add item to KeyChain
+        let status = SecItemAdd(addquery as CFDictionary, nil)
+        guard status == errSecSuccess else {
+            throw SecureStoreError(.cantStoreKey, originalError: OSStatusError.make(status: status, underlyingError: self.initError))
+        }
     }
     
     // Deletes a given key to the keychain
     func deleteKeys() throws {
-        let keyType = ["PublicKey", "PrivateKey", ""]
+        let keyType = ["PublicKey", "PrivateKey"]
         try keyType.forEach { key in
             let keyName = configuration.id + key
             let tag = keyName.data(using: .utf8)!
@@ -85,7 +102,7 @@ extension KeyManagerService {
         }
     }
     
-    /// Retrieve the key stored under ``SecureStorageConfiguration/id``
+    /// Retrieve the key stored under ``SecureStorageConfiguration/id``+"PrivateKey".
     ///
     /// - Parameters:
     ///     - localAuthStrings: optional; in case your code expects the user to be prompted and need to provide a
@@ -96,7 +113,7 @@ extension KeyManagerService {
     ///     the "root underlying error" error holds the value of the error passed in as `initError`
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
-        let privateKeyTag = Data("\(configuration.id)".utf8)
+        let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
         
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
