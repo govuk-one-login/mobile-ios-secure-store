@@ -350,44 +350,55 @@ final class SecureStoreErrorXCTests: XCTestCase {
 }
 
 struct SecureStoreErrorTests {
+    
+    struct Case: Sendable {
+        let error: SecureStoreError
+        let debugDescription: String
+        let kind: String
+    }
+
     static let allSecureStoreError = [
-        (error: SecureStoreError(.unableToRetrieveFromUserDefaults, reason: "unableToRetrieveFromUserDefaults"), debugDescription: "unableToRetrieveFromUserDefaults"),
-        (error: SecureStoreError(.cantDeleteKey, reason: "cantDeleteKey"), debugDescription: "cantDeleteKey"),
-        (error: SecureStoreError(.cantStoreKey, reason: "cantStoreKey"), debugDescription: "cantStoreKey"),
-        (error: SecureStoreError(.cantRetrieveKey, reason: "cantRetrieveKey"), debugDescription: "cantRetrieveKey"),
-        (error: SecureStoreError(.cantEncryptData, reason: "cantEncryptData"), debugDescription: "cantEncryptData"),
-        (error: SecureStoreError(.cantDecryptData, reason: "cantDecryptData"), debugDescription: "cantDecryptData"),
-        (error: SecureStoreError(.cantEncodeData, reason: "cantEncodeData"), debugDescription: "cantEncodeData"),
-        (error: SecureStoreError(.cantDecodeData, reason: "cantDecodeData"), debugDescription: "cantDecodeData"),
-        (error: SecureStoreError(.cantFormatData, reason: "cantFormatData"), debugDescription: "cantFormatData"),
-        (error: SecureStoreError(.authenticationFailed, reason: "authenticationFailed"), debugDescription: "authenticationFailed"),
-        (error: SecureStoreError(.userCancel, reason: "userCancel"), debugDescription: "userCancel"),
-        (error: SecureStoreError(.userFallback, reason: "userFallback"), debugDescription: "userFallback"),
-        (error: SecureStoreError(.systemCancel, reason: "systemCancel"), debugDescription: "systemCancel"),
-        (error: SecureStoreError(.passcodeNotSet, reason: "passcodeNotSet"), debugDescription: "passcodeNotSet"),
-        (error: SecureStoreError(.biometryNotAvailable, reason: "biometryNotAvailable"), debugDescription: "biometryNotAvailable"),
-        (error: SecureStoreError(.biometryNotEnrolled, reason: "biometryNotEnrolled"), debugDescription: "biometryNotEnrolled"),
-        (error: SecureStoreError(.biometryLockout, reason: "biometryLockout"), debugDescription: "biometryLockout"),
-        (error: SecureStoreError(.appCancel, reason: "appCancel"), debugDescription: "appCancel"),
-        (error: SecureStoreError(.invalidContext, reason: "invalidContext"), debugDescription: "invalidContext"),
-        (error: SecureStoreError(.companionNotAvailable, reason: "companionNotAvailable"), debugDescription: "companionNotAvailable"),
-        (error: SecureStoreError(.notInteractive, reason: "notInteractive"), debugDescription: "notInteractive"),
-        (error: SecureStoreError(.invalidatedByHandleRequest, reason: "invalidatedByHandleRequest"), debugDescription: "invalidatedByHandleRequest"),
-        (error: SecureStoreError(.viewServiceInitializationFailure, reason: "viewServiceInitializationFailure"), debugDescription: "viewServiceInitializationFailure"),
-        (error: SecureStoreError(.uiActivationTimedOut, reason: "uiActivationTimedOut"), debugDescription: "uiActivationTimedOut"),
-        (error: SecureStoreError(.authenticationTimedOut, reason: "authenticationTimedOut"), debugDescription: "authenticationTimedOut"),
-        (error: SecureStoreError(.noResultOrError, reason: "noResultOrError"), debugDescription: "noResultOrError"),
-        (error: SecureStoreError(.unknownLAError, reason: "unknownLAError"), debugDescription: "unknownLAError"),
-        (error: SecureStoreError(.unknownNSError, reason: "unknownNSError"), debugDescription: "unknownNSError")
-        ]
+        // swiftlint:disable line_length
+        Case(error: SecureStoreError(.unableToRetrieveFromUserDefaults), debugDescription: "Error Domain=SecureStoreErrorKind Code=1001 \"unableToRetrieveFromUserDefaults\"", kind: "unableToRetrieveFromUserDefaults"),
+        Case(error: SecureStoreError(.cantDeleteKey), debugDescription: "Error Domain=SecureStoreErrorKind Code=1002 \"cantDeleteKey\"", kind: "cantDeleteKey"),
+        Case(error: SecureStoreError(.cantStoreKey), debugDescription: "Error Domain=SecureStoreErrorKind Code=1003 \"cantStoreKey\"", kind: "cantStoreKey"),
+        Case(error: SecureStoreError(.cantRetrieveKey), debugDescription: "Error Domain=SecureStoreErrorKind Code=1004 \"cantRetrieveKey\"", kind: "cantRetrieveKey"),
+        Case(error: SecureStoreError(.cantEncryptData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1005 \"cantEncryptData\"", kind: "cantEncryptData"),
+        Case(error: SecureStoreError(.cantDecryptData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1006 \"cantDecryptData\"", kind: "cantDecryptData"),
+        Case(error: SecureStoreError(.cantEncodeData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1007 \"cantEncodeData\"", kind: "cantEncodeData"),
+        Case(error: SecureStoreError(.cantDecodeData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1008 \"cantDecodeData\"", kind: "cantDecodeData"),
+        Case(error: SecureStoreError(.cantFormatData), debugDescription: "Error Domain=SecureStoreErrorKind Code=1009 \"cantFormatData\"", kind: "cantFormatData"),
+        Case(error: SecureStoreError(.authenticationFailed), debugDescription: "Error Domain=SecureStoreErrorKind Code=2001 \"authenticationFailed\"", kind: "authenticationFailed"),
+        Case(error: SecureStoreError(.userCancel), debugDescription: "Error Domain=SecureStoreErrorKind Code=2002 \"userCancel\"", kind: "userCancel"),
+        Case(error: SecureStoreError(.userFallback), debugDescription: "Error Domain=SecureStoreErrorKind Code=2003 \"userFallback\"", kind: "userFallback"),
+        Case(error: SecureStoreError(.systemCancel), debugDescription: "Error Domain=SecureStoreErrorKind Code=2004 \"systemCancel\"", kind: "systemCancel"),
+        Case(error: SecureStoreError(.passcodeNotSet), debugDescription: "Error Domain=SecureStoreErrorKind Code=2005 \"passcodeNotSet\"", kind: "passcodeNotSet"),
+        Case(error: SecureStoreError(.biometryNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2006 \"biometryNotAvailable\"", kind: "biometryNotAvailable"),
+        Case(error: SecureStoreError(.biometryNotEnrolled), debugDescription: "Error Domain=SecureStoreErrorKind Code=2007 \"biometryNotEnrolled\"", kind: "biometryNotEnrolled"),
+        Case(error: SecureStoreError(.biometryLockout), debugDescription: "Error Domain=SecureStoreErrorKind Code=2008 \"biometryLockout\"", kind: "biometryLockout"),
+        Case(error: SecureStoreError(.appCancel), debugDescription: "Error Domain=SecureStoreErrorKind Code=2009 \"appCancel\"", kind: "appCancel"),
+        Case(error: SecureStoreError(.invalidContext), debugDescription: "Error Domain=SecureStoreErrorKind Code=2010 \"invalidContext\"", kind: "invalidContext"),
+        Case(error: SecureStoreError(.companionNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2011 \"companionNotAvailable\"", kind: "companionNotAvailable"),
+        Case(error: SecureStoreError(.notInteractive), debugDescription: "Error Domain=SecureStoreErrorKind Code=2012 \"notInteractive\"", kind: "notInteractive"),
+        Case(error: SecureStoreError(.invalidatedByHandleRequest), debugDescription: "Error Domain=SecureStoreErrorKind Code=2013 \"invalidatedByHandleRequest\"", kind: "invalidatedByHandleRequest"),
+        Case(error: SecureStoreError(.viewServiceInitializationFailure), debugDescription: "Error Domain=SecureStoreErrorKind Code=2014 \"viewServiceInitializationFailure\"", kind: "viewServiceInitializationFailure"),
+        Case(error: SecureStoreError(.uiActivationTimedOut), debugDescription: "Error Domain=SecureStoreErrorKind Code=2015 \"uiActivationTimedOut\"", kind: "uiActivationTimedOut"),
+        Case(error: SecureStoreError(.authenticationTimedOut), debugDescription: "Error Domain=SecureStoreErrorKind Code=2016 \"authenticationTimedOut\"", kind: "authenticationTimedOut"),
+        Case(error: SecureStoreError(.noResultOrError), debugDescription: "Error Domain=SecureStoreErrorKind Code=1000 \"noResultOrError\"", kind: "noResultOrError"),
+        Case(error: SecureStoreError(.unknownLAError), debugDescription: "Error Domain=SecureStoreErrorKind Code=2000 \"unknownLAError\"", kind: "unknownLAError"),
+        Case(error: SecureStoreError(.unknownNSError), debugDescription: "Error Domain=SecureStoreErrorKind Code=3001 \"unknownNSError\"", kind: "unknownNSError")
+        // swiftlint:enable line_length
+    ]
 
     #if os(macOS)
     static let allMacOSErrors = [
-        (error: SecureStoreError(.watchNotAvailable, reason: "watchNotAvailable"), debugDescription: "watchNotAvailable"),
-        (error: SecureStoreError(.biometryNotPaired, reason: "biometryNotPaired"), debugDescription: "biometryNotPaired"),
-        (error: SecureStoreError(.biometryDisconnected, reason: "biometryDisconnected"), debugDescription: "biometryDisconnected"),
-        (error: SecureStoreError(.invalidDimensions, reason: "invalidDimensions"), debugDescription: "invalidDimensions")
+        // swiftlint:disable line_length
+        Case(error: SecureStoreError(.watchNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2101 \"watchNotAvailable\"", kind: "watchNotAvailable"),
+        Case(error: SecureStoreError(.biometryNotPaired), debugDescription: "Error Domain=SecureStoreErrorKind Code=2102 \"biometryNotPaired\"", kind: "biometryNotPaired"),
+        Case(error: SecureStoreError(.biometryDisconnected), debugDescription: "Error Domain=SecureStoreErrorKind Code=2103 \"biometryDisconnected\"", kind: "biometryDisconnected"),
+        Case(error: SecureStoreError(.invalidDimensions), debugDescription: "Error Domain=SecureStoreErrorKind Code=2104 \"invalidDimensions\"", kind: "invalidDimensions")
         ]
+        // swiftlint:enable line_length
     #endif
 
     @Test
@@ -395,15 +406,24 @@ struct SecureStoreErrorTests {
         #expect(SecureStoreError.errorDomain == "SecureStoreErrorKind")
     }
 
-    @Test("assert debugDescription matches reason", arguments: SecureStoreErrorTests.allSecureStoreError)
-    func test_debugDescription(sut: SecureStoreError, debugDescription: String) async throws {
-        #expect(sut.debugDescription == debugDescription)
+    @Test("assert debugDescription", arguments: SecureStoreErrorTests.allSecureStoreError)
+    func test_debugDescription(testCase: Case) async throws {
+        #expect(testCase.error.debugDescription == testCase.debugDescription)
+    }
+
+    /// // swiftlint:disable line_length
+    /// The `kind` found in the `userInfo` **must** hold a unique String identifier that describes the error as reported on analytics
+    /// - Seealso: https://govukverify.atlassian.net/wiki/spaces/DCMAW/pages/3787195450/GOV.UK+One+Login+app+-+Error+handling#Secure-store-errors
+    /// // swiftlint:enable line_length
+    @Test("assert kind", arguments: SecureStoreErrorTests.allSecureStoreError)
+    func test_kind(testCase: Case) async throws {
+        #expect(testCase.error.errorUserInfo["kind"] as? String == testCase.kind)
     }
 
     #if os(macOS)
-    @Test("assert debugDescription matches reason for non iOS errors", arguments: SecureStoreErrorTests.allMacOSErrors)
-    func test_debugDescriptionForMacOSErrors(sut: SecureStoreError, debugDescription: String) async throws {
-        #expect(sut.debugDescription == debugDescription)
+    @Test("assert debugDescription for non iOS errors", arguments: SecureStoreErrorTests.allMacOSErrors)
+    func test_debugDescriptionForMacOSErrors(testCase: Case) async throws {
+        #expect(testCase.error.debugDescription == testCase.debugDescription)
     }
     #endif
 
