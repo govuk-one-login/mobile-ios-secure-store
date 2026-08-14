@@ -65,6 +65,90 @@ struct KeyManagerServiceTests: ~Copyable {
         let publicKey = try #require(SecKeyCopyPublicKey(privateKey))
         #expect(keys.publicKey == publicKey)
     }
+    
+    ///    This is a test that demonstrates that a new instance of the `KeyManagerService`,
+    ///    creates a new set of keys:
+    ///
+    ///    1. One under `id` tag
+    ///    2. Another under the `idPrivateKey` tag
+    ///
+    ///    For a set of keys K where each key has an identifier, every time a new instance of the
+    ///    `KeyManagerService` is created assume the following set:
+    ///
+    ///        K = { K(id), K(idPrivateKey) }
+    ///
+    ///     Given that both keys reference the **same key** that is tied to the Secure Enclave
+    ///     (i.e. `kSecAttrTokenID: kSecAttrTokenIDSecureEnclave`) we end up with
+    ///
+    ///     K = { K1(id), K1(idPrivateKey) }
+    ///
+    ///     Alternatively,
+    ///
+    ///        tag             | keys
+    ///        id              | K1
+    ///        idPrivateKey    | K1
+    ///
+    ///     The `deleteKeys()` function only deletes the `idPrivateKey`, leaving the `id` one behind.
+    ///     e.g.
+    ///
+    ///        tag             | keys
+    ///        id              | K1
+    ///        idPrivateKey    |
+    ///
+    ///     Given that for a given `tag`, multiple keys can be stored,
+    ///     the next time a **second** second of `KeyManagerService` is created we end up with:
+    ///
+    ///        tag             | keys
+    ///        id              | K1, K2
+    ///        idPrivateKey    | K2
+    ///
+    ///    The **third** time:
+    ///
+    ///        tag             | keys
+    ///        id              | K1, K2, K3
+    ///        idPrivateKey    | K3
+    ///
+    ///    And so on and so forth. Effectively, over time the number of keys under the `id` tag  accumulate
+    ///    by the number of `KeyManagerService` instances created.
+    @Test("""
+            GIVEN a new `KeyManagerService` over time
+            AND a call to `KeyManagerService.deleteKeys()`
+            WHEN querying for the number of keys under the `id` tag
+            THEN the number of keys found is equal to the number of `KeyManagerService` created in that time. 
+    """)
+    func deleteKeysAccumulatesKeysOverTime() async throws {
+        
+        let count = 10
+
+        let configuration = SecureStorageConfiguration(
+            id: testRunID.uuidString,
+            accessControlLevel: .open
+        )
+        let id = Data(configuration.id.utf8)
+
+        for _ in 1...count {
+            let sut = KeyManagerService(configuration: configuration)
+            try sut.deleteKeys()
+        }
+
+        defer {
+            try? sut.deleteKeys()
+        }
+
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassKey,
+            kSecAttrApplicationTag as String: id,
+            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecMatchLimit as String: kSecMatchLimitAll,
+            kSecReturnRef as String: true
+        ]
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        let keys = try #require(result as? [SecKey])
+
+        #expect(status == errSecSuccess)
+        #expect(keys.count == count)
+    }
 
     /// This is a case where a as part of instantiating a `KeyManagerService`, a new set of keys is created
     /// that is tied to the Secure Enclave (i.e. `kSecAttrTokenID: kSecAttrTokenIDSecureEnclave`).
