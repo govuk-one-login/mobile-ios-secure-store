@@ -69,7 +69,13 @@ extension KeyManagerService {
         }
     }
     
-    // Deletes a given key to the keychain
+    /// Deletes **every** key in the keychain associated with the following tags:
+    /// * `idPrivateKey`
+    /// * `id`
+    ///
+    /// - Note: Any previously encrypted data will become inaccessible in case ``deleteKeys()`` is successful.
+    /// - Postcondition: A call to ``decryptDataWithPrivateKey(dataToDecrypt:)`` will throw a
+    /// ``SecureStoreError(.cantRetrieveKey)`` error.
     func deleteKeys() throws {
         let keyType = ["PublicKey", "PrivateKey", ""]
         try keyType.forEach { key in
@@ -85,8 +91,20 @@ extension KeyManagerService {
         }
     }
     
-    /// Retrieve the key stored under ``SecureStorageConfiguration/id``
+    /// Retrieve the key stored under ``SecureStorageConfiguration/id``.
     ///
+    /// - Remark: In case a key exists under `idPrivateKey`, this function guarantees that the returned key can
+    /// be used to decrypt the data that the public key of `idPrivateKey` was used to encrypt it.
+    /// - Note: In case there are more than one `PrivateKey` choose one at random. This matches the previous
+    /// implementation of `retrieveKeys` which used `SecItemCopyMatching`, which "By default, this function returns
+    /// only the first match found.". As a side note, at least the most recent implementations of `KeyManagerService`
+    /// made strong guarantees to protect the invariant of only ever having 1 `PrivateKey` present. That is to
+    /// say, as of today, there is no evidence to suggest that the therre ever was  more than *one* `PrivateKey`
+    /// present.
+    /// - Note: In case there are more than one key under the`id` tag, this indicates a defect in the
+    /// `KeyManagerService` that has failed to protect the invariant that there can only be 1 key under the `id` tag.
+    /// In other words, a second key was created before checking to see if one exists.
+    /// - SeeAlso: https://developer.apple.com/documentation/security/secitemcopymatching(_:_:)#Discussion
     /// - Parameters:
     ///     - localAuthStrings: optional; in case your code expects the user to be prompted and need to provide a
     ///         `localizedReason`,   `localizedFallbackTitle` and `localizedCancelTitle`; default `nil`
@@ -96,8 +114,60 @@ extension KeyManagerService {
     ///     the "root underlying error" error holds the value of the error passed in as `initError`
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
-        let privateKeyTag = Data("\(configuration.id)".utf8)
         
+        let idPrivateKey: SecKey?
+        do {
+            idPrivateKey = try retrieveKey(
+                tag: Data("\(configuration.id)PrivateKey".utf8),
+                localAuthStrings: localAuthStrings,
+                initError: initError
+            ).randomElement()
+        } catch let error as SecureStoreError where
+            (error.originalError as? OSStatusError)?.status == errSecItemNotFound {
+            idPrivateKey = nil
+        }
+
+        let keys = try retrieveKey(
+            tag: Data("\(configuration.id)".utf8),
+            localAuthStrings: localAuthStrings,
+            initError: initError
+        )
+
+        let privateKey: SecKey
+        if let idPrivateKey {
+            guard let publicKey = SecKeyCopyPublicKey(idPrivateKey) else {
+                throw SecureStoreError(.cantRetrieveKey, originalError: initError)
+            }
+
+            let matchingKey = try keys.first {
+                guard let _publicKey = SecKeyCopyPublicKey($0) else {
+                    throw SecureStoreError(.cantRetrieveKey, originalError: initError)
+                }
+                return _publicKey == publicKey
+            }
+            guard let matchingKey else {
+                throw SecureStoreError(.cantRetrieveKey, originalError: initError)
+            }
+            privateKey = matchingKey
+        } else {
+            guard keys.count >= 1, let key = keys.randomElement() else {
+                throw SecureStoreError(.cantRetrieveKey, originalError: initError)
+            }
+            privateKey = key
+        }
+
+        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
+            throw SecureStoreError(.cantRetrieveKey, originalError: initError)
+        }
+
+        return (publicKey, privateKey)
+    }
+
+    private func retrieveKey(
+        tag: Data,
+        localAuthStrings: LocalAuthenticationLocalizedStrings?,
+        initError: Error?
+    ) throws -> [SecKey] {
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
             let context = LAContext()
@@ -110,7 +180,7 @@ extension KeyManagerService {
             }
             return [
                 kSecClass: kSecClassKey,
-                kSecAttrApplicationTag: privateKeyTag,
+                kSecAttrApplicationTag: tag,
                 kSecUseAuthenticationContext as String: context,
                 kSecAttrKeyType: kSecAttrKeyTypeECSECPrimeRandom,
                 kSecMatchLimit as String: kSecMatchLimitAll,
@@ -118,25 +188,19 @@ extension KeyManagerService {
             ]
         }
         
-        var privateKeyRef: CFTypeRef?
-        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &privateKeyRef)
+        var result: CFTypeRef?
+        let privateStatus = SecItemCopyMatching(privateQuery as CFDictionary, &result)
 
         // errSecSuccess is the result code returned when no error was found with the query
         guard privateStatus == errSecSuccess else {
             throw SecureStoreError(.cantRetrieveKey, originalError: OSStatusError.make(status: privateStatus, underlyingError: initError))
         }
 
-        privateKeyRef = (privateKeyRef as? [SecKey])?.randomElement()
-
-        // swiftlint:disable force_cast
-        let privateKey = privateKeyRef as! SecKey
-        // swiftlint:enable force_cast
-        
-        guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
+        guard let keys = result as? [SecKey] else {
             throw SecureStoreError(.cantRetrieveKey, originalError: initError)
         }
 
-        return (publicKey, privateKey)
+        return keys
     }
 }
 
