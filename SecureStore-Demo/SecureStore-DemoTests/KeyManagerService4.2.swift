@@ -4,7 +4,7 @@ import Foundation
 /// This implementation aims to replicate the behaviour by the `KeyManagerService` in the 4.2 tag/release.
 final class KeyManagerService4_2 {
     
-    enum SecError: Error  {
+    enum SecError: Error {
         case secKeyCreateSecureEnclave(attributes: [String: Sendable], tag: String, underlyingError: NSError?)
         case secItemCopyMatching(query: [String: Sendable], underlyingError: Error)
         case unexpectedKeyCount(result: CFTypeRef?)
@@ -12,7 +12,8 @@ final class KeyManagerService4_2 {
         var failureReason: String? {
             switch self {
             case let .secKeyCreateSecureEnclave(attributes, tag, nil):
-                return "SecKeyCreateRandomKey failed to give reason when creating key under tag: \(tag) using atributes: \(attributes)"
+                return "SecKeyCreateRandomKey failed to give reason when creating key under tag: \(tag) " +
+                "using atributes: \(attributes)"
             case let .secKeyCreateSecureEnclave(_, _, underlyingError?):
                 return underlyingError.localizedFailureReason
             case let .secItemCopyMatching(_, underlyingError):
@@ -27,9 +28,11 @@ final class KeyManagerService4_2 {
             case let .secKeyCreateSecureEnclave(attributes, tag, nil):
                 return "SecKeyCreateRandomKey failed to create key under tag: \(tag) using atributes: \(attributes)"
             case let .secKeyCreateSecureEnclave(attributes, tag, underlyingError?):
-                return "SecKeyCreateRandomKey failed to create key under tag: \(tag) using atributes: \(attributes) with underlyingError: \(underlyingError)"
+                return "SecKeyCreateRandomKey failed to create key under tag: \(tag) using atributes: " +
+                "\(attributes) with underlyingError: \(underlyingError)"
             case let .secItemCopyMatching(query, underlyingError):
-                return "SecItemCopyMatching failed to succesfully return a result for the query: \(query) with underlyingError: \(underlyingError)"
+                return "SecItemCopyMatching failed to succesfully return a result for the query: " +
+                "\(query) with underlyingError: \(underlyingError)"
             case .unexpectedKeyCount(nil):
                 return "Expected more than 1 key."
             case let .unexpectedKeyCount(result?):
@@ -67,9 +70,13 @@ final class KeyManagerService4_2 {
         var error: Unmanaged<CFError>?
         guard SecKeyCreateRandomKey(attributes as CFDictionary, &error) != nil else {
             guard let error = error?.takeRetainedValue() as? NSError else {
-                throw SecError.secKeyCreateSecureEnclave(attributes: (attributes as [String : Sendable]), tag: idTag.description, underlyingError: nil)
+                throw SecError.secKeyCreateSecureEnclave(attributes: (attributes as [String: Sendable]),
+                                                         tag: idTag.description,
+                                                         underlyingError: nil)
             }
-            throw SecError.secKeyCreateSecureEnclave(attributes: (attributes as [String : Sendable]), tag: idTag.description, underlyingError: error)
+            throw SecError.secKeyCreateSecureEnclave(attributes: (attributes as [String: Sendable]),
+                                                     tag: idTag.description,
+                                                     underlyingError: error)
         }
 
         // A new `KeyManagerService` (4.2.0) instance is created
@@ -170,12 +177,14 @@ final class KeyManagerService4_2 {
         // Add item to KeyChain
         let status = SecItemAdd(addquery as CFDictionary, nil)
         guard status == errSecSuccess else {
-            throw SecureStoreError(.cantStoreKey, originalError: OSStatusError.make(status: status, underlyingError: self.initError))
+            throw SecureStoreError(.cantStoreKey,
+                                   originalError: OSStatusError.make(status: status,
+                                                                     underlyingError: self.initError))
         }
     }
         
-    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil) throws -> (publicKey: SecKey,
-                                                                                               privateKey: SecKey) {
+    func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil)
+    throws -> (publicKey: SecKey, privateKey: SecKey) {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
         
         // This constructs a query that will be sent to keychain
@@ -217,7 +226,9 @@ final class KeyManagerService4_2 {
             
             let status = SecItemDelete(deleteQuery as CFDictionary)
             guard status == errSecSuccess || status == errSecItemNotFound else {
-                throw SecureStoreError(.cantDeleteKey, originalError: OSStatusError.make(status: status, underlyingError: self.initError))
+                throw SecureStoreError(.cantDeleteKey,
+                                       originalError: OSStatusError.make(status: status,
+                                                                         underlyingError: self.initError))
             }
         }
     }

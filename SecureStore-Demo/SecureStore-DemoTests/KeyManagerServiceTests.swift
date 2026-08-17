@@ -70,7 +70,7 @@ struct KeyManagerServiceTests: ~Copyable {
             GIVEN a new `KeyManagerService` over time
             AND a call to `KeyManagerService.deleteKeys()`
             WHEN querying for the number of keys under the `id` tag
-            THEN no keys should be found. 
+            THEN no keys should be found.
     """)
     func deleteKeysDoesNotAccumulateKeysOverTime() async throws {
         
@@ -137,7 +137,7 @@ struct KeyManagerServiceTests: ~Copyable {
     /// The code attempts to decrypt the data with the public key of the "wrong" key, which trows a
     /// ``SecureStoreError(.cantDecyptData)`` error.
     ///
-    ///[1] : See https://govukverify.atlassian.net/browse/DCMAW-22075
+    /// [1] : See https://govukverify.atlassian.net/browse/DCMAW-22075
     /// - SeeAlso: ``KeyManagerService4_2/make(configuration:)`` which creates the conditions for this test.
     /// - Note: This test reproduces the defect reported at https://govukverify.atlassian.net/browse/DCMAW-22010
     @Test("""
