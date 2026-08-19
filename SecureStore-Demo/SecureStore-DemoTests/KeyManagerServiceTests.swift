@@ -174,6 +174,49 @@ struct KeyManagerServiceTests: ~Copyable {
         }
     }
     
+    /// This is a case where using the `KeyManagerService` (4.2.0) instance, keys *would have* accumulated over time
+    /// so that so more than 1 key  are present under the `id` tag.
+    ///
+    /// Assert that calling `KeyManagerService.deleteKeys()` deletes **all** keys under the `id` tag.
+    @Test("""
+        ON THE CONDITION a leftover key under the `id` tag that was not deleted sometimed in the past    
+        AND a new `KeyManagerService` (4.2.0) instance is created (which creates a second key under `id` tag)
+        GIVEN a new `KeyManagerService`
+        WHEN a call to `KeyManagerService.deleteKeys()`
+        THEN both keys under the `id` tag should have been deleted
+        AND no keys should be found under the `id` tag    
+    """)
+    func keys_that_had_accumulated_under_the_id_tag_are_removed_on_deleteKeys() async throws {
+        let configuration = SecureStorageConfiguration(
+            id: UUID().uuidString,
+            accessControlLevel: .open
+        )
+
+        let idTag = Data(configuration.id.utf8)
+
+        _ = try KeyManagerService4_2.make(configuration: configuration)
+
+        let sut = KeyManagerService(
+            configuration: configuration
+        )
+        
+        try sut.deleteKeys()
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassKey,
+            kSecAttrApplicationTag as String: idTag,
+            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecMatchLimit as String: kSecMatchLimitAll,
+            kSecReturnRef as String: true
+        ]
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        #expect(status == errSecItemNotFound)
+        #expect(result == nil)
+    }
+
+    
     /// This is a case where a as part of instantiating a `KeyManagerService`, a new set of keys is created
     /// that is tied to the Secure Enclave (i.e. `kSecAttrTokenID: kSecAttrTokenIDSecureEnclave`).
     ///
