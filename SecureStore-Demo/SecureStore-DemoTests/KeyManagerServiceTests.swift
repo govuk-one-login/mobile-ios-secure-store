@@ -3,6 +3,7 @@ import LocalAuthentication
 @testable import SecureStore
 import Testing
 
+// swiftlint:disable type_body_length
 @Suite
 struct KeyManagerServiceTests: ~Copyable {
     private let testRunID = UUID()
@@ -179,12 +180,12 @@ struct KeyManagerServiceTests: ~Copyable {
     ///
     /// Assert that calling `KeyManagerService.deleteKeys()` deletes **all** keys under the `id` tag.
     @Test("""
-        ON THE CONDITION a leftover key under the `id` tag that was not deleted sometimed in the past    
+        ON THE CONDITION a leftover key under the `id` tag that was not deleted sometimed in the past
         AND a new `KeyManagerService` (4.2.0) instance is created (which creates a second key under `id` tag)
         GIVEN a new `KeyManagerService`
         WHEN a call to `KeyManagerService.deleteKeys()`
         THEN both keys under the `id` tag should have been deleted
-        AND no keys should be found under the `id` tag    
+        AND no keys should be found under the `id` tag.
     """)
     func keys_that_had_accumulated_under_the_id_tag_are_removed_on_deleteKeys() async throws {
         let configuration = SecureStorageConfiguration(
@@ -367,3 +368,4 @@ struct KeyManagerServiceTests: ~Copyable {
         #expect(actual.status == originalErrorStatus)
     }
 }
+// swiftlint:enable type_body_length
