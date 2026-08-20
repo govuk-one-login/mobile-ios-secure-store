@@ -77,10 +77,8 @@ extension KeyManagerService {
     /// - Postcondition: A call to ``decryptDataWithPrivateKey(dataToDecrypt:)`` will throw a
     /// ``SecureStoreError(.cantRetrieveKey)`` error.
     func deleteKeys() throws {
-        let keyType = ["PublicKey", "PrivateKey", ""]
-        try keyType.forEach { key in
-            let keyName = configuration.id + key
-            let tag = keyName.data(using: .utf8)!
+        let keyTags = ["PublicKey", "PrivateKey", ""].map { configuration.id + $0 }.flatMap{ $0.data(using: .utf8) }
+        try keyTags.forEach { tag in
             let deleteQuery: [String: Any] = [kSecClass as String: kSecClassKey,
                                            kSecAttrApplicationTag as String: tag]
             
