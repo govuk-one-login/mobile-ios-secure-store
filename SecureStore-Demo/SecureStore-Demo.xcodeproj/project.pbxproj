@@ -13,6 +13,7 @@
 		2BCB23292B46D54000F3A832 /* SecureStoreDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */; };
 		2BCB23432B46D60A00F3A832 /* SecureStore in Frameworks */ = {isa = PBXBuildFile; productRef = 2BCB23422B46D60A00F3A832 /* SecureStore */; };
 		7C58E8862EAA9AAD006AD752 /* KeyManagerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C58E8852EAA9AA9006AD752 /* KeyManagerServiceTests.swift */; };
+		99E36266302F5AE1005E01F0 /* KeyManagerService4.2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99E36265302F5AD9005E01F0 /* KeyManagerService4.2.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 		2BCB23242B46D54000F3A832 /* SecureStore-DemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SecureStore-DemoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureStoreDemoTests.swift; sourceTree = "<group>"; };
 		7C58E8852EAA9AA9006AD752 /* KeyManagerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManagerServiceTests.swift; sourceTree = "<group>"; };
+		99E36265302F5AD9005E01F0 /* KeyManagerService4.2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManagerService4.2.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 		2BCB23272B46D54000F3A832 /* SecureStore-DemoTests */ = {
 			isa = PBXGroup;
 			children = (
+				99E36265302F5AD9005E01F0 /* KeyManagerService4.2.swift */,
 				7C58E8852EAA9AA9006AD752 /* KeyManagerServiceTests.swift */,
 				2BCB23282B46D54000F3A832 /* SecureStoreDemoTests.swift */,
 			);
@@ -197,6 +200,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99E36266302F5AE1005E01F0 /* KeyManagerService4.2.swift in Sources */,
 				2BCB23292B46D54000F3A832 /* SecureStoreDemoTests.swift in Sources */,
 				7C58E8862EAA9AAD006AD752 /* KeyManagerServiceTests.swift in Sources */,
 			);
