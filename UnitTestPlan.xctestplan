@@ -9,12 +9,6 @@
     }
   ],
   "defaultOptions" : {
-    "environmentVariableEntries" : [
-      {
-        "key" : "IS_RUNNING_TESTS",
-        "value" : "1"
-      }
-    ],
     "targetForVariableExpansion" : {
       "containerPath" : "container:SecureStore-Demo.xcodeproj",
       "identifier" : "2BCB23132B46D53E00F3A832",

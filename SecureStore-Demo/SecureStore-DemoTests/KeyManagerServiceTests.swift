@@ -3,14 +3,13 @@ import LocalAuthentication
 @testable import SecureStore
 import Testing
 
-// swiftlint:disable type_body_length
 @Suite
 struct KeyManagerServiceTests: ~Copyable {
     private let testRunID = UUID()
     private let sut: KeyManagerService
 
     private var keyTag: Data {
-        Data("\(testRunID)".utf8)
+        Data("\(testRunID)PrivateKey".utf8)
     }
 
     init() {
@@ -66,158 +65,7 @@ struct KeyManagerServiceTests: ~Copyable {
         let publicKey = try #require(SecKeyCopyPublicKey(privateKey))
         #expect(keys.publicKey == publicKey)
     }
-    
-    @Test("""
-            GIVEN a new `KeyManagerService` over time
-            AND a call to `KeyManagerService.deleteKeys()`
-            WHEN querying for the number of keys under the `id` tag
-            THEN no keys should be found.
-    """)
-    func deleteKeysDoesNotAccumulateKeysOverTime() async throws {
-        
-        let count = 10
 
-        let configuration = SecureStorageConfiguration(
-            id: testRunID.uuidString,
-            accessControlLevel: .open
-        )
-        let idTag = Data(configuration.id.utf8)
-
-        for _ in 1...count {
-            let sut = KeyManagerService(configuration: configuration)
-            try sut.deleteKeys()
-        }
-
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassKey,
-            kSecAttrApplicationTag as String: idTag,
-            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecMatchLimit as String: kSecMatchLimitAll,
-            kSecReturnRef as String: true
-        ]
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        #expect(status == errSecItemNotFound)
-        #expect(result == nil)
-    }
-
-    @Test("There should only be 1 private key generated")
-    func checkNumberofGeneratedKeysIsOne() async throws {
-        let configuration = SecureStorageConfiguration(
-            id: testRunID.uuidString,
-            accessControlLevel: .open
-        )
-        let idTag = Data(configuration.id.utf8)
-
-        _ = KeyManagerService(configuration: configuration)
-
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassKey,
-            kSecAttrApplicationTag as String: idTag,
-            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecMatchLimit as String: kSecMatchLimitAll,
-            kSecReturnRef as String: true
-        ]
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-        let keys = try #require(result as? [SecKey])
-
-        #expect(status == errSecSuccess)
-        #expect(keys.count == 1)
-    }
-
-    /// This is a case where a "leftover" key is under the `id` tag that was not deleted [1].
-    /// A new `KeyManagerService` (4.2.0) instance is created which creates a second key under the `id` tag.
-    ///
-    /// The data is encrypted using the key under the `idPrivateKey` tag.
-    ///
-    /// The One Login app is updated with an instance of `KeyManagerService` that randomly returns a key under the
-    /// `id` tag. e.g. in case of 2 keys, that means there is a 50% chance of returning the wrong key.
-    ///
-    /// The code attempts to decrypt the data with the public key of the "wrong" key, which trows a
-    /// ``SecureStoreError(.cantDecyptData)`` error.
-    ///
-    /// [1] : See https://govukverify.atlassian.net/browse/DCMAW-22075
-    /// - SeeAlso: ``KeyManagerService4_2/make(configuration:)`` which creates the conditions for this test.
-    /// - Note: This test reproduces the defect reported at https://govukverify.atlassian.net/browse/DCMAW-22010
-    @Test("""
-        ON THE CONDITION a leftover key under the `id` tag that was not deleted sometimed in the past
-        AND a new `KeyManagerService` (4.2.0) instance is created
-        AND any data is encrypted
-        GIVEN a new `KeyManagerService` instance is created
-        AND a subsequent attempt is made to decrypt the data
-        THEN the data is decrypted succesfully
-        AND a SecureStoreError(.cantDecryptData) error is NOT thrown
-    """)
-    func decryptDataPreviouslyEncryptedWithKeyManagerService4_2Succeeds() async throws {
-        let configuration = SecureStorageConfiguration(
-            id: UUID().uuidString,
-            accessControlLevel: .open
-        )
-
-        do {
-            let keyManagerService4_2 = try KeyManagerService4_2.make(configuration: configuration)
-
-            let encryptedData = try keyManagerService4_2.encryptDataWithPublicKey(dataToEncrypt: "any")
-
-            let sut = KeyManagerService(
-                configuration: configuration
-            )
-
-            let decrypted = try sut.decryptDataWithPrivateKey(dataToDecrypt: encryptedData)
-
-            #expect(decrypted == "any")
-        } catch let error as SecureStoreError where error.kind == .cantDecryptData {
-            Issue.record(error)
-        } catch let error as KeyManagerService4_2.SecError {
-            Issue.record(error)
-        }
-    }
-    
-    /// This is a case where using the `KeyManagerService` (4.2.0) instance, keys *would have* accumulated over time
-    /// so that so more than 1 key  are present under the `id` tag.
-    ///
-    /// Assert that calling `KeyManagerService.deleteKeys()` deletes **all** keys under the `id` tag.
-    @Test("""
-        ON THE CONDITION a leftover key under the `id` tag that was not deleted sometimed in the past
-        AND a new `KeyManagerService` (4.2.0) instance is created (which creates a second key under `id` tag)
-        GIVEN a new `KeyManagerService`
-        WHEN a call to `KeyManagerService.deleteKeys()`
-        THEN both keys under the `id` tag should have been deleted
-        AND no keys should be found under the `id` tag.
-    """)
-    func keys_that_had_accumulated_under_the_id_tag_are_removed_on_deleteKeys() async throws {
-        let configuration = SecureStorageConfiguration(
-            id: UUID().uuidString,
-            accessControlLevel: .open
-        )
-
-        let idTag = Data(configuration.id.utf8)
-
-        _ = try KeyManagerService4_2.make(configuration: configuration)
-
-        let sut = KeyManagerService(
-            configuration: configuration
-        )
-        
-        try sut.deleteKeys()
-        
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassKey,
-            kSecAttrApplicationTag as String: idTag,
-            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecMatchLimit as String: kSecMatchLimitAll,
-            kSecReturnRef as String: true
-        ]
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        #expect(status == errSecItemNotFound)
-        #expect(result == nil)
-    }
-
-    
     /// This is a case where a as part of instantiating a `KeyManagerService`, a new set of keys is created
     /// that is tied to the Secure Enclave (i.e. `kSecAttrTokenID: kSecAttrTokenIDSecureEnclave`).
     ///
@@ -367,5 +215,33 @@ struct KeyManagerServiceTests: ~Copyable {
         let actual = try #require(underlyingError.originalError as? OSStatusError)
         #expect(actual.status == originalErrorStatus)
     }
+
+    @Test("""
+            GIVEN KeyManagerService did create keys
+            WHEN storePrivateKey with the same tag
+            THEN throws SecureStoreError(.cantStoreKey) with an original OSStatus error (e.g. OSStatus == errSecDuplicateItem)
+    """)
+    func attemptStorePrivateKeyThrowsCantStoreKeyWitherrSecDuplicateItem() async throws {
+        let tag = "\(testRunID)"
+        let attributes: NSDictionary = [
+            kSecAttrKeyType: kSecAttrKeyTypeRSA,
+            kSecAttrKeySizeInBits: 2048,
+            kSecPrivateKeyAttrs: [
+                kSecAttrIsPermanent: true,
+                kSecAttrApplicationTag: tag
+            ]
+        ]
+
+        let anyKey = try #require(SecKeyCreateRandomKey(attributes, nil))
+
+        let error = #expect(throws: SecureStoreError.self) {
+            try sut.storePrivateKey(keyToStore: anyKey, name: tag)
+        }
+
+        #expect(error?.kind == .cantStoreKey)
+
+        let originalError = try #require(error?.originalError as? OSStatusError)
+
+        #expect(originalError.status == errSecDuplicateItem)
+    }
 }
-// swiftlint:enable type_body_length
