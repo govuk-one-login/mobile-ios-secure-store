@@ -114,7 +114,6 @@ extension KeyManagerService {
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
-        
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
             let context = LAContext()
@@ -152,12 +151,43 @@ extension KeyManagerService {
 
         return (publicKey, privateKey)
     }
+
+    func encryptor() throws -> Encryptor {
+        let publicKey = try retrieveKeys(initError: initError).publicKey
+
+        return Encryption(publicKey: publicKey) { dataToEncrypt, publicKey in
+            return try self.encryptDataWithPublicKey(
+                dataToEncrypt: dataToEncrypt,
+                publicKey: publicKey
+            )
+        }
+    }
+}
+
+public protocol Encryptor {
+    func encrypt(data: String) throws -> String
+}
+
+struct Encryption: Encryptor {
+    typealias EncryptAsFunction = (_ dataToEncrypt: String, _ publicKey: SecKey) throws -> String
+    
+    private let publicKey: SecKey
+    private let encryptAsFunction: EncryptAsFunction
+
+    init(publicKey: SecKey, _ encryptAsFunction: @escaping EncryptAsFunction) {
+        self.publicKey = publicKey
+        self.encryptAsFunction = encryptAsFunction
+    }
+
+    public func encrypt(data: String) throws -> String {
+        return try encryptAsFunction(data, publicKey)
+    }
 }
 
 // MARK: Encryption and Decryption
 extension KeyManagerService {
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
-        let publicKey = try retrieveKeys(initError: self.initError).publicKey
+    func encryptDataWithPublicKey(dataToEncrypt: String, publicKey: SecKey? = nil) throws -> String {
+        let publicKey = try publicKey ?? retrieveKeys(initError: self.initError).publicKey
         
         guard let formattedData = dataToEncrypt.data(using: .utf8) else {
             throw SecureStoreError(.cantEncodeData, originalError: self.initError)

@@ -23,6 +23,7 @@ public class SecureStoreService {
 
 // MARK: SecureStorable Conformance
 extension SecureStoreService: SecureStorable {
+
     public func checkItemExists(itemName: String) -> Bool {
         guard secureStoreDefaults.getItem(itemName: itemName) != nil else { return false }
         return true
@@ -35,6 +36,15 @@ extension SecureStoreService: SecureStorable {
         return try keyManagerService.decryptDataWithPrivateKey(dataToDecrypt: encryptedData)
     }
     
+    public func encryptor() throws -> Encryptor {
+        return try self.keyManagerService.encryptor()
+    }
+    
+    public func save(using encryptor: Encryptor, item: String, itemName: String) throws {
+        let encryptedData = try encryptor.encrypt(data: item)
+        secureStoreDefaults.saveItem(encyptedItem: encryptedData, itemName: itemName)
+    }
+
     public func saveItem(item: String, itemName: String) throws {
         let encryptedData = try keyManagerService.encryptDataWithPublicKey(dataToEncrypt: item)
         secureStoreDefaults.saveItem(encyptedItem: encryptedData, itemName: itemName)
