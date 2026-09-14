@@ -171,7 +171,7 @@ extension KeyManagerService {
         let publicKey = try retrieveKeys(initError: initError).publicKey
 
         return Encryption(publicKey: publicKey) { data, publicKey in
-            return try self.encryptDataWithPublicKey(
+            try self.encryptDataWithPublicKey(
                 dataToEncrypt: data,
                 publicKey: publicKey
             )
