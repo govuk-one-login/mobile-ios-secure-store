@@ -244,4 +244,16 @@ struct KeyManagerServiceTests: ~Copyable {
 
         #expect(originalError.status == errSecDuplicateItem)
     }
+    
+    @Test
+    func testEncryptorEcrypts() throws {
+        let expected = "any"
+        let encryptor = try sut.encryptor()
+        
+        let encrypted = try encryptor.encrypt(data: expected)
+        
+        let actual = try sut.decryptDataWithPrivateKey(dataToDecrypt: encrypted)
+        
+        #expect(actual == expected)
+    }
 }

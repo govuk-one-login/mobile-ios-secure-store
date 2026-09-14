@@ -114,7 +114,6 @@ extension KeyManagerService {
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
-        
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
             let context = LAContext()
@@ -152,12 +151,75 @@ extension KeyManagerService {
 
         return (publicKey, privateKey)
     }
+
+    /// Returns an ``Encryptor`` that can be used to encrypt data using the underlying instance of
+    /// ``KeyManagerService``.
+    ///
+    /// Use an encryptor when you want to handle a  ``SecureStoreError(.cantRetrieveKey)`` independently
+    /// from any ``SecureStoreError`` thrown by ``encryptDataWithPublicKey(datatoEncrypt:publicKey)``
+    ///
+    /// Effectively, this allows for a two step apprach to encryption.
+    /// 1. Ensure that the public key is accessible
+    /// 2. Encrypt the data with that public key
+    ///
+    /// This enables you to decide the right moment and place in your code to retrieve the public key, independently
+    /// of when you have to encrypt the data.
+    ///
+    /// - throws: ``SecureStoreError(.cantRetrieveKey)`` in case either the private or its corresponding public key cannot be retrieved;
+    ///     the "root underlying error" error holds the value of the error passed in as `initError`
+    func encryptor() throws -> Encryptor {
+        let publicKey = try retrieveKeys(initError: initError).publicKey
+
+        return Encryption(publicKey: publicKey) { data, publicKey in
+            return try self.encryptDataWithPublicKey(
+                dataToEncrypt: data,
+                publicKey: publicKey
+            )
+        }
+    }
+}
+
+/// An encryptor allows you to encrypt a value (i.e. a `String`)
+///
+/// - SeeAlso: ``KeyManagerService/encryptor`` on how to obtain an instance
+public protocol Encryptor {
+    func encrypt(data: String) throws -> String
+}
+
+private struct Encryption: Encryptor {
+    typealias EncryptAsFunction = (_ data: String, _ publicKey: SecKey) throws -> String
+    
+    private let publicKey: SecKey
+    private let encryptAsFunction: EncryptAsFunction
+
+    init(publicKey: SecKey, _ encryptAsFunction: @escaping EncryptAsFunction) {
+        self.publicKey = publicKey
+        self.encryptAsFunction = encryptAsFunction
+    }
+
+    public func encrypt(data: String) throws -> String {
+        return try encryptAsFunction(data, publicKey)
+    }
 }
 
 // MARK: Encryption and Decryption
 extension KeyManagerService {
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
-        let publicKey = try retrieveKeys(initError: self.initError).publicKey
+    
+    /// Encrypts the given data; optionally passing a public key.
+    ///
+    /// - Parameters:
+    ///     - dataToEncrypt: the data to encrypt. The given String must be able to be encoded in utf8.
+    ///     - publicKey: optional; the public key to use to encrypt the data. In case it's not provided, the key will
+    ///     be retrieved by this ``KeyManagerService`` instance with a chance to throw a
+    ///     ``SecureStoreError(.cantRetrieveKey)`` error
+    /// - throws: ``SecureStoreError(.cantRetrieveKey)`` in case the key has to be retrieved.
+    /// - throws: ``SecureStoreError(.cantEncodeData)`` in case the given String cannot be encoding
+    ///     in utf8.
+    /// - SeeAlso: ``SecureStoreError/biometricErrorHandling(error)`` for any errors thrown attempting to encrypt.
+    /// 
+    /// - SeeAlso: ``Encryptor`` if you need a two step approach to encryption.
+    func encryptDataWithPublicKey(dataToEncrypt: String, publicKey: SecKey? = nil) throws -> String {
+        let publicKey = try publicKey ?? retrieveKeys(initError: self.initError).publicKey
         
         guard let formattedData = dataToEncrypt.data(using: .utf8) else {
             throw SecureStoreError(.cantEncodeData, originalError: self.initError)
