@@ -250,7 +250,7 @@ struct KeyManagerServiceTests: ~Copyable {
         let expected = "any"
         let encryptor = try sut.encryptor()
         
-        let encrypted = try encryptor.encrypt(data: expected)
+        let encrypted = try encryptor.encrypt(value: expected)
         
         let actual = try sut.decryptDataWithPrivateKey(dataToDecrypt: encrypted)
         

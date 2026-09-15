@@ -47,8 +47,9 @@ struct OSStatusErrorTests {
         #expect(anySecureStoreError.debugDescription == "Error Domain=SecureStoreErrorKind Code=1004 \"cantRetrieveKey\"")
         #expect(anySecureStoreError.errorDescription == "cantRetrieveKey")
         let underlyingError = try #require(anySecureStoreError.errorUserInfo[NSUnderlyingErrorKey] as? NSError)
+        // swiftlint:disable line_length
         #expect(underlyingError.debugDescription ==
                 "Error Domain=NSOSStatusErrorDomain Code=-25300 \"The operation couldn’t be completed.\" UserInfo=[\"NSLocalizedDescription\": \"The specified item could not be found in the keychain.\"]")
-
+        // swiftlint:enable line_length
     }
 }

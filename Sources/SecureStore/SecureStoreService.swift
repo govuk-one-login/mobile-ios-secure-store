@@ -41,7 +41,7 @@ extension SecureStoreService: EncryptedSecureStorable {
     }
 
     public func save(using encryptor: Encryptor, item: String, itemName: String) throws {
-        let encryptedData = try encryptor.encrypt(data: item)
+        let encryptedData = try encryptor.encrypt(value: item)
         secureStoreDefaults.saveItem(encyptedItem: encryptedData, itemName: itemName)
     }
 
