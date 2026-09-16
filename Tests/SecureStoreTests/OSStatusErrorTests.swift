@@ -33,8 +33,8 @@ struct OSStatusErrorTests {
         let error: OSStatusError = .make(status: errSecItemNotFound)
         let anySecureStoreError = SecureStoreError(.cantRetrieveKey, originalError: error)
         
-        #expect(anySecureStoreError.debugDescription == "Error Domain=SecureStoreErrorKind Code=1004 \"cantRetrieveKey\"")
-        #expect(anySecureStoreError.errorDescription == "cantRetrieveKey")
+        #expect(anySecureStoreError.debugDescription == "Error Domain=SecureStoreErrorKind Code=1004 \"Error while retrieving key from the keychain\"")
+        #expect(anySecureStoreError.errorDescription == "Error while retrieving key from the keychain")
         let underlyingError = try #require(anySecureStoreError.errorUserInfo[NSUnderlyingErrorKey] as? NSError)
         #expect(underlyingError.debugDescription ==
                 "\(errSecItemNotFoundDebugDescriptionExpected)")
