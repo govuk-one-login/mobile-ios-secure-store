@@ -40,7 +40,6 @@ public enum SecureStoreErrorKind: Int, GDSErrorKind {
     // MARK: NSErrorDomain
     case unknownNSError = 3001
     
-    // swiftlint:disable:next function_body_length
     public var description: String {
         switch self {
         case .unableToRetrieveFromUserDefaults:

@@ -1,11 +1,9 @@
-// swiftlint:disable file_length
 import GDSUtilities
 import LocalAuthentication
 @testable import SecureStore
 import Testing
 import XCTest
 
-// swiftlint:disable:next type_body_length
 final class SecureStoreErrorXCTests: XCTestCase {
     func test_noError() {
         let error = SecureStoreError.biometricErrorHandling(

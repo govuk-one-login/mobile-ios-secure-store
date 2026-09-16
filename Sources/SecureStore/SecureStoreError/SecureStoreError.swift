@@ -7,7 +7,6 @@ public typealias SecureStoreErrorV2 = SecureStoreError
 
 public typealias SecureStoreError = GDSSecureStoreError<SecureStoreErrorKind>
 
-// swiftlint:disable:next type_body_length
 public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
     public let kind: Kind
     public let reason: String?
@@ -71,11 +70,11 @@ public struct GDSSecureStoreError<Kind: GDSErrorKind>: GDSError {
             return SecureStoreError(.systemCancel, originalError: error)
         case LAError.passcodeNotSet:
             return SecureStoreError(.passcodeNotSet, originalError: error)
-        case LAError.biometryNotAvailable, LAError.biometryNotAvailable:
+        case LAError.biometryNotAvailable:
             return SecureStoreError(.biometryNotAvailable, originalError: error)
-        case LAError.biometryNotEnrolled, LAError.biometryNotEnrolled:
+        case LAError.biometryNotEnrolled:
             return SecureStoreError(.biometryNotEnrolled, originalError: error)
-        case LAError.biometryLockout, LAError.biometryLockout:
+        case LAError.biometryLockout:
             return SecureStoreError(.biometryLockout, originalError: error)
         case LAError.appCancel:
             return SecureStoreError(.appCancel, originalError: error)
