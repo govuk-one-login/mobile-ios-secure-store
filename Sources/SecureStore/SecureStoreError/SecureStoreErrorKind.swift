@@ -39,4 +39,73 @@ public enum SecureStoreErrorKind: Int, GDSErrorKind {
 
     // MARK: NSErrorDomain
     case unknownNSError = 3001
+    
+    public var description: String {
+        switch self {
+        case .unableToRetrieveFromUserDefaults:
+            return "Error while retrieving item from User Defaults"
+        case .cantDeleteKey:
+            return "Error while deleting key from the keychain"
+        case .cantStoreKey:
+            return "Error while storing key to the keychain"
+        case .cantRetrieveKey:
+            return "Error while retrieving key from the keychain"
+        case .cantEncryptData:
+            return "Error while encrypting data"
+        case .cantDecryptData:
+            return "Error while decrypting data"
+        case .cantEncodeData:
+            return "Error while encoding data"
+        case .cantDecodeData:
+            return "Error while decoding data"
+        case .cantFormatData:
+            return "Error while formatting data"
+        case .authenticationFailed:
+            return "User failed to provide valid credentials"
+        case .userCancel:
+            return "User cancelled the biometric prompt"
+        case .userFallback:
+            return "No fallback is available for the authentication policy"
+        case .systemCancel:
+            return "System cancelled authentication"
+        case .passcodeNotSet:
+            return "A passcode isn't set on the device"
+        case .biometryNotAvailable:
+            return "No biometry available on the device"
+        case .biometryNotEnrolled:
+            return "Biometry is not enrolled on the device"
+        case .biometryLockout:
+            return "Biometry is locked out"
+        case .appCancel:
+            return "App cancelled authentication"
+        case .invalidContext:
+            return "The context was previously invalidated"
+        case .companionNotAvailable:
+            return "No paired companion device nearby"
+        case .watchNotAvailable:
+            return "No paired watch nearby"
+        case .biometryNotPaired:
+            return "Device supports biometry only via removable accessories and no accessory has been paired"
+        case .biometryDisconnected:
+            return "Device supports biometry only via removable accessories and the paired accessory is not connected."
+        case .invalidDimensions:
+            return "Dimensions of embedded UI are invalid"
+        case .notInteractive:
+            return "Displaying the required authentication user interface is forbidden"
+        case .invalidatedByHandleRequest:
+            return "Invalidated by handle request"
+        case .viewServiceInitializationFailure:
+            return "Invalidated due to view service initialization failure"
+        case .authenticationTimedOut:
+            return "Authentication timed out"
+        case .uiActivationTimedOut:
+            return "UI activation timed out after 5 seconds"
+        case .unknownLAError:
+            return "Unknown LAError"
+        case .unknownNSError:
+            return "Unknow NSError"
+        case .noResultOrError:
+            return "No result or error returned"
+        }
+    }
 }
