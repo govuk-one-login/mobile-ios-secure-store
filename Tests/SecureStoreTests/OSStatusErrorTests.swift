@@ -7,10 +7,12 @@ struct OSStatusErrorTests {
 
     @Test func makeKeyManagerServiceError() async throws {
         let anyStatus: OSStatus = errSecItemNotFound
+        let errSecItemNotFoundErrorDescriptionExpected = "The specified item could not be found in the keychain."
         let error: OSStatusError = .make(status: anyStatus)
         
         #expect(OSStatusError.errorDomain == NSOSStatusErrorDomain)
         #expect(error.errorCode == anyStatus)
+        #expect(error.errorDescription == errSecItemNotFoundErrorDescriptionExpected)
     }
 
     @Test func underLyingError() async throws {
@@ -21,6 +23,16 @@ struct OSStatusErrorTests {
         let actualUnderLyingError = try #require(error.errorUserInfo[NSUnderlyingErrorKey] as? NSError)
         #expect(actualUnderLyingError == anyError)
     }
+    
+    @Test func debugDescriptionWithunderLyingError() async throws {
+        let anyStatus: OSStatus = errSecItemNotFound
+        let anyError: NSError = .init(domain: "any", code: 1, userInfo: [NSLocalizedDescriptionKey: "An underlying error"])
+        let error: OSStatusError = .make(status: anyStatus, underlyingError: anyError)
+        
+        // swiftlint:disable line_length
+        #expect(error.debugDescription == "Error Domain=NSOSStatusErrorDomain Code=-25300 \"The operation couldn’t be completed.\" UserInfo=[\"NSLocalizedDescription\": \"The specified item could not be found in the keychain.\", \"NSUnderlyingError\": Error Domain=any Code=1 \"An underlying error\" UserInfo={NSLocalizedDescription=An underlying error}]")
+        // swiftlint:enable line_length
+    }
 
     /// Asserts that the debugDescription, as it is computed by a GDSError (i.e. SecureStoreError),
     /// includes the debug description found in a non-GDSError that is instead a CustomNSError (i.e. KeyManagerServiceError)
@@ -28,7 +40,6 @@ struct OSStatusErrorTests {
     @Test
     func secureStoreErrorWithDebugDescriptionGivenOSStatusWithWithErrorMessageString() async throws {
         let errSecItemNotFound: OSStatus = errSecItemNotFound
-        let errSecItemNotFoundDebugDescriptionExpected = "The specified item could not be found in the keychain."
         
         let error: OSStatusError = .make(status: errSecItemNotFound)
         let anySecureStoreError = SecureStoreError(.cantRetrieveKey, originalError: error)
@@ -36,8 +47,9 @@ struct OSStatusErrorTests {
         #expect(anySecureStoreError.debugDescription == "Error Domain=SecureStoreErrorKind Code=1004 \"cantRetrieveKey\"")
         #expect(anySecureStoreError.errorDescription == "cantRetrieveKey")
         let underlyingError = try #require(anySecureStoreError.errorUserInfo[NSUnderlyingErrorKey] as? NSError)
+        // swiftlint:disable line_length
         #expect(underlyingError.debugDescription ==
-                "\(errSecItemNotFoundDebugDescriptionExpected)")
-
+                "Error Domain=NSOSStatusErrorDomain Code=-25300 \"The operation couldn’t be completed.\" UserInfo=[\"NSLocalizedDescription\": \"The specified item could not be found in the keychain.\"]")
+        // swiftlint:enable line_length
     }
 }

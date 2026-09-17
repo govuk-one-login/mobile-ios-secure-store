@@ -114,7 +114,6 @@ extension KeyManagerService {
     func retrieveKeys(localAuthStrings: LocalAuthenticationLocalizedStrings? = nil, initError: Error? = nil) throws -> (publicKey: SecKey,
                                                                                                privateKey: SecKey) {
         let privateKeyTag = Data("\(configuration.id)PrivateKey".utf8)
-        
         // This constructs a query that will be sent to keychain
         var privateQuery: NSDictionary {
             let context = LAContext()
@@ -152,14 +151,48 @@ extension KeyManagerService {
 
         return (publicKey, privateKey)
     }
-}
 
-// MARK: Encryption and Decryption
-extension KeyManagerService {
-    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
-        let publicKey = try retrieveKeys(initError: self.initError).publicKey
-        
-        guard let formattedData = dataToEncrypt.data(using: .utf8) else {
+    /// Returns an ``Encryptor`` that can be used to encrypt data using the underlying instance of
+    /// ``KeyManagerService``.
+    ///
+    /// Use an encryptor when you want to handle a  ``SecureStoreError(.cantRetrieveKey)`` independently
+    /// from any ``SecureStoreError`` thrown by ``encryptDataWithPublicKey(datatoEncrypt:publicKey)``
+    ///
+    /// Effectively, this allows for a two step apprach to encryption.
+    /// 1. Ensure that the public key is accessible
+    /// 2. Encrypt the data with that public key
+    ///
+    /// This enables you to decide the right moment and place in your code to retrieve the public key, independently
+    /// of when you have to encrypt the data.
+    ///
+    /// - throws: ``SecureStoreError(.cantRetrieveKey)`` in case either the private or its corresponding public key cannot be retrieved;
+    ///     the "root underlying error" error holds the value of the error passed in as `initError`
+    func encryptor() throws -> Encryptor {
+        let publicKey = try retrieveKeys(initError: initError).publicKey
+
+        return Encryption(publicKey: publicKey) { value, publicKey in
+            try self.encrypt(
+                value: value,
+                using: publicKey
+            )
+        }
+    }
+    
+    /// Encrypts the given value using the given public key.
+    ///
+    /// The value will be serialised to Data using utf8 encoding, then encrypted.
+    ///
+    /// - Parameters:
+    ///     - value: the value to encrypt. The given String must be able to be encoded in utf8.
+    ///     - publicKey: the public key to use to encrypt the data.
+    /// - throws: ``SecureStoreError(.cantEncodeData)`` in case the given String cannot be encoding
+    ///     in utf8.
+    /// - Returns: a  String, representing the encrypted Data, in a base64 encoded format.
+    /// - SeeAlso: ``/decryptDataWithPrivateKey(dataToDecrypt: String)`` on how to decrypt the returned String
+    /// - SeeAlso: ``SecureStoreError/biometricErrorHandling(error)`` for any errors thrown attempting to encrypt.
+    /// - SeeAlso: ``Encryptor`` if you need a two step approach to encryption.
+    private func encrypt(value: String, using publicKey: SecKey) throws -> String {
+        guard let formattedData = value.data(using: .utf8) else {
             throw SecureStoreError(.cantEncodeData, originalError: self.initError)
         }
         
@@ -180,6 +213,44 @@ extension KeyManagerService {
         let encryptedString = encryptedData.base64EncodedString()
         
         return encryptedString
+    }
+}
+
+private struct Encryption: Encryptor {
+    typealias EncryptAsFunction = (_ value: String, _ publicKey: SecKey) throws -> String
+    
+    private let publicKey: SecKey
+    private let encryptAsFunction: EncryptAsFunction
+
+    init(publicKey: SecKey, _ encryptAsFunction: @escaping EncryptAsFunction) {
+        self.publicKey = publicKey
+        self.encryptAsFunction = encryptAsFunction
+    }
+
+    public func encrypt(value: String) throws -> String {
+        return try encryptAsFunction(value, publicKey)
+    }
+}
+
+// MARK: Encryption and Decryption
+extension KeyManagerService {
+    
+    /// Encrypts the given data; using the public key as managed by this ``KeyManagerService``  instance.
+    ///
+    /// The value will be serialised to Data using utf8 encoding, then encrypted.
+    ///
+    /// - Parameters:
+    ///     - value: the value to encrypt. The given String must be able to be encoded in utf8.
+    ///     - publicKey: the public key to use to encrypt the data.
+    /// - throws: ``SecureStoreError(.cantEncodeData)`` in case the given String cannot be encoding
+    ///     in utf8.
+    /// - Returns: a  String, representing the encrypted Data, in a base64 encoded format.
+    /// - SeeAlso: ``/decryptDataWithPrivateKey(dataToDecrypt: String)`` on how to decrypt the returned String
+    /// - SeeAlso: ``SecureStoreError/biometricErrorHandling(error)`` for any errors thrown attempting to encrypt.
+    /// - SeeAlso: ``Encryptor`` if you need a two step approach to encryption.
+    func encryptDataWithPublicKey(dataToEncrypt: String) throws -> String {
+        let publicKey = try retrieveKeys(initError: self.initError).publicKey
+        return try self.encrypt(value: dataToEncrypt, using: publicKey)
     }
     
     func decryptDataWithPrivateKey(dataToDecrypt: String) throws(SecureStoreError) -> String {

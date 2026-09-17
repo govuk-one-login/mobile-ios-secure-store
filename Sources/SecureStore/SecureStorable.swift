@@ -10,3 +10,9 @@ public protocol SecureStorable {
     func delete() throws
     func checkItemExists(itemName: String) -> Bool
 }
+
+/// A ``SecureStorable`` that support a two-step appoach to encryption prior to saving an item.
+public protocol EncryptedSecureStorable: SecureStorable {
+    func encryptor() throws -> Encryptor
+    func save(using encryptor: Encryptor, item: String, itemName: String) throws
+}

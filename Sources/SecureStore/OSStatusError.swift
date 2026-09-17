@@ -1,12 +1,12 @@
 import Foundation
 
-struct OSStatusError: CustomNSError, CustomDebugStringConvertible {
+struct OSStatusError: CustomNSError, LocalizedError, CustomDebugStringConvertible {
     static func make(status: OSStatus, underlyingError: Error? = nil) -> Self {
     
         var errorUserInfo: [String: any Sendable] = [:]
         
         if let errorMessage = SecCopyErrorMessageString(status, nil) {
-            errorUserInfo[NSDebugDescriptionErrorKey] = errorMessage as String
+            errorUserInfo[NSLocalizedDescriptionKey] = errorMessage as String
         }
         
         if let underlyingError {
@@ -35,6 +35,16 @@ struct OSStatusError: CustomNSError, CustomDebugStringConvertible {
     // MARK: CustomDebugStringConvertible
     
     var debugDescription: String {
-        return errorUserInfo[NSDebugDescriptionErrorKey] as? String ?? ""
+        let userInfo = _errorUserInfo.keys.sorted().map { key in
+            "\(String(reflecting: key)): \(String(reflecting: _errorUserInfo[key]!))"
+        }.joined(separator: ", ")
+        
+        return "Error Domain=\(Self.errorDomain) Code=\(errorCode) \"The operation couldn’t be completed.\" UserInfo=[\(userInfo)]"
+    }
+
+    // MARK: LocalizedError
+    
+    var errorDescription: String {
+        return errorUserInfo[NSLocalizedDescriptionKey] as? String ?? ""
     }
 }
