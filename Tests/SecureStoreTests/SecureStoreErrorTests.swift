@@ -314,7 +314,7 @@ struct SecureStoreErrorTests {
         Case(error: SecureStoreError(.authenticationTimedOut), debugDescription: "Error Domain=SecureStoreErrorKind Code=2016 \"Authentication timed out\"", kind: "authenticationTimedOut"),
         Case(error: SecureStoreError(.noResultOrError), debugDescription: "Error Domain=SecureStoreErrorKind Code=1000 \"No result or error returned\"", kind: "noResultOrError"),
         Case(error: SecureStoreError(.unknownLAError), debugDescription: "Error Domain=SecureStoreErrorKind Code=2000 \"Unknown LAError\"", kind: "unknownLAError"),
-        Case(error: SecureStoreError(.unknownNSError), debugDescription: "Error Domain=SecureStoreErrorKind Code=3001 \"Unknow NSError\"", kind: "unknownNSError")
+        Case(error: SecureStoreError(.unknownNSError), debugDescription: "Error Domain=SecureStoreErrorKind Code=3001 \"Unknown NSError\"", kind: "unknownNSError")
         // swiftlint:enable line_length
     ]
 
