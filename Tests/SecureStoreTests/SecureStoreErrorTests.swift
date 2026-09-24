@@ -328,7 +328,6 @@ struct SecureStoreErrorTests {
         ]
         // swiftlint:enable line_length
     #endif
-
     
     @Test
     func test_domain() async throws {

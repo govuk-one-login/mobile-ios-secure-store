@@ -103,7 +103,7 @@ public enum SecureStoreErrorKind: Int, GDSErrorKind {
         case .unknownLAError:
             return "Unknown LAError"
         case .unknownNSError:
-            return "Unknow NSError"
+            return "Unknown NSError"
         case .noResultOrError:
             return "No result or error returned"
         }
