@@ -116,8 +116,8 @@ struct SecureStoreErrorTests {
     }
 #endif
 
-    static let errSecParam = NSError(domain: NSOSStatusErrorDomain,code: -50)
-    static let unknown = NSError(domain: NSOSStatusErrorDomain,code: -100)
+    static let errSecParam = NSError(domain: NSOSStatusErrorDomain, code: -50)
+    static let unknown = NSError(domain: NSOSStatusErrorDomain, code: -100)
 
     @Test(arguments:
             [(SecureStoreError.biometricErrorHandling(error: errSecParam), SecureStoreErrorKind.cantDecryptData, originalError: errSecParam),

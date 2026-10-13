@@ -43,7 +43,11 @@ struct SecureStoreConfigurationTests {
             return localAuthStrings
         })
 
-        let expected: LocalAuthenticationLocalizedStrings = LocalAuthenticationLocalizedStrings(localizedReason: "reason", localisedFallbackTitle: "fallbackTitle", localisedCancelTitle: "cancelTitle")
+        let expected: LocalAuthenticationLocalizedStrings = LocalAuthenticationLocalizedStrings(
+            localizedReason: "reason",
+            localisedFallbackTitle: "fallbackTitle",
+            localisedCancelTitle: "cancelTitle"
+        )
 
         #expect(try sut.localAuthStringsProvider() == expected)
     }
