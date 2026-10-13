@@ -2,283 +2,9 @@ import GDSUtilities
 import LocalAuthentication
 @testable import SecureStore
 import Testing
-import XCTest
-
-final class SecureStoreErrorXCTests: XCTestCase {
-    func test_noError() {
-        let error = SecureStoreError.biometricErrorHandling(
-            error: nil
-        )
-        XCTAssertEqual(
-            error,
-            SecureStoreError(.noResultOrError)
-        )
-    }
-    
-    func test_cantDecryptDataError() {
-        let cantDecryptDataError = NSError(
-            domain: NSOSStatusErrorDomain,
-            code: -50
-        )
-        let error = SecureStoreError.biometricErrorHandling(
-            error: cantDecryptDataError
-        )
-        XCTAssertEqual(
-            error.kind,
-            .cantDecryptData
-        )
-        XCTAssertEqual(
-            error.originalError as? NSError,
-            cantDecryptDataError
-        )
-    }
-    
-    func test_unknownNSError() {
-        let statusError = NSError(
-            domain: NSOSStatusErrorDomain,
-            code: -100
-        )
-        let error = SecureStoreError.biometricErrorHandling(
-            error: statusError
-        )
-        XCTAssertEqual(
-            error.kind,
-            .unknownNSError
-        )
-        XCTAssertEqual(
-            error.originalError as? NSError,
-            statusError
-        )
-    }
-    
-    func test_authenticationFailedError() {
-        let authenticationFailedError = LAError(.authenticationFailed) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: authenticationFailedError
-            ),
-            SecureStoreError(.authenticationFailed)
-        )
-    }
-    
-    func test_userCancelError() {
-        let userCancelError = LAError(.userCancel) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: userCancelError
-            ),
-            SecureStoreError(.userCancel)
-        )
-    }
-    
-    func test_userFallbackErrorError() {
-        let userFallbackError = LAError(.userFallback) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: userFallbackError
-            ),
-            SecureStoreError(.userFallback)
-        )
-    }
-    
-    func test_systemCancelError() {
-        let systemCancelError = LAError(.systemCancel) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: systemCancelError
-            ),
-            SecureStoreError(.systemCancel)
-        )
-    }
-    
-    func test_passcodeNotSetError() {
-        let noPasscodeSetError = LAError(.passcodeNotSet) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: noPasscodeSetError
-            ),
-            SecureStoreError(.passcodeNotSet)
-        )
-    }
-    
-    func test_biometryNotAvailableError() {
-        let biometryNotAvailableError = LAError(.biometryNotAvailable) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: biometryNotAvailableError
-            ),
-            SecureStoreError(.biometryNotAvailable)
-        )
-    }
-    
-    func test_biometryNotEnrolledError() {
-        let biometryNotEnrolledError = LAError(.biometryNotEnrolled) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: biometryNotEnrolledError
-            ),
-            SecureStoreError(.biometryNotEnrolled)
-        )
-    }
-    
-    func test_biometryLockoutError() {
-        let biometryLockoutError = LAError(.biometryLockout) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: biometryLockoutError
-            ),
-            SecureStoreError(.biometryLockout)
-        )
-    }
-    
-    func test_appCancelError() {
-        let appCancelError = LAError(.appCancel) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: appCancelError
-            ),
-            SecureStoreError(.appCancel)
-        )
-    }
-    
-    func test_invalidContextError() {
-        let invalidContextError = LAError(.invalidContext) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: invalidContextError
-            ),
-            SecureStoreError(.invalidContext)
-        )
-    }
-    
-    @available(macOS 15.0, *)
-    @available(iOS 18.0, *)
-    func test_companionNotAvailableError() {
-        let companionNotAvailableError = LAError(.companionNotAvailable) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: companionNotAvailableError
-            ),
-            SecureStoreError(.companionNotAvailable)
-        )
-    }
-    
-    #if os(macOS)
-    func test_watchNotAvailableError() {
-        let watchNotAvailableError = LAError(.watchNotAvailable) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: watchNotAvailableError
-            ),
-            SecureStoreError(.watchNotAvailable)
-        )
-    }
-    func test_biometryNotPairedError() {
-        let biometryNotPairedError = LAError(.biometryNotPaired) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: biometryNotPairedError
-            ),
-            SecureStoreError(.biometryNotPaired)
-        )
-    }
-    
-    func test_biometryDisconnectedError() {
-        let biometryDisconnectedError = LAError(.biometryDisconnected) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: biometryDisconnectedError
-            ),
-            SecureStoreError(.biometryDisconnected)
-        )
-    }
-    
-    func test_invalidDimensionsError() {
-        let invalidDimensionsError = LAError(.invalidDimensions) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: invalidDimensionsError
-            ),
-            SecureStoreError(.invalidDimensions)
-        )
-    }
-    #endif
-    
-    func test_notInteractiveError() {
-        let notInteractiveError = LAError(.notInteractive) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: notInteractiveError
-            ),
-            SecureStoreError(.notInteractive)
-        )
-    }
-    
-    func test_invalidatedByHandleRequestError() throws {
-        let invalidatedByHandleRequestError = LAError(try XCTUnwrap(LAError.Code(rawValue: 4))) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: invalidatedByHandleRequestError
-            ),
-            SecureStoreError(.invalidatedByHandleRequest)
-        )
-    }
-    
-    func test_viewServiceInitializationFailureError() throws {
-        let viewServiceInitializationFailureError = LAError(try XCTUnwrap(LAError.Code(rawValue: 6))) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: viewServiceInitializationFailureError
-            ),
-            SecureStoreError(.viewServiceInitializationFailure)
-        )
-    }
-    
-    func test_uiActivationTimedOutError() throws {
-        let uiActivationTimedOutError = LAError(try XCTUnwrap(LAError.Code(rawValue: -1000))) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: uiActivationTimedOutError
-            ),
-            SecureStoreError(.uiActivationTimedOut)
-        )
-    }
-    
-    func test_authenticationTimedOutError() throws {
-        let authenticationTimedOutError = LAError(try XCTUnwrap(LAError.Code(rawValue: -1003))) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: authenticationTimedOutError
-            ),
-            SecureStoreError(.authenticationTimedOut)
-        )
-    }
-    
-    func test_unknownLAError() throws {
-        let unknownLAError = LAError(try XCTUnwrap(LAError.Code(rawValue: -999))) as NSError
-        XCTAssertEqual(
-            SecureStoreError.biometricErrorHandling(
-                error: unknownLAError
-            ),
-            SecureStoreError(.unknownLAError)
-        )
-    }
-    
-    func test_secureStoreError_errorReasonReturnsNil() {
-        enum TestErrorKind: Int, GDSErrorKind {
-            case errorKindWithNoReason = 1
-            
-            var description: String {
-                "errorKindWithNoReason"
-            }
-        }
-        
-        XCTAssertEqual(GDSSecureStoreError(TestErrorKind.errorKindWithNoReason).reason, nil)
-    }
-}
 
 struct SecureStoreErrorTests {
-    
+
     struct Case: Sendable {
         let error: SecureStoreError
         let debugDescription: String
@@ -318,16 +44,16 @@ struct SecureStoreErrorTests {
         // swiftlint:enable line_length
     ]
 
-    #if os(macOS)
+#if os(macOS)
     static let allMacOSErrors = [
         // swiftlint:disable line_length
         Case(error: SecureStoreError(.watchNotAvailable), debugDescription: "Error Domain=SecureStoreErrorKind Code=2101 \"No paired watch nearby\"", kind: "watchNotAvailable"),
         Case(error: SecureStoreError(.biometryNotPaired), debugDescription: "Error Domain=SecureStoreErrorKind Code=2102 \"Device supports biometry only via removable accessories and no accessory has been paired\"", kind: "biometryNotPaired"),
         Case(error: SecureStoreError(.biometryDisconnected), debugDescription: "Error Domain=SecureStoreErrorKind Code=2103 \"Device supports biometry only via removable accessories and the paired accessory is not connected.\"", kind: "biometryDisconnected"),
         Case(error: SecureStoreError(.invalidDimensions), debugDescription: "Error Domain=SecureStoreErrorKind Code=2104 \"Dimensions of embedded UI are invalid\"", kind: "invalidDimensions")
-        ]
-        // swiftlint:enable line_length
-    #endif
+    ]
+    // swiftlint:enable line_length
+#endif
     
     @Test
     func test_domain() async throws {
@@ -348,11 +74,69 @@ struct SecureStoreErrorTests {
         #expect(testCase.error.errorUserInfo["kind"] as? String == testCase.kind)
     }
 
-    #if os(macOS)
+#if os(macOS)
     @Test("assert debugDescription for non iOS errors", arguments: SecureStoreErrorTests.allMacOSErrors)
     func test_debugDescriptionForMacOSErrors(testCase: Case) async throws {
         #expect(testCase.error.debugDescription == testCase.debugDescription)
     }
-    #endif
+#endif
 
+    @Test("Error returned by biometric error handling is mapped to expected SecureStoreError",
+          arguments:
+            [(SecureStoreError.biometricErrorHandling(error: nil), SecureStoreError(.noResultOrError)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.authenticationFailed) as NSError), SecureStoreError(.authenticationFailed)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.userCancel) as NSError), SecureStoreError(.userCancel)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.userFallback) as NSError), SecureStoreError(.userFallback)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.systemCancel) as NSError), SecureStoreError(.systemCancel)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.passcodeNotSet) as NSError), SecureStoreError(.passcodeNotSet)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.biometryNotAvailable) as NSError), SecureStoreError(.biometryNotAvailable)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.biometryNotEnrolled) as NSError), SecureStoreError(.biometryNotEnrolled)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.biometryLockout) as NSError), SecureStoreError(.biometryLockout)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.appCancel) as NSError), SecureStoreError(.appCancel)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.invalidContext) as NSError), SecureStoreError(.invalidContext)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(.notInteractive) as NSError), SecureStoreError(.notInteractive)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(LAError.Code(rawValue: 4)!) as NSError), SecureStoreError(.invalidatedByHandleRequest)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(LAError.Code(rawValue: 6)!) as NSError), SecureStoreError(.viewServiceInitializationFailure)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(LAError.Code(rawValue: -1000)!) as NSError), SecureStoreError(.uiActivationTimedOut)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(LAError.Code(rawValue: -1003)!) as NSError), SecureStoreError(.authenticationTimedOut)),
+             (SecureStoreError.biometricErrorHandling(error: LAError(LAError.Code(rawValue: -999)!) as NSError), SecureStoreError(.unknownLAError))])
+    func assertBionetricError(actual: SecureStoreError, expected: SecureStoreError) {
+        #expect(actual == expected)
+    }
+
+#if os(macOS)
+    @Test("Error returned by biometric error handling is mapped to expected SecureStoreError for non iOS errors",
+          arguments:
+            [(SecureStoreError.biometricErrorHandling(error: (LAError(.watchNotAvailable) as NSError)), SecureStoreError(.watchNotAvailable)),
+             (SecureStoreError.biometricErrorHandling(error: (LAError(.biometryNotPaired) as NSError)), SecureStoreError(.biometryNotPaired)),
+             (SecureStoreError.biometricErrorHandling(error: (LAError(.biometryDisconnected) as NSError)), SecureStoreError(.biometryDisconnected)),
+             (SecureStoreError.biometricErrorHandling(error: (LAError(.invalidDimensions) as NSError)), SecureStoreError(.invalidDimensions))])
+    func assertBionetricError(actual: SecureStoreError, expected: SecureStoreError) {
+        #expect(actual == expected)
+    }
+#endif
+
+    static let errSecParam = NSError(domain: NSOSStatusErrorDomain,code: -50)
+    static let unknown = NSError(domain: NSOSStatusErrorDomain,code: -100)
+
+    @Test(arguments:
+            [(SecureStoreError.biometricErrorHandling(error: errSecParam), SecureStoreErrorKind.cantDecryptData, originalError: errSecParam),
+             (SecureStoreError.biometricErrorHandling(error: unknown), SecureStoreErrorKind.unknownNSError, originalError: unknown)])
+    func assertBionetricErrorKind(actual: SecureStoreError, kind: SecureStoreErrorKind, originalError: NSError) {
+        #expect(actual.kind == kind)
+        #expect(actual.originalError as? NSError ==  originalError)
+    }
+
+    @Test
+    func secureStoreError_errorReasonReturnsNil() {
+        enum TestErrorKind: Int, GDSErrorKind {
+            case errorKindWithNoReason = 1
+
+            var description: String {
+                "errorKindWithNoReason"
+            }
+        }
+
+        #expect(GDSSecureStoreError(TestErrorKind.errorKindWithNoReason).reason == nil)
+    }
 }
