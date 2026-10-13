@@ -5,7 +5,7 @@ public struct SecureStorageConfiguration {
     public typealias LocalAuthenticationLocalizedStringsProvider = @Sendable () throws -> LocalAuthenticationLocalizedStrings?
 
     public static let localAuthenticationLocalizedStringsProviderNil: LocalAuthenticationLocalizedStringsProvider = {
-        return nil
+        nil
     }
 
     let id: String
