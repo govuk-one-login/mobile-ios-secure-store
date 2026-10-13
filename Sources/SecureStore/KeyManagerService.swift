@@ -257,7 +257,7 @@ extension KeyManagerService {
         let privateKeyRepresentation: SecKey
         do {
             privateKeyRepresentation = try retrieveKeys(
-                localAuthStrings: configuration.localAuthStrings,
+                localAuthStrings: try configuration.localAuthStrings ?? configuration.localAuthStringsProvider(),
                 initError: self.initError
             ).privateKey
         } catch {
