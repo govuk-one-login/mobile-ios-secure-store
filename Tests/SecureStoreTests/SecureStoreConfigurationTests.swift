@@ -33,4 +33,24 @@ struct SecureStoreConfigurationTests {
         let sut = SecureStorageConfiguration(id: "test_id", accessControlLevel: .currentBiometricsOrPasscode)
         #expect(sut.accessControlLevel.flags == [.privateKeyUsage, .biometryCurrentSet, .or, .devicePasscode])
     }
+
+    @Test
+    func localAuthStringsProvider() throws {
+        let localAuthStrings = LocalAuthenticationLocalizedStrings(
+            localizedReason: "reason",
+            localisedFallbackTitle: "fallbackTitle",
+            localisedCancelTitle: "cancelTitle"
+        )
+        
+        let sut = SecureStorageConfiguration(id: "test_id", accessControlLevel: .open, localAuthStringsProvider: {
+            return localAuthStrings
+        })
+
+        let expected: LocalAuthenticationLocalizedStrings = LocalAuthenticationLocalizedStrings(
+            localizedReason: "reason",
+            localisedFallbackTitle: "fallbackTitle",
+            localisedCancelTitle: "cancelTitle"
+        )
+        #expect(sut.localAuthStringsProvider() == expected)
+    }
 }

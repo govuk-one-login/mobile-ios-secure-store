@@ -1,4 +1,4 @@
-public struct LocalAuthenticationLocalizedStrings {
+public struct LocalAuthenticationLocalizedStrings: Sendable, Equatable {
     let localizedReason: String
     let localisedFallbackTitle: String
     let localisedCancelTitle: String
