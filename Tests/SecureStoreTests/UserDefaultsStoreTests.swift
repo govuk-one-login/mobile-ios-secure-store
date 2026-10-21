@@ -1,51 +1,52 @@
+import Foundation
 @testable import SecureStore
-import XCTest
+import Testing
 
-final class UserDefaultsStoreTests: XCTestCase {
-    var sut: DefaultsStore!
-    let defaults = UserDefaults.standard
-    
-    override func setUp() {
-        super.setUp()
-        
-        sut = UserDefaultsStore(userDefaults: defaults)
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        
-        sut = nil
+extension UserDefaultsStore {
+
+    static func makeWithMocks(userDefaults: UserDefaults = UserDefaults.standard) -> UserDefaultsStore {
+        return UserDefaultsStore(userDefaults: userDefaults)
     }
 }
 
-extension UserDefaultsStoreTests {
-    func test_saveItem() {
-        sut.saveItem(encyptedItem: "EncryptedItem", itemName: "ItemName")
-        
-        guard let testString = defaults.string(forKey: "ItemName") else {
-            XCTFail("cant find item name")
+@Suite
+struct UserDefaultsStoreTests {
+    @Test
+    func saveItem() {
+        let defaults = UserDefaults.standard
+        let sut: UserDefaultsStore = .makeWithMocks()
+        let itemName = UUID().uuidString
+        sut.saveItem(encyptedItem: "EncryptedItem", itemName: itemName)
+
+        guard let testString = defaults.string(forKey: itemName) else {
+            Issue.record("cant find item name")
             return
         }
-        
-        XCTAssertEqual(testString, "EncryptedItem")
+
+        #expect(testString == "EncryptedItem")
     }
     
-    func test_getItem() {
-        defaults.set("EncryptedItem", forKey: "ItemName")
-        
-        let item = sut.getItem(itemName: "ItemName")
-        
-        XCTAssertEqual(item, "EncryptedItem")
+    @Test
+    func getItem() {
+        let defaults = UserDefaults.standard
+        let itemName = UUID().uuidString
+        defaults.set("EncryptedItem", forKey: itemName)
+
+        let sut: UserDefaultsStore = .makeWithMocks(userDefaults: defaults)
+        let item = sut.getItem(itemName: itemName)
+
+        #expect(item == "EncryptedItem")
     }
     
-    func test_deleteItem() {
-        defaults.set("EncryptedItem", forKey: "ItemName")
-        
-        sut.deleteItem(itemName: "ItemName")
-        
-        if defaults.string(forKey: "ItemName") != nil {
-            XCTFail("cant delete item")
-            return
-        }
+    @Test
+    func deleteItem() {
+        let defaults = UserDefaults.standard
+        let itemName = UUID().uuidString
+        defaults.set("EncryptedItem", forKey: itemName)
+
+        let sut: UserDefaultsStore = .makeWithMocks(userDefaults: defaults)
+        sut.deleteItem(itemName: itemName)
+
+        #expect(defaults.string(forKey: itemName) == nil)
     }
 }
