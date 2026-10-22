@@ -1,8 +1,16 @@
 import Foundation
 
 public struct SecureStorageConfiguration {
+
+    public typealias LocalAuthenticationLocalizedStringsProvider = @Sendable () -> LocalAuthenticationLocalizedStrings?
+
+    public static let localAuthenticationLocalizedStringsProviderNil: LocalAuthenticationLocalizedStringsProvider = {
+        nil
+    }
+
     let id: String
     let accessControlLevel: AccessControlLevel
+    let localAuthStringsProvider: LocalAuthenticationLocalizedStringsProvider
     let localAuthStrings: LocalAuthenticationLocalizedStrings?
     
     public init(id: String,
@@ -11,8 +19,18 @@ public struct SecureStorageConfiguration {
         self.id = id
         self.accessControlLevel = accessControlLevel
         self.localAuthStrings = localAuthStrings
+        self.localAuthStringsProvider = Self.localAuthenticationLocalizedStringsProviderNil
     }
-    
+
+    public init(id: String,
+                accessControlLevel: AccessControlLevel,
+                localAuthStringsProvider: @escaping LocalAuthenticationLocalizedStringsProvider) {
+        self.id = id
+        self.accessControlLevel = accessControlLevel
+        self.localAuthStrings = nil
+        self.localAuthStringsProvider = localAuthStringsProvider
+    }
+
     public enum AccessControlLevel {
         case `open`
         case anyBiometricsOnly
