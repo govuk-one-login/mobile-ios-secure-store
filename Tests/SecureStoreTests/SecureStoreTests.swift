@@ -1,46 +1,50 @@
 import LocalAuthentication
 @testable import SecureStore
-import XCTest
+import Testing
 
-final class SecureStoreTests: XCTestCase {
-    var mockDefaultsStore: MockDefaultsStore!
-    var sut: SecureStoreService!
-    
-    override func setUp() {
-        super.setUp()
+extension SecureStoreService {
+    static func makeWithMocks(defaultsStore: DefaultsStore) -> SecureStoreService {
         
         let config = SecureStorageConfiguration(
             id: "New_ID",
             accessControlLevel: .open
         )
-        mockDefaultsStore = MockDefaultsStore()
-        sut = SecureStoreService(
+
+        return SecureStoreService(
             keyManagerService: KeyManagerService(configuration: config),
-            defaultsStore: mockDefaultsStore
+            defaultsStore: defaultsStore
         )
-    }
-    
-    override func tearDown() {
-        super.tearDown()
-        
-        mockDefaultsStore = nil
-        sut = nil
     }
 }
 
-extension SecureStoreTests {
-    func test_readItem() {
+struct SecureStoreTests {
+    @Test
+    func readItem() {
+        let mockDefaultsStore = MockDefaultsStore()
+        let sut: SecureStoreService = .makeWithMocks(defaultsStore: mockDefaultsStore)
+
         _ = sut.secureStoreDefaults.getItem(itemName: "ThisKey")
-        XCTAssertTrue(mockDefaultsStore.didCallGetItem)
+
+        #expect(mockDefaultsStore.didCallGetItem)
     }
     
-    func test_deleteItem() {
+    @Test
+    func deleteItem() {
+        let mockDefaultsStore = MockDefaultsStore()
+        let sut: SecureStoreService = .makeWithMocks(defaultsStore: mockDefaultsStore)
+
         _ = sut.secureStoreDefaults.deleteItem(itemName: "ThisKey")
-        XCTAssertTrue(mockDefaultsStore.didCallDeleteItem)
+
+        #expect(mockDefaultsStore.didCallDeleteItem)
     }
     
-    func test_saveItem() {
+    @Test
+    func saveItem() {
+        let mockDefaultsStore = MockDefaultsStore()
+        let sut: SecureStoreService = .makeWithMocks(defaultsStore: mockDefaultsStore)
+
         _ = sut.secureStoreDefaults.saveItem(encyptedItem: "Item", itemName: "ThisKey")
-        XCTAssertTrue(mockDefaultsStore.didCallSaveItem)
+
+        #expect(mockDefaultsStore.didCallSaveItem)
     }
 }
